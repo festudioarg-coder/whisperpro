@@ -49,6 +49,7 @@ GEMINI_KEY = (os.getenv("GEMINI_API_KEY", "") or os.getenv("GOOGLE_API_KEY", "")
 LOCAL_MODEL = os.getenv("DICTADO_LOCAL_MODEL", "small")
 HISTORY_FILE = os.path.join(BASE, "historial.jsonl")
 CLIP_FILE = os.path.join(BASE, "portapapeles.jsonl")
+ANIM = os.getenv("DICTADO_ANIM", "smooth").strip().lower()   # "smooth": la cápsula crece/achica animada · "cut": cambia de forma sin animar (solo fundido)
 KEEP_CLIP = os.getenv("DICTADO_CLIPBOARD", "1") == "1"   # dejar el dictado en el portapapeles al terminar
 LANG_NAMES = {"es": "español", "en": "inglés", "pt": "portugués"}
 
@@ -1905,8 +1906,24 @@ def run_web_ui():
         def show_at_home():
             u.SetWindowPos(hwnd, HWND_TOPMOST, WX, WY, WIN[0], WIN[1], 0x0010 | 0x0040)
 
+        try:
+            dwm = ctypes.windll.dwmapi
+        except Exception:
+            dwm = None
+
+        def vsync():
+            """Espera al próximo cuadro de pantalla (≈60 por segundo): cambiar la región más seguido que eso
+            solo agrega parpadeo, porque WebView2 no alcanza a repintar."""
+            try:
+                dwm.DwmFlush()
+            except Exception:
+                time.sleep(0.016)
+
         def animate(to, ms=240, frm=None, ease=ease_out):
-            """Animación por tiempo real (no por cantidad de pasos): fluida aunque el sistema vaya justo."""
+            """Animación por tiempo real (no por cantidad de pasos), un paso por cuadro de pantalla."""
+            if ANIM == "cut":
+                region(*to)
+                return
             fw, fh = frm or (vis["w"] or to[0], vis["h"] or to[1])
             t0 = time.perf_counter()
             while True:
@@ -1916,7 +1933,7 @@ def run_web_ui():
                     return
                 e = ease(k)
                 region(fw + (to[0] - fw) * e, fh + (to[1] - fh) * e)
-                time.sleep(0.004)
+                vsync()
 
         while True:
             try:
@@ -1950,7 +1967,10 @@ def run_web_ui():
                     if want == "off":
                         # sale suave: se desvanece mientras se achica; recién después se esconde la ventana
                         js("pillOut()")
-                        animate((vis["w"] * 0.72, max(2, vis["h"] * 0.5)), 190, ease=ease_in)
+                        if ANIM == "cut":
+                            time.sleep(0.22)         # deja que termine el fundido
+                        else:
+                            animate((vis["w"] * 0.72, max(2, vis["h"] * 0.5)), 190, ease=ease_in)
                         u.SetWindowPos(hwnd, HWND_TOPMOST, -5000, -5000, WIN[0], WIN[1], 0x0010)
                         vis["w"] = vis["h"] = 0
                         _mode["v"] = "mini"
@@ -1958,7 +1978,7 @@ def run_web_ui():
                         _mode["v"] = "full" if want == "full" else "mini"
                         if prev == "off":
                             # entra suave: arranca más chica y transparente y crece hasta su tamaño
-                            region(target[0] * 0.62, target[1] * 0.5)
+                            region(*(target if ANIM == "cut" else (target[0] * 0.62, target[1] * 0.5)))
                             show_at_home()
                             js("pillIn()")
                             animate(target, 320)
