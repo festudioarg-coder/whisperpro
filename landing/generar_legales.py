@@ -316,12 +316,14 @@ CLAVE = f"""
 {_fig("groq-1.png", "Pantalla de inicio de sesión de Groq", "Pantalla de Groq: elegí «Continue with Google» o el método que prefieras.")}</div></div>
 
 <div class="paso"><span class="n">2</span><div><h3>Creá la clave</h3>
-<p>Tocá <span class="kbd">Create API Key</span>, escribí cualquier nombre (por ejemplo «WhisperPRO») y apretá <span class="kbd">Submit</span>.</p>
-{_fig("groq-2.png", "Botón Create API Key de Groq", "Poné cualquier nombre.")}</div></div>
+<p>Una vez dentro, en la sección <b>API Keys</b>, tocá <span class="kbd">Create API Key</span>.</p>
+{_fig("groq-2.png", "Sección API Keys de Groq con el botón Create API Key", "En API Keys, tocá «Create API Key».")}
+<p>Se abre una ventana: en <span class="kbd">Display Name</span> escribí cualquier nombre (por ejemplo «WhisperPRO»), dejá <span class="kbd">Expiration</span> en <span class="kbd">No expiration</span> para que la clave no venza, y esperá un segundo a que <b>Cloudflare</b> termine de verificar que sos una persona (se tilda solo). Después confirmá con el botón de crear de esa ventana.</p>
+{_fig("groq-3.png", "Ventana Create API Key de Groq con el nombre y la verificación de Cloudflare", "Poné un nombre y esperá la verificación de Cloudflare.")}</div></div>
 
 <div class="paso"><span class="n">3</span><div><h3>Copiala</h3>
-<p>Apretá <span class="kbd">Copy</span>. La clave empieza con <span class="kbd">gsk_</span> y Groq te la muestra <b>una sola vez</b>. No hace falta que la guardes ni la pegues en ningún lado.</p>
-{_fig("groq-3.png", "Clave copiada en Groq", "Apretá Copy.")}</div></div>
+<p>Groq te muestra la clave nueva. Apretá <span class="kbd">Copy</span>. Empieza con <span class="kbd">gsk_</span> y la muestra <b>una sola vez</b>. No hace falta que la guardes ni la pegues en ningún lado: WhisperPRO la toma del portapapeles.</p>
+{_fig("groq-4.png", "Clave nueva en Groq con el botón Copy", "Apretá Copy.")}</div></div>
 
 <h2 id="poner">Cómo ponerla en WhisperPRO</h2>
 <p>Abrí WhisperPRO por primera vez: aparece solo la pantalla <b>«Conectá WhisperPRO»</b>, con el Guía.</p>
