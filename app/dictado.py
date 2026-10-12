@@ -1712,7 +1712,18 @@ class PanelAPI:
                 "pretty": {"rec": [hk.pretty(r["combo"]) for r in cfg["rec"]],
                            "shot_region": hk.pretty(cfg["shot_region"]["combo"]),
                            "shot_full": hk.pretty(cfg["shot_full"]["combo"])},
-                "data_dir": BASE, "plan": _plan["plan"], "plan_detalle": _plan["detalle"]}
+                "data_dir": BASE, "plan": _plan["plan"], "plan_detalle": _plan["detalle"],
+                "prueba": lic.estado_prueba(BASE)}
+
+    def iniciar_prueba(self):
+        """Prueba gratis de Pro por 30 días, una sola vez por PC."""
+        ok, res = lic.iniciar_prueba(BASE)
+        if not ok:
+            return {"ok": False, "error": res}
+        refresh_plan()
+        apply_settings(load_settings())
+        log("prueba gratis de Pro iniciada")
+        return dict(self._settings_view(), ok=True)
 
     def activar_licencia(self, texto):
         """El usuario pega la licencia que le enviamos; se verifica sin conexión y se guarda en su PC."""
@@ -1731,6 +1742,9 @@ class PanelAPI:
         return dict(self._settings_view(), ok=True)
 
     def get_settings(self):
+        antes = _plan["plan"]
+        if refresh_plan() != antes:      # por ejemplo, venció la prueba con la app abierta
+            apply_settings(load_settings())
         return self._settings_view()
 
     def open_site(self):

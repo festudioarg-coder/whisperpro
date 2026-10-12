@@ -178,7 +178,74 @@ def verificar(texto, hoy=None, publica_hex=None):
     return True, lic
 
 
-def plan_efectivo(carpeta_datos, congelado=False, entorno=None):
+# ------------------------------------------------------------------ Prueba gratis de Pro ---
+ARCHIVO_PRUEBA = "prueba.json"
+DIAS_PRUEBA = 30
+_REG_CLAVE = r"Software\FESTUDIOS\WhisperPRO"
+
+
+def _reg_leer():
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, _REG_CLAVE) as k:
+            return winreg.QueryValueEx(k, "prueba")[0]
+    except Exception:
+        return None
+
+
+def _reg_escribir(valor):
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, _REG_CLAVE) as k:
+            winreg.SetValueEx(k, "prueba", 0, winreg.REG_SZ, valor)
+    except Exception:
+        pass
+
+
+def _inicio_prueba(carpeta):
+    """La fecha más antigua entre el archivo y el registro: borrar uno solo no reinicia la prueba."""
+    fechas = []
+    try:
+        with open(os.path.join(carpeta, ARCHIVO_PRUEBA), encoding="utf-8") as f:
+            fechas.append(date.fromisoformat(json.load(f)["inicio"]))
+    except Exception:
+        pass
+    try:
+        r = _reg_leer()
+        if r:
+            fechas.append(date.fromisoformat(r))
+    except Exception:
+        pass
+    return min(fechas) if fechas else None
+
+
+def estado_prueba(carpeta, hoy=None):
+    """{'estado': 'nunca'|'activa'|'vencida', 'dias': días que quedan, 'vence': 'AAAA-MM-DD'}"""
+    hoy = hoy or date.today()
+    ini = _inicio_prueba(carpeta)
+    if ini is None:
+        return {"estado": "nunca", "dias": DIAS_PRUEBA, "vence": ""}
+    vence = date.fromordinal(ini.toordinal() + DIAS_PRUEBA)
+    quedan = (vence - hoy).days
+    return {"estado": "activa" if quedan >= 0 else "vencida", "dias": max(quedan, 0), "vence": vence.isoformat()}
+
+
+def iniciar_prueba(carpeta, hoy=None):
+    """Arranca la prueba de 30 días (una sola vez por PC). Devuelve (True, estado) o (False, mensaje)."""
+    hoy = hoy or date.today()
+    est = estado_prueba(carpeta, hoy)
+    if est["estado"] != "nunca":
+        return False, "La prueba gratis ya se usó en esta PC."
+    try:
+        with open(os.path.join(carpeta, ARCHIVO_PRUEBA), "w", encoding="utf-8") as f:
+            json.dump({"inicio": hoy.isoformat()}, f)
+    except OSError:
+        return False, "No se pudo iniciar la prueba en esta PC."
+    _reg_escribir(hoy.isoformat())
+    return True, estado_prueba(carpeta, hoy)
+
+
+def plan_efectivo(carpeta_datos, congelado=False, entorno=None, hoy=None):
     """('pro'|'gratis', detalle). En modo desarrollo (no instalado) WHISPERPRO_PLAN=pro fuerza Pro para probar."""
     entorno = os.environ if entorno is None else entorno
     if not congelado and entorno.get("WHISPERPRO_PLAN", "").strip().lower() == "pro":
@@ -187,11 +254,17 @@ def plan_efectivo(carpeta_datos, congelado=False, entorno=None):
         with open(os.path.join(carpeta_datos, ARCHIVO_LICENCIA), encoding="utf-8") as f:
             texto = f.read()
     except OSError:
-        return "gratis", ""
-    ok, res = verificar(texto)
-    if ok:
-        return "pro", res.get("email", "")
-    return "gratis", res
+        texto = None
+    if texto is not None:
+        ok, res = verificar(texto)
+        if ok:
+            return "pro", res.get("email", "")
+        motivo = res
+    else:
+        motivo = ""
+    if estado_prueba(carpeta_datos, hoy)["estado"] == "activa":
+        return "pro", "prueba"
+    return "gratis", motivo
 
 
 def ajustes_para_plan(cfg, plan, defaults):

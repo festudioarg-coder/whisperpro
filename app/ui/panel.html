@@ -147,9 +147,7 @@ footer .keys span{display:flex;align-items:center;gap:5px}
 .sp-head{display:flex;align-items:center;justify-content:space-between}
 .sp-head h2{margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em}
 #settings.free .pro-only button,#settings.free .pro-only .sw,#settings.free .pro-only .seg{opacity:.4;pointer-events:none}
-#settings.free #addrec{display:none!important}
-.probadge{display:none;margin-left:8px;font:600 10px var(--mono,monospace);letter-spacing:.08em;padding:2px 7px;border-radius:99px;background:linear-gradient(135deg,#8b5cf6,#c084fc);color:#fff;vertical-align:middle}
-#settings.free .probadge{display:inline-block}
+.probadge{display:inline-block;margin-left:8px;font:600 10px var(--mono,monospace);letter-spacing:.08em;padding:2px 7px;border-radius:99px;background:linear-gradient(135deg,#8b5cf6,#c084fc);color:#fff;vertical-align:middle}
 #lic-txt{width:100%;box-sizing:border-box;margin:8px 0;background:var(--bg,#0b0c12);color:var(--tx,#e8eaf2);border:1px solid var(--line);border-radius:8px;padding:8px;font:11px var(--mono,monospace);resize:vertical}
 .grp{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
 .gh{display:flex;align-items:baseline;gap:12px;padding:12px 16px;background:#0f1118;border-bottom:1px solid var(--line)}
@@ -299,19 +297,20 @@ button.b:hover{filter:brightness(1.15)}
 
   <div class="grp planbox">
    <div class="gh"><b>Tu plan: <span id="plan-name">Gratis</span></b><span id="plan-sub"></span></div>
+   <div class="gb" id="plan-pro" style="display:none"><div class="note" id="plan-pro-note"></div></div>
    <div class="gb" id="plan-free">
-    <div class="note">Con el plan Gratis los atajos vienen listos y fijos (Win + Espacio para dictar, historial y deshacer). <b>Pro</b> suma elegir tus propias combinaciones, un segundo atajo y las capturas de pantalla.</div>
+    <div class="note" id="free-note">Con el plan Gratis los atajos vienen listos y fijos (Win + Espacio para dictar, historial y deshacer). <b>Pro</b> suma elegir tus propias combinaciones, un segundo atajo y las capturas de pantalla.</div>
+    <div id="trial-box"><button class="btn sm" id="btrial" onclick="iniciarPrueba()">Probar Pro 1 mes gratis</button> <span class="note" id="trial-note" style="margin:0 0 0 8px"></span></div>
     <textarea id="lic-txt" rows="3" spellcheck="false" placeholder="Pegá acá la licencia que te enviamos (todo el texto)"></textarea>
     <div><button class="btn sm" onclick="activarLic()">Activar Pro</button> <button class="btn sm" onclick="openPlan(event)">Ver el plan Pro</button></div>
    </div>
-   <div class="gb" id="plan-pro" style="display:none"><div class="note" id="plan-pro-note"></div></div>
   </div>
 
   <div class="grp" id="g-rec">
    <div class="gh"><b>Atajos de grabación</b><span class="probadge">PRO</span><span id="rec-sub">hasta 2 · se guardan al instante</span></div>
    <div class="gb">
     <div id="recrows"></div>
-    <div><button class="btn sm" id="addrec" onclick="pick('rec1')">+ Agregar un segundo atajo</button></div>
+    <div><button class="btn sm" id="addrec" onclick="pick('rec1')">+ Agregar un segundo atajo <span class="probadge" style="margin:0 0 0 4px">PRO</span></button></div>
     <div class="note"><b>Pulsar:</b> el atajo empieza a grabar y la tecla final, sola, corta. <b>Mantener:</b> grabás mientras lo tenés apretado y cortás al soltar. Esc cancela la grabación.</div>
    </div>
   </div>
@@ -507,10 +506,13 @@ function renderSettings(){
   const c=S.cfg,pro=S.plan==='pro';
   $('settings').classList.toggle('free',!pro);
   $('g-rec').classList.toggle('pro-only',!pro);$('g-shot').classList.toggle('pro-only',!pro);
-  $('plan-name').textContent=pro?'Pro':'Gratis';
-  $('plan-sub').textContent=pro?'licencia activa':'atajos de fábrica';
-  $('plan-free').style.display=pro?'none':'';$('plan-pro').style.display=pro?'':'none';
-  $('plan-pro-note').textContent='Licencia activa'+(S.plan_detalle?' para '+S.plan_detalle:'')+'. Podés elegir tus atajos y usar las capturas.';
+  const pr=S.prueba||{},enPrueba=pro&&S.plan_detalle==='prueba';
+  $('plan-name').textContent=pro?(enPrueba?'Pro (prueba gratis)':'Pro'):'Gratis';
+  $('plan-sub').textContent=enPrueba?'te quedan '+pr.dias+(pr.dias===1?' día':' días'):pro?'licencia activa':'atajos de fábrica';
+  $('trial-box').style.display=(pr.estado==='nunca'||pr.estado==='vencida')?'':'none';$('btrial').style.display=pr.estado==='nunca'?'':'none';
+  $('trial-note').textContent=pr.estado==='vencida'?'Tu prueba gratis terminó. Con una licencia seguís con Pro.':'';
+  $('plan-free').style.display=(!pro||enPrueba)?'':'none';$('free-note').style.display=pro?'none':'';$('plan-pro').style.display=pro?'':'none';
+  $('plan-pro-note').textContent=enPrueba?'Prueba gratis hasta el '+pr.vence+'. Después vuelven los atajos de fábrica, salvo que actives una licencia (pegala acá abajo).':'Licencia activa'+(S.plan_detalle?' para '+S.plan_detalle:'')+'. Podés elegir tus atajos y usar las capturas.';
   $('rec-sub').textContent=pro?'hasta 2 · se guardan al instante':'fijos en el plan Gratis';
   $('recrows').innerHTML=c.rec.map((r,i)=>'<div class="row2"><div class="lbl">Atajo '+(i+1)+'<small>'+(r.mode==='hold'?'mantené apretado para grabar':'pulsá para empezar, la tecla final corta')+'</small></div>'
     +comboCell('rec'+i,S.pretty.rec[i])+'<button class="btn sm" onclick="pick(\'rec'+i+'\')">Cambiar</button><span class="spacer"></span>'
@@ -525,6 +527,11 @@ function renderSettings(){
   $('shotdir').textContent='Imágenes\\WhisperPRO';
   $('k-hist').innerHTML=comboHtml(S.hist);$('k-undo').innerHTML=comboHtml(S.undo);
   $('datadir').textContent=S.data_dir||'';
+}
+async function iniciarPrueba(){
+  const r=await api('iniciar_prueba');
+  if(r&&r.ok){S=r;showErr('');toast('Prueba de Pro activada: 30 días');}else showErr((r&&r.error)||'No se pudo iniciar la prueba');
+  renderSettings();
 }
 async function activarLic(){
   const t=$('lic-txt').value.trim();if(!t){showErr('Pegá primero la licencia.');return;}

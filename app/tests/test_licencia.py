@@ -78,6 +78,33 @@ class Licencias(unittest.TestCase):
             self.assertEqual(L.plan_efectivo(d, congelado=True, entorno={"WHISPERPRO_PLAN": "pro"})[0], "gratis")
 
 
+class Prueba(unittest.TestCase):
+    def setUp(self):
+        self._r = (L._reg_leer, L._reg_escribir)
+        L._reg_leer = lambda: None
+        L._reg_escribir = lambda v: None
+
+    def tearDown(self):
+        L._reg_leer, L._reg_escribir = self._r
+
+    def test_prueba_30_dias_una_sola_vez(self):
+        with tempfile.TemporaryDirectory() as d:
+            h = date(2026, 10, 12)
+            self.assertEqual(L.estado_prueba(d, h)["estado"], "nunca")
+            self.assertEqual(L.plan_efectivo(d, entorno={}, hoy=h)[0], "gratis")
+            ok, est = L.iniciar_prueba(d, h)
+            self.assertTrue(ok); self.assertEqual(est["dias"], 30)
+            self.assertEqual(L.plan_efectivo(d, entorno={}, hoy=date(2026, 11, 11))[0], "pro")
+            self.assertEqual(L.plan_efectivo(d, entorno={}, hoy=date(2026, 11, 12))[0], "gratis")
+            self.assertEqual(L.estado_prueba(d, date(2026, 11, 20))["estado"], "vencida")
+            self.assertFalse(L.iniciar_prueba(d, date(2026, 12, 1))[0])
+
+    def test_registro_evita_reiniciar_borrando_el_archivo(self):
+        with tempfile.TemporaryDirectory() as d:
+            L._reg_leer = lambda: "2026-01-01"
+            self.assertEqual(L.estado_prueba(d, date(2026, 10, 12))["estado"], "vencida")
+
+
 class Gating(unittest.TestCase):
     def test_gratis_fuerza_los_atajos_de_fabrica(self):
         defaults = H.default_settings("win+space")
