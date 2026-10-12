@@ -3,7 +3,7 @@
 #define AppName "WhisperPRO"
 #define AppVersion GetEnv("WP_VERSION")
 #if AppVersion == ""
-  #define AppVersion "0.6.4"
+  #define AppVersion "6.15.0"
 #endif
 #define AppPublisher "FESTUDIOS"
 #define AppExe "WhisperPRO.exe"

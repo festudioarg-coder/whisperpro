@@ -3,7 +3,9 @@ import os
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 ROOT = os.path.abspath(os.path.join(SPECPATH, ".."))
-datas = [(os.path.join(ROOT, "ui"), "ui"), (os.path.join(ROOT, ".env.example"), ".")]
+datas = [(os.path.join(ROOT, "ui"), "ui"), (os.path.join(ROOT, ".env.example"), "."),
+         (os.path.join(ROOT, "logo-tray.png"), "."),                  # ícono de la bandeja
+         (os.path.join(ROOT, "licencia_clave_publica.txt"), ".")]     # sin esto nadie podría activar Pro
 datas += collect_data_files("webview")
 datas += collect_data_files("sounddevice")
 hidden = collect_submodules("webview") + collect_submodules("pystray") + ["PIL._tkinter_finder", "comtypes"]

@@ -11,10 +11,11 @@ __pycache__/
 *.pyc
 node_modules/
 dist/
-# build/ se ignora, salvo los dos archivos que build.bat necesita
+# build/ se ignora, salvo los archivos que build.bat necesita
 **/build/*
 !**/build/WhisperPRO.spec
 !**/build/instalador.iss
+!**/build/version_info.py
 
 # licencias: claves y archivos emitidos nunca van a git
 *.key
