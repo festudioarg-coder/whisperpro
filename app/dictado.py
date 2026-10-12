@@ -34,7 +34,7 @@ else:
 ENV_PATH = os.path.join(BASE, ".env")
 load_dotenv(ENV_PATH)
 
-VERSION = "v6.14"
+VERSION = "v6.15"
 DEBUG = os.getenv("DICTADO_DEBUG", "0") == "1"
 HOTKEY = os.getenv("DICTADO_HOTKEY", "win+space")
 HISTORY_KEY = os.getenv("DICTADO_HISTORY_KEY", "h")
@@ -542,14 +542,44 @@ def _backspace(n: int):
         _injecting = False
 
 
+def _clip_has_nontext() -> bool:
+    """True si el portapapeles tiene una imagen o archivos copiados (eso no se puede guardar como texto)."""
+    if os.name != "nt":
+        return False
+    try:
+        import ctypes
+        f = ctypes.windll.user32.IsClipboardFormatAvailable
+        return bool(f(2) or f(8) or f(15))   # CF_BITMAP, CF_DIB, CF_HDROP
+    except Exception:
+        return False
+
+
+def _snapshot_clipboard():
+    """Foto del portapapeles al empezar a grabar: así lo que habías copiado antes nunca se pierde."""
+    try:
+        _clip_before["text"] = pyperclip.paste()
+    except Exception:
+        _clip_before["text"] = None
+    _clip_before["nontext"] = _clip_has_nontext()
+    t = _clip_before["text"]
+    if t and t.strip():
+        save_clip(t, "anterior")   # queda a salvo en el historial aunque después copies otra cosa
+    elif _clip_before["nontext"]:
+        log("portapapeles con imagen o archivos: el dictado lo va a reemplazar (no se puede guardar como texto)")
+
+
 def _paste(text: str):
     global _injecting
+    before = _clip_before["text"]            # lo que había al empezar a grabar
     try:
-        prev = pyperclip.paste()
+        now = pyperclip.paste()              # lo que hay ahora (puede ser otra cosa si copiaste mientras grababas)
     except Exception:
-        prev = None
-    if prev and prev.strip() != text.strip():
-        save_clip(prev, "anterior")   # lo que había antes queda recuperable en Bloq Mayús + H
+        now = None
+    _clip_before["text"], _clip_before["nontext"] = None, False
+    for c in (before, now):
+        if c and c.strip() != text.strip():
+            save_clip(c, "anterior")         # queda recuperable en la Memoria de voz (Portapapeles); no repite lo ya guardado
+    prev = now if now is not None else before
     pyperclip.copy(text)
     time.sleep(0.04)
     _injecting = True
@@ -610,7 +640,9 @@ def undo_last():
 _frames = []
 _stream = None
 _recording = False
+_starting = False   # True desde que se aprieta el atajo hasta que el micrófono quedó abierto (el hook no puede esperar)
 _rec_lock = threading.Lock()
+_clip_before = {"text": None, "nontext": False}   # lo que había copiado ANTES de empezar a grabar
 _session = 0  # id de la grabación actual (para descartar resultados viejos)
 
 
@@ -780,6 +812,28 @@ def start_recording():
         set_state("listening")
         log("grabando...")
         threading.Thread(target=_live_loop, args=(_session,), daemon=True).start()
+    _snapshot_clipboard()
+
+
+def _start_async():
+    """Se llama desde el hook del teclado: NO puede bloquear (abrir el micrófono tarda y Windows
+    desactiva los hooks lentos, lo que traba el teclado de toda la PC). Todo corre en otro hilo."""
+    global _starting
+    _starting = True
+
+    def run():
+        global _starting
+        try:
+            start_recording()
+        except Exception as e:
+            log(f"error al empezar a grabar: {e}")
+        finally:
+            _starting = False
+    threading.Thread(target=run, daemon=True, name="rec-start").start()
+
+
+def _stop_async():
+    threading.Thread(target=stop_recording, daemon=True, name="rec-stop").start()
 
 
 def cancel_recording():
@@ -883,27 +937,149 @@ def _finish(frames, secs):
 # =====================================================================
 # Atajos de teclado
 # =====================================================================
-CAPS_SC, SPACE_SC = 58, 57
+# =====================================================================
+# Capturas de pantalla
+# =====================================================================
+def _copy_image(img):
+    """Deja la imagen en el portapapeles de Windows (formato DIB: la pegan Paint, WhatsApp, Word, el navegador...)."""
+    import io
+    import ctypes
+    from ctypes import wintypes
+    buf = io.BytesIO()
+    img.convert("RGB").save(buf, "BMP")
+    data = buf.getvalue()[14:]                      # sin el encabezado de archivo BMP: el portapapeles usa DIB
+    k, u = ctypes.windll.kernel32, ctypes.windll.user32
+    k.GlobalAlloc.argtypes = [wintypes.UINT, ctypes.c_size_t]
+    k.GlobalAlloc.restype = wintypes.HGLOBAL
+    k.GlobalLock.argtypes = [wintypes.HGLOBAL]
+    k.GlobalLock.restype = ctypes.c_void_p
+    k.GlobalUnlock.argtypes = [wintypes.HGLOBAL]
+    u.OpenClipboard.argtypes = [wintypes.HWND]
+    u.SetClipboardData.argtypes = [wintypes.UINT, wintypes.HANDLE]
+    u.SetClipboardData.restype = wintypes.HANDLE
+    h = k.GlobalAlloc(0x0002, len(data))            # GMEM_MOVEABLE
+    p = k.GlobalLock(h)
+    ctypes.memmove(p, data, len(data))
+    k.GlobalUnlock(h)
+    for _ in range(10):                             # otro programa puede tener el portapapeles tomado un instante
+        if u.OpenClipboard(None):
+            break
+        time.sleep(0.05)
+    else:
+        raise RuntimeError("el portapapeles está ocupado")
+    try:
+        u.EmptyClipboard()
+        u.SetClipboardData(8, h)                    # CF_DIB
+    finally:
+        u.CloseClipboard()
 
 
-WIN_SCS = (91, 92)
+def take_screenshot(kind):
+    """kind='region': abre el selector de recortes de Windows (el mismo de Win+Shift+S).
+    kind='full': toda la pantalla (todos los monitores) al portapapeles, y a la carpeta Imágenes\\WhisperPRO si está activado."""
+    try:
+        if kind == "region":
+            os.startfile("ms-screenclip:")
+            log("captura: selector de región abierto")
+            return
+        from PIL import ImageGrab
+        img = ImageGrab.grab(all_screens=True)
+        _copy_image(img)
+        msg = "Captura de pantalla completa copiada al portapapeles"
+        if _settings.get("shot_save", True):
+            folder = os.path.join(os.path.expanduser("~"), "Pictures", "WhisperPRO")
+            os.makedirs(folder, exist_ok=True)
+            path = os.path.join(folder, datetime.now().strftime("captura_%Y%m%d_%H%M%S.png"))
+            img.save(path)
+            msg += "\nGuardada en " + path
+            log(f"captura completa guardada en {path}")
+        else:
+            log("captura completa copiada al portapapeles")
+        UI["discarded"], UI["elapsed"] = 0, 0.0
+        set_state("done", msg)
+    except Exception as e:
+        log(f"ERROR en la captura de pantalla ({kind}): {e}")
+        set_state("error", "No se pudo capturar la pantalla")
 
 
-def _setup_win_mode(second_key: str):
-    """Win + Espacio: empieza a grabar (podés soltar). Espacio solo: corta. Win+H historial, Win+Z deshacer."""
-    st = {"win": False, "used": False}
-    cnt = [0]
+# =====================================================================
+# Atajos (el motor está en hotkeys.py; acá se conecta con la grabación)
+# =====================================================================
+import hotkeys as hk
 
-    def is_win(e):
-        return e.scan_code in WIN_SCS or (e.name or "").lower() in ("left windows", "right windows", "windows", "win")
+SETTINGS_FILE = os.path.join(BASE, "settings.json")     # configuración: solo en esta PC
+_settings = {}
+_engine = None
 
-    def is_second(e):
-        if second_key == "space":
-            return e.scan_code == SPACE_SC or (e.name or "").lower() in ("space", "espacio")
-        return (e.name or "").lower() == second_key
 
-    def eat_win():
-        # Windows abre el menú Inicio si soltás Win sin otra tecla "vista"; le mandamos un Ctrl para que no lo haga
+def load_settings():
+    raw = None
+    try:
+        with open(SETTINGS_FILE, encoding="utf-8") as f:
+            raw = json.load(f)
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        log(f"settings.json ilegible ({e}); uso los atajos por defecto")
+    cfg = hk.normalize_settings(raw, HOTKEY)
+    ok, msg = hk.validate(cfg, HISTORY_KEY)
+    if not ok:
+        log(f"atajos guardados inválidos ({msg}); uso los de por defecto")
+        cfg = hk.default_settings(HOTKEY)
+    return cfg
+
+
+def write_settings(cfg):
+    tmp = SETTINGS_FILE + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(cfg, f, ensure_ascii=False, indent=2)
+    os.replace(tmp, SETTINGS_FILE)
+
+
+def _first_mods_text(cfg):
+    mods, _, _ = hk.parse_combo(cfg["rec"][0]["combo"])
+    return hk.pretty("+".join(m for m in hk.MOD_ORDER if m in mods)) or "Ctrl + Alt"
+
+
+def apply_settings(cfg):
+    global _settings
+    _settings = cfg
+    _hint["key"] = _first_mods_text(cfg)
+    if _engine is not None:
+        _engine.set_bindings(hk.build_bindings(cfg, HISTORY_KEY))
+
+
+class _HotkeyActions:
+    """Lo que el motor de atajos le pide a la app. Corre dentro del hook del teclado: nada lento acá."""
+
+    def start(self, b):
+        _start_async()
+
+    def stop(self):
+        _confirm["at"] = 0.0
+        _stop_async()
+
+    def is_recording(self):
+        return _recording or _starting
+
+    def esc(self, down):
+        if down:
+            if confirm_active():
+                threading.Thread(target=cancel_recording, daemon=True).start()
+            else:
+                _confirm["at"] = time.time()
+
+    def shot(self, kind):
+        threading.Thread(target=take_screenshot, args=(kind,), daemon=True, name="captura").start()
+
+    def history(self):
+        UI["open_history"] = True
+
+    def undo(self):
+        threading.Thread(target=undo_last, daemon=True).start()
+
+    def win_used(self):
+        # al soltar Win sin otra tecla "vista", Windows abre el menú Inicio: le mandamos un Ctrl para que no lo haga
         global _injecting
         _injecting = True
         try:
@@ -911,133 +1087,42 @@ def _setup_win_mode(second_key: str):
         finally:
             _injecting = False
 
-    def hook(e):
-        if _injecting:
-            return True
-        if DEBUG and cnt[0] < 40:
-            cnt[0] += 1
-            print(f"[key] {e.event_type:<4} name={e.name!r} sc={e.scan_code}", flush=True)
-        name = (e.name or "").lower()
-        if is_win(e):
-            st["win"] = e.event_type == "down"
-            if not st["win"]:
-                st["used"] = False
-            return True
-        if e.scan_code == 1 or name in ("esc", "escape"):
-            if _recording:
-                if e.event_type == "down":
-                    if confirm_active():
-                        threading.Thread(target=cancel_recording, daemon=True).start()
-                    else:
-                        _confirm["at"] = time.time()
-                return False                  # el Esc no le llega a la app mientras grabás
-            return True
-        if is_second(e):
-            if e.event_type == "down":
-                if _recording:
-                    _confirm["at"] = 0.0
-                    stop_recording()          # Espacio solo corta la grabación
-                    return False
-                if st["win"] and not st["used"]:
-                    st["used"] = True
-                    eat_win()
-                    start_recording()
-                    return False
-            elif _recording or st["used"]:
-                return False                  # no dejar pasar la suelta del espacio que usamos
-            return True
-        if st["win"] and e.event_type == "down":
-            if name == HISTORY_KEY.lower():
-                st["used"] = True
-                eat_win()
-                UI["open_history"] = True
-                return False
-            if name == "z":
-                st["used"] = True
-                eat_win()
-                threading.Thread(target=undo_last, daemon=True).start()
-                return False
-        return True
+    def send_caps(self):
+        global _injecting
+        _injecting = True
+        try:
+            keyboard.send("caps lock")
+        finally:
+            _injecting = False
 
-    keyboard.hook(hook, suppress=True)
-    log(f"atajo: Win + {second_key} empieza (soltá las teclas) · {second_key} corta · historial: Win + {HISTORY_KEY} · deshacer: Win + Z")
+
+_key_dbg = [0]
+
+
+def _kb_hook(e):
+    if _injecting:
+        return True
+    if DEBUG and _key_dbg[0] < 40:
+        _key_dbg[0] += 1
+        print(f"[key] {e.event_type:<4} name={e.name!r} sc={e.scan_code}", flush=True)
+    try:
+        return _engine.on_event(e.name, e.scan_code, e.event_type == "down")
+    except Exception as ex:
+        log(f"error en el hook de teclado: {ex}")
+        return True
 
 
 def setup_hotkeys():
-    parts = [p.strip().lower() for p in HOTKEY.split("+")]
-    if parts[0] in ("win", "windows", "cmd", "super"):
-        _setup_win_mode(parts[-1] if len(parts) > 1 else "space")
-        return
-    if parts[0] not in ("caps lock", "capslock", "bloq mayus", "bloq mayús"):
-        keyboard.add_hotkey(HOTKEY, start_recording, trigger_on_release=False)
-        keyboard.on_release_key(parts[-1], lambda e: stop_recording())
-        keyboard.add_hotkey(f"ctrl+alt+{HISTORY_KEY}", lambda: UI.__setitem__("open_history", True))
-        log(f"atajo: {HOTKEY} (mantener) | historial: ctrl+alt+{HISTORY_KEY}")
-        return
-
-    second = parts[-1] if len(parts) > 1 else "space"
-    st = {"caps": False, "used": False, "passthrough": False}
-    cnt = [0]
-
-    def is_caps(e):
-        return e.scan_code == CAPS_SC or (e.name or "").lower() in ("caps lock", "bloq mayús", "bloq mayus")
-
-    def is_second(e):
-        if second == "space":
-            return e.scan_code == SPACE_SC or (e.name or "").lower() in ("space", "espacio")
-        return (e.name or "").lower() == second
-
-    def is_hist(e):
-        return (e.name or "").lower() == HISTORY_KEY.lower()
-
-    def is_undo(e):
-        return (e.name or "").lower() == "z"
-
-    def hook(e):
-        if _injecting:
-            return True
-        if DEBUG and cnt[0] < 40:
-            cnt[0] += 1
-            print(f"[key] {e.event_type:<4} name={e.name!r} sc={e.scan_code}", flush=True)
-        if is_caps(e):
-            if st["passthrough"]:
-                return True
-            if e.event_type == "down":
-                if not st["caps"]:
-                    st["caps"], st["used"] = True, False
-                return False
-            st["caps"] = False
-            if st["used"]:
-                stop_recording()
-            else:
-                st["passthrough"] = True
-                try:
-                    keyboard.send("caps lock")
-                finally:
-                    st["passthrough"] = False
-            return False
-        if st["caps"] and is_second(e):
-            if e.event_type == "down":
-                if not st["used"]:
-                    st["used"] = True
-                    start_recording()
-            else:
-                stop_recording()
-            return False
-        if st["caps"] and is_hist(e):
-            st["used"] = True
-            if e.event_type == "down":
-                UI["open_history"] = True
-            return False
-        if st["caps"] and is_undo(e):
-            st["used"] = True
-            if e.event_type == "down":
-                threading.Thread(target=undo_last, daemon=True).start()
-            return False
-        return True
-
-    keyboard.hook(hook, suppress=True)
-    log(f"atajo: Bloq Mayús + {second} (mantener) | historial: Bloq Mayús + {HISTORY_KEY} | deshacer: Bloq Mayús + Z")
+    global _engine
+    cfg = load_settings()
+    _engine = hk.HotkeyEngine(_HotkeyActions(), hk.build_bindings(cfg, HISTORY_KEY))
+    apply_settings(cfg)
+    keyboard.hook(_kb_hook, suppress=True)
+    desc = " · ".join(f"{hk.pretty(r['combo'])} ({'mantener' if r['mode'] == 'hold' else 'pulsar'})" for r in cfg["rec"])
+    log(f"atajos de grabación: {desc} | historial/deshacer: {_hint['key']} + {HISTORY_KEY.upper()}/Z")
+    for k, label in (("shot_region", "captura de región"), ("shot_full", "captura completa")):
+        if cfg[k]["enabled"]:
+            log(f"{label}: {hk.pretty(cfg[k]['combo'])}")
 
 
 # =====================================================================
@@ -1543,7 +1628,66 @@ class PanelAPI:
         items.reverse()
         allh = load_history(5000)
         mins = sum(e.get("segundos", 0) for e in allh) / 60
-        return {"items": items[:300], "stat": f"{len(allh)} dictados · {mins:.0f} min hablados"}
+        counts = {"dictados": len(allh), "clips": len(load_clips(500)),
+                  "desc": sum(1 for e in allh if e.get("descartado"))}
+        return {"items": items[:300], "counts": counts, "stat": f"{len(allh)} dictados · {mins:.0f} min hablados"}
+
+    # --- ajustes: atajos y capturas ---
+    def info(self):
+        motor = next((n for n, k, _ in STT if k), f"Whisper local ({LOCAL_MODEL})")
+        return {"version": VERSION, "engine": motor}
+
+    def _settings_view(self):
+        cfg = _settings
+        return {"cfg": cfg, "hist": f"{_hint['key']} + {HISTORY_KEY.upper()}", "undo": f"{_hint['key']} + Z",
+                "pretty": {"rec": [hk.pretty(r["combo"]) for r in cfg["rec"]],
+                           "shot_region": hk.pretty(cfg["shot_region"]["combo"]),
+                           "shot_full": hk.pretty(cfg["shot_full"]["combo"])},
+                "data_dir": BASE}
+
+    def get_settings(self):
+        return self._settings_view()
+
+    def open_data_dir(self):
+        """Abre la carpeta donde viven los datos del usuario (historial, portapapeles, ajustes, clave)."""
+        try:
+            os.startfile(BASE)
+        except Exception as e:
+            log(f"no pude abrir la carpeta de datos: {e}")
+        return True
+
+    def clear_history(self):
+        """Borra el historial de dictados y el portapapeles guardados (solo si el usuario lo confirma en el panel)."""
+        for f in (HISTORY_FILE, CLIP_FILE):
+            try:
+                os.remove(f)
+            except FileNotFoundError:
+                pass
+        log("el usuario borró el historial y el portapapeles guardados")
+        return True
+
+    def capture_combo(self):
+        """El usuario aprieta la combinación que quiere; el motor la captura (traga las teclas mientras tanto)."""
+        if _engine is None:
+            return {"error": "Los atajos no están activos"}
+        res = _engine.capture(10.0)
+        if res.get("combo"):
+            return {"combo": res["combo"], "pretty": hk.pretty(res["combo"])}
+        return res
+
+    def save_settings(self, cfg):
+        try:
+            cfg = hk.normalize_settings(cfg, HOTKEY)
+            ok, msg = hk.validate(cfg, HISTORY_KEY)
+            if not ok:
+                return {"ok": False, "error": msg}
+            write_settings(cfg)
+            apply_settings(cfg)
+            log("ajustes guardados: " + json.dumps(cfg, ensure_ascii=False))
+            return dict(self._settings_view(), ok=True)
+        except Exception as e:
+            log(f"no pude guardar los ajustes: {e}")
+            return {"ok": False, "error": "No se pudieron guardar los ajustes"}
 
     def action(self, a, it):
         if a == "copy_final":
@@ -1610,12 +1754,24 @@ class PanelAPI:
 _levels = []
 _levels_lock = threading.Lock()
 _hint = {"key": "Win"}
-_mode = {"v": "mini"}
+_mode = {"v": "mini", "fh": 150}   # fh: alto de la vista desplegada (crece con el texto final)
 _confirm = {"at": 0.0}     # primer Esc: pregunta "¿borrar?" durante 3 s
 
 
 def confirm_active():
     return _recording and time.time() - _confirm["at"] < 3.0
+
+
+def stop_hint():
+    """Cómo se corta la grabación según el atajo que la empezó: ('Espacio para terminar', 'Espacio')."""
+    try:
+        b = _engine.active or next(x for x in _engine.bindings if x.action == "rec")
+        if b.mode == "hold":
+            return ["soltá el atajo para terminar", "soltar"]
+        k = hk.pretty(b.main)
+        return [f"{k} para terminar", k]
+    except Exception:
+        return ["Espacio para terminar", "Espacio"]
 
 
 class OverlayAPI:
@@ -1631,11 +1787,12 @@ class OverlayAPI:
             lv = _levels[:]
             _levels.clear()
         st = UI["state"]
-        if st in ("done", "error") and time.time() - UI["since"] > (2.4 if st == "done" else 2.8):
+        hold = 10.0 if _mode["v"] == "full" else 2.4   # leyendo el resultado desplegado: no se va
+        if st in ("done", "error") and time.time() - UI["since"] > (hold if st == "done" else 2.8):
             UI["state"] = st = "idle"
         return {"state": st, "live": UI["live"], "text": UI["text"], "discarded": UI["discarded"],
                 "elapsed": round(UI["elapsed"], 2), "levels": lv, "mode": _mode["v"], "hint": _hint["key"],
-                "confirm": confirm_active()}
+                "confirm": confirm_active(), "fh": _mode["fh"], "stop": stop_hint()}
 
 
 def run_web_ui():
@@ -1674,18 +1831,18 @@ def run_web_ui():
     g.CreateRoundRectRgn.restype = wintypes.HRGN
     u.SetWindowRgn.argtypes = [wintypes.HWND, wintypes.HRGN, wintypes.BOOL]
     sw, sh = u.GetSystemMetrics(0), u.GetSystemMetrics(1)
-    MINI = (196, 44)      # píldora: la ventana mide exactamente esto
-    FULL = (600, 150)     # cápsula desplegada
+    MINI = (196, 44)      # píldora
+    FULL = (600, 150)     # cápsula desplegada (alto mínimo; en la vista final crece con el texto)
     DONE_MINI = (236, 44)  # píldora con el tilde de "copiado"
+    WIN = (640, 260)      # la ventana mide siempre esto; lo que se ve es una región recortada y animada adentro
     BOTTOM = 52           # separación de la barra de tareas
-    _hint["key"] = "Win" if HOTKEY.lower().startswith("win") else "Bloq Mayús"
 
     api = PanelAPI()
     panel = webview.create_window(f"{APP_NAME} — Memoria de voz", os.path.join(UI_DIR, "panel.html"), js_api=api,
                                   width=1120, height=680, background_color="#0c0d13", min_size=(900, 560))
     api._win = panel
     overlay = webview.create_window(f"{APP_NAME} overlay", os.path.join(UI_DIR, "overlay.html"), js_api=OverlayAPI(),
-                                    width=FULL[0], height=FULL[1], x=-5000, y=-5000,
+                                    width=WIN[0], height=WIN[1], x=-5000, y=-5000,
                                     frameless=True, transparent=True, on_top=True, focus=False,
                                     easy_drag=False, background_color="#0b0c11")
 
@@ -1695,9 +1852,25 @@ def run_web_ui():
 
     panel.events.closing += on_closing
 
-    def rect_for(mode):
-        w, h = MINI if mode == "mini" else FULL
-        return (sw - w) // 2, sh - h - BOTTOM, w, h
+    def js(code):
+        try:
+            overlay.evaluate_js(code)
+        except Exception as e:
+            dbg(f"js: {e}")
+
+    def full_height():
+        """Alto de la vista desplegada: 150 mientras grabás; en la vista final crece para mostrar el texto completo."""
+        txt = UI["text"] if UI["state"] == "done" else ""
+        if not txt:
+            return FULL[1]
+        lines = min(6, max(1, -(-len(txt) // 52)))        # ~52 caracteres por renglón
+        return max(FULL[1], min(WIN[1] - 10, 100 + 24 * lines))
+
+    def ease_out(k):      # entra rápido y frena suave (quartic)
+        return 1 - (1 - k) ** 4
+
+    def ease_in(k):       # sale despacio y acelera
+        return k ** 3
 
     def placer():
         """Ubica el overlay según el estado y despliega/contrae según la posición del mouse."""
@@ -1714,36 +1887,42 @@ def run_web_ui():
         ex = u.GetWindowLongPtrW(hwnd, -20)
         u.SetWindowLongPtrW(hwnd, -20, ex | 0x08000000 | 0x00000080)   # NOACTIVATE | TOOLWINDOW
         pt = wintypes.POINT()
-        cur = "off"
+        cur, cur_t = "off", (0, 0)
         out_since = 0.0
-        geo = {"w": 0.0, "h": 0.0}
 
         # La ventana NO cambia de tamaño (WebView2 no se redimensiona bien desde afuera):
-        # mide siempre FULL y lo que se anima es la región visible, abajo al centro.
-        WX, WY = (sw - FULL[0]) // 2, sh - FULL[1] - BOTTOM
+        # mide siempre WIN y lo que se anima es la región visible, abajo al centro.
+        WX, WY = (sw - WIN[0]) // 2, sh - WIN[1] - BOTTOM
         vis = {"w": 0.0, "h": 0.0}
 
         def region(w, h):
-            w, h = int(round(w)), int(round(h))
+            w, h = max(2, int(round(w))), max(2, int(round(h)))
             r = int(min(h / 2, 34 if h > 80 else h / 2))
-            x0, y0 = (FULL[0] - w) // 2, FULL[1] - h
+            x0, y0 = (WIN[0] - w) // 2, WIN[1] - h
             u.SetWindowRgn(hwnd, g.CreateRoundRectRgn(x0, y0, x0 + w + 1, y0 + h + 1, 2 * r, 2 * r), True)
             vis["w"], vis["h"] = w, h
 
         def show_at_home():
-            u.SetWindowPos(hwnd, HWND_TOPMOST, WX, WY, FULL[0], FULL[1], 0x0010 | 0x0040)
+            u.SetWindowPos(hwnd, HWND_TOPMOST, WX, WY, WIN[0], WIN[1], 0x0010 | 0x0040)
 
-        def animate(to, ms=180):
-            fw, fh = vis["w"] or to[0], vis["h"] or to[1]
-            steps = max(1, ms // 12)
-            for i in range(1, steps + 1):
-                k = 1 - (1 - i / steps) ** 3          # ease-out cúbico (igual que el CSS)
-                region(fw + (to[0] - fw) * k, fh + (to[1] - fh) * k)
-                time.sleep(0.012)
+        def animate(to, ms=240, frm=None, ease=ease_out):
+            """Animación por tiempo real (no por cantidad de pasos): fluida aunque el sistema vaya justo."""
+            fw, fh = frm or (vis["w"] or to[0], vis["h"] or to[1])
+            t0 = time.perf_counter()
+            while True:
+                k = (time.perf_counter() - t0) * 1000.0 / ms
+                if k >= 1:
+                    region(*to)
+                    return
+                e = ease(k)
+                region(fw + (to[0] - fw) * e, fh + (to[1] - fh) * e)
+                time.sleep(0.004)
 
         while True:
             try:
                 st = UI["state"]
+                fh = full_height()
+                _mode["fh"] = fh
                 if st == "idle":
                     want = "off"
                 elif confirm_active():
@@ -1751,7 +1930,7 @@ def run_web_ui():
                 else:
                     u.GetCursorPos(ctypes.byref(pt))
                     w, h = (vis["w"] or MINI[0]), (vis["h"] or MINI[1])
-                    x, y = WX + (FULL[0] - w) // 2, WY + FULL[1] - h
+                    x, y = WX + (WIN[0] - w) // 2, WY + WIN[1] - h
                     inside = x - 6 <= pt.x <= x + w + 6 and y - 6 <= pt.y <= y + h + 6
                     if cur == "full":
                         if inside:
@@ -1764,21 +1943,27 @@ def run_web_ui():
                         want = "full" if inside else "mini"
                     if want == "mini" and st == "done":
                         want = "minidone"        # un poco más ancha: tilde + "Copiado al portapapeles"
-                if want != cur:
-                    dbg(f"overlay: {cur} -> {want}")
-                    prev, cur = cur, want
+                target = {"off": (0, 0), "mini": MINI, "minidone": DONE_MINI, "full": (FULL[0], fh)}[want]
+                if want != cur or (want != "off" and target != cur_t):
+                    dbg(f"overlay: {cur} -> {want} {target}")
+                    prev, cur, cur_t = cur, want, target
                     if want == "off":
-                        u.SetWindowPos(hwnd, HWND_TOPMOST, -5000, -5000, FULL[0], FULL[1], 0x0010)
+                        # sale suave: se desvanece mientras se achica; recién después se esconde la ventana
+                        js("pillOut()")
+                        animate((vis["w"] * 0.72, max(2, vis["h"] * 0.5)), 190, ease=ease_in)
+                        u.SetWindowPos(hwnd, HWND_TOPMOST, -5000, -5000, WIN[0], WIN[1], 0x0010)
                         vis["w"] = vis["h"] = 0
                         _mode["v"] = "mini"
                     else:
                         _mode["v"] = "full" if want == "full" else "mini"
-                        target = {"mini": MINI, "minidone": DONE_MINI, "full": FULL}[want]
                         if prev == "off":
-                            region(*target)
+                            # entra suave: arranca más chica y transparente y crece hasta su tamaño
+                            region(target[0] * 0.62, target[1] * 0.5)
                             show_at_home()
+                            js("pillIn()")
+                            animate(target, 320)
                         else:
-                            animate(target)
+                            animate(target, 240)
                 if UI["open_history"]:
                     UI["open_history"] = False
                     panel.show()
@@ -1797,7 +1982,7 @@ def run_web_ui():
                         pass
             except Exception as e:
                 dbg(f"placer: {e}")
-            time.sleep(0.03)
+            time.sleep(0.03 if cur != "off" else 0.12)   # sin pillín visible casi no gasta CPU
 
     def on_start():
         log("ui: ventanas creadas, arranco el overlay")
@@ -1813,9 +1998,53 @@ def run_web_ui():
 
 
 # =====================================================================
+# Una sola instancia
+# =====================================================================
+_mutex_handle = None
+
+
+def single_instance() -> bool:
+    """Un mutex de Windows: si ya hay un WhisperPRO corriendo, el segundo no arranca.
+    (Antes cada doble clic abría otro programa con su hook de teclado y su ventana: se acumulaban y trababan la PC.)"""
+    global _mutex_handle
+    if os.name != "nt":
+        return True
+    try:
+        import ctypes
+        k = ctypes.WinDLL("kernel32", use_last_error=True)
+        k.CreateMutexW.restype = ctypes.c_void_p
+        k.CreateMutexW.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_wchar_p]
+        _mutex_handle = k.CreateMutexW(None, False, "Local\\WhisperPRO_instancia_unica")
+        if ctypes.get_last_error() == 183:   # ERROR_ALREADY_EXISTS
+            return False
+    except Exception as e:
+        log(f"instancia única: no pude comprobar ({e})")
+    return True
+
+
+def _timer_resolution():
+    """Relojes de 1 ms: sin esto time.sleep() salta de a 15 ms en Windows y las animaciones se ven a tirones."""
+    try:
+        import ctypes
+        ctypes.windll.winmm.timeBeginPeriod(1)
+    except Exception:
+        pass
+
+
+# =====================================================================
 # main
 # =====================================================================
 def main():
+    if not single_instance():
+        log("ya hay un WhisperPRO abierto: no arranco otro")
+        print("WhisperPRO ya está abierto (buscá el ícono junto al reloj).", flush=True)
+        try:
+            import ctypes
+            ctypes.windll.user32.MessageBoxW(0, "WhisperPRO ya está abierto.\nBuscá su ícono junto al reloj (flecha ^ de la barra de tareas).", "WhisperPRO", 0x40)
+        except Exception:
+            pass
+        return
+    _timer_resolution()
     motor = next((n for n, k, _ in STT if k), f"Whisper local ({LOCAL_MODEL})")
     llm = "Groq (auto)" if GROQ_KEY else "OpenAI" if OPENAI_KEY else "Gemini" if GEMINI_KEY else "—"
     print(f"[dictado {VERSION}] python {sys.version.split()[0]} | STT: {motor} | corrección: {llm if SMART else 'off'} | en vivo: {'sí' if LIVE else 'no'}", flush=True)

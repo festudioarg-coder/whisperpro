@@ -1,11 +1,13 @@
 # ESTADO — WhisperPRO
-> Único archivo de estado. Se reescribe después de cada paso. Última actualización: 12/10/2026 (madrugada).
+> Único archivo de estado. Se reescribe después de cada paso. Última actualización: 12/10/2026 (tarde).
 
 ## Qué es
 Herramienta de dictado por voz para Windows (producto de FESTUDIOS): Win + Espacio graba, el texto aparece en vivo en cualquier input, Espacio corta y la IA aplica las correcciones habladas. Panel "Memoria de voz" (historial, portapapeles, descartado), ícono de bandeja con logo propio, overlay HTML (WebView2) con el diseño del canvas "WhisperPRO Design" de claude.ai. Plan de producto y negocio en `PLAN-PRODUCTO-WHISPERPRO.md`.
 
 ## Dónde vive cada cosa
-- **ÚNICA carpeta de trabajo: `WhisperPRO/app/`** (v6.14). Contiene código (`dictado.py`), UI (`ui/`), `.env` con las keys de Juan (Groq + Gemini), historial, y los scripts: `instalar.bat`, `dev.bat` (reinicio automático al guardar), `dictado.bat`, `dictado_silencioso.vbs`, `ver_log.bat`, `build.bat` (PyInstaller + Inno Setup → instalador), `build/WhisperPRO.spec`, `build/instalador.iss`.
+- **ÚNICA carpeta de trabajo: `WhisperPRO/app/`** (v6.15). Contiene código (`dictado.py`), UI (`ui/`), `.env` con las keys de Juan (Groq + Gemini), historial, y los scripts: `instalar.bat`, `dev.bat` (reinicio automático al guardar), `dictado.bat`, `dictado_silencioso.vbs`, `ver_log.bat`, `build.bat` (PyInstaller + Inno Setup → instalador), `build/WhisperPRO.spec`, `build/instalador.iss`.
+- Atajos: motor en `app/hotkeys.py` (sin dependencias de Windows) con pruebas en `app/tests/` → `python -m unittest discover -s tests` desde `app/` (32 pruebas). Los ajustes del usuario (atajos, capturas) viven en `settings.json`, al lado del `.env`: solo en la PC, nunca a git.
+- Versión web para iPhone: carpeta `web/` (PWA de un solo archivo, sin servidor propio). Cómo publicarla y probarla: `web/LEEME.md`.
 - Logs: `app/dictado.log` (todo lo que imprime, con o sin consola; errores fatales incluidos).
 - Carpetas viejas, borrar cuando se pueda: `F:\Descargas\dictado` (tiene marcador _OBSOLETO), `F:\Descargas\WhisperPRO\dictado_1`, `C:\Users\BigLigas\Desktop\dictado`, `C:\Users\BigLigas\Documents\dictado`, `Desktop\dictado.bat`. No se pudieron mover por permisos.
 - Motores: STT Groq whisper-large-v3-turbo (fallback OpenAI → Gemini → Whisper local solo en modo script); corrección Llama 3.3 70B (Groq).
@@ -14,9 +16,19 @@ Herramienta de dictado por voz para Windows (producto de FESTUDIOS): Win + Espac
 ## Próximo paso exacto
 1. **Microsoft Store (prioridad), seguir `GUIA-MICROSOFT-STORE.md`:** Juan abre cuenta **Individual** (decidido 12/10), se registra en storedeveloper.microsoft.com, reserva el nombre y le pasa a Claude los 3 datos de Product identity.
 2. Claude, en paralelo: cambios para MSIX (startupTask, detectar empaquetado, WebView2, micrófono denegado), AppxManifest, logos, `build_store.bat`, borradores de política de privacidad, ficha y notas para el revisor.
-3. Juan: probar v6.14 en dev.bat (dictado en español neutro con whisper-large-v3, tilde "Copiado al portapapeles", conexión guiada con el Guía).
+3. Juan: probar v6.15 en `dev.bat` (lista abajo, "Prueba de v6.15"). Es la primera vez que corre en Windows: Claude solo pudo probar la lógica de atajos (32 pruebas) y las pantallas HTML en un navegador; el hook de teclado, la píldora, las capturas y el portapapeles necesitan tu PC.
+4. Juan: subir `web/` a un hosting con HTTPS (festudios.pro/whisper/ por SFTP) y probar en el iPhone. Si Groq bloquea las llamadas desde el navegador (CORS) hay que ver el plan B (ver `web/LEEME.md`).
+
+## Prueba de v6.15 (qué mirar en dev.bat)
+1. **Una sola instancia:** abrí `dictado.bat` dos veces: la segunda muestra "ya está abierto" y no arranca. Revisá la barra de tareas y el Administrador de tareas: un solo pythonw.
+2. **No traba el teclado:** Win+Espacio varias veces seguidas y escribiendo en otro programa; no tiene que haber retrasos. Si el log dice `error en el hook de teclado`, pasarlo.
+3. **Píldora:** aparece y desaparece con fundido, se despliega al pasar el mouse, y en la vista final el texto sale completo (hasta 6 renglones) con conteo de palabras. Pasar el mouse por encima la mantiene abierta hasta 10 s.
+4. **Portapapeles:** copiá algo, dictá y pegá el dictado; en el panel → Portapapeles tiene que aparecer lo que habías copiado como "anterior".
+5. **Ajustes (engranaje o tecla `,` en el panel):** cambiar el atajo apretándolo, agregar un segundo atajo en modo Mantener, activar la captura completa (Impr Pant) y la de región (Win+Shift+S). Verificar que la completa deja la imagen pegable en Paint/WhatsApp y que guarda en `Imágenes\WhisperPRO`.
+6. **Si el panel o la píldora quedan en blanco:** sospechar de la etiqueta `<meta http-equiv="Content-Security-Policy">` de `ui/panel.html` y `ui/overlay.html` (la política que impide que la interfaz se conecte a internet; probada en Chromium, no en WebView2). Quitarla vuelve al comportamiento anterior.
 
 ## Marca (11/10)
+- Tipografías (12/10): **Bricolage Grotesque** (títulos e interfaz, ejes de ancho y tamaño óptico) y **Martian Mono** (detalles técnicos, usada algo comprimida), ambas OFL, empaquetadas en `app/ui/fonts/` y `web/fonts/` con sus licencias. Sin Google Fonts ni CDN. Logotipo de texto: "Whisper" + "PRO" en el degradé de la marca.
 - Logo definido: squircle degradé coral #FF4D6D → durazno #FF9A5C con 5 barras blancas (sale de `branding/hero-01.png`, generado por Juan en ChatGPT). Redibujado en código (`make_logo` en dictado.py) → `app/logo.ico` y `branding/logo-1024.png`.
 - `branding/ui-ventana-referencia.png`: ventana compacta (tarjeta ESCUCHANDO con onda, caja de texto con lo tachado, barra de controles: ajustes, traducir, stop, onda, notas). Referencia para la vista desplegada.
 - Pendiente de la imagen hero: la figura encapuchada sin cara puede leerse como "hacker/espía" en un producto que escucha tu micrófono; usarla para redes de festudios, no para landing/Product Hunt.
@@ -24,12 +36,16 @@ Herramienta de dictado por voz para Windows (producto de FESTUDIOS): Win + Espac
 ## Backlog (después de validar el .exe)
 - Links: si el usuario selecciona un texto que es una URL sin link (ej. "festudios.pro/precios"), WhisperPRO lo detecta y ofrece abrirlo (atajo o chip en el overlay). Pedido de Juan 11/10.
 - Nombre definitivo (no "Whisper"). Firma: Azure Artifact Signing es solo para personas de EE.UU./Canadá → camino recomendado: Microsoft Store (MSIX, firma gratis de Microsoft, sin cartel de SmartScreen). Certificado OV US$150-300/año solo si hace falta el .exe suelto.
-- Win+H choca con el dictado nativo de Windows → mover el historial a otro atajo.
+- Win+H choca con el dictado nativo de Windows. Desde v6.15 historial y deshacer usan el modificador del primer atajo: si Juan lo cambia (ej. Ctrl+Alt+Espacio) pasan a Ctrl+Alt+H / Ctrl+Alt+Z. Falta decidir si el historial por defecto deja de ser Win+H.
+- Modo 100% local (honestidad del mensaje de privacidad): hoy el audio va a Groq. Para poder decir "no sale nada de tu PC" falta un modo con Whisper local (faster-whisper ya está en requirements, pero no en el .exe) y sin corrección por IA. Mientras tanto el mensaje es el de `REGLAS-DE-CONFIANZA.md`.
+- Extensión de Chrome como vidriera hacia la app (después de la Store): ver decisión 12/10.
 - Esc en modo Bloq Mayús. Imágenes de marca en el instalador.
 - Planes pagos: por ahora NO hay backend; cada usuario usa su propia clave gratis de Groq (ver decisión 12/10). Revisar si más adelante conviene un plan Pro con servidor propio.
 - Para la versión que se publique: `DICTADO_DEBUG` apagado (con debug el log anota las primeras 40 teclas).
 
 ## A medio hacer
+- v6.15 (sin probar en Windows): instancia única (mutex), hook de teclado que no bloquea (abrir el micrófono y cortar van en otro hilo; antes podían superar el tiempo que Windows tolera a un hook y trabar el teclado de toda la PC), foto del portapapeles al empezar a grabar, píldora con entrada/salida suaves y animaciones por tiempo real, vista final con texto completo, panel nuevo (lista tipo log, vistas final/literal/diff por palabras, barra de estado, atajos de teclado), ajustes (hasta 2 atajos de grabación en modo Pulsar o Mantener, captura de región y completa configurables), tipografías propias, política de seguridad que impide a la interfaz salir a internet, y `web/` para iPhone.
+- Limitación conocida del portapapeles: si lo que tenías copiado era una imagen o archivos, el dictado lo reemplaza (el log lo avisa); solo se guarda texto.
 - v6.10: píldora minimizada mostraba solo el fondo (WebView2 no reacomoda al achicar la ventana) → ventana fija 600×150, se anima solo la forma recortada. Sin confirmar por Juan.
 - v6.11: texto en vivo fallaba con micrófono de nivel bajo (log: voz ~0,01, umbral viejo 0,006 la tomaba como silencio) → mínimo 0,0025. Verificado: después del cambio, "tramos con texto en vivo: 4".
 - v6.12: conexión guiada de la clave (panel "Conectá WhisperPRO"): botón abre console.groq.com/keys, la app mira el portapapeles y cuando copiás una clave gsk_ la prueba contra Groq, la guarda en el .env y la activa sin reiniciar. Pegado manual como respaldo. Sin clave, Win+Espacio abre esa pantalla. Bandeja: "Conectar/Cambiar clave de IA". Instalador: la página de clave ahora es opcional.
@@ -39,16 +55,22 @@ Herramienta de dictado por voz para Windows (producto de FESTUDIOS): Win + Espac
 - `_tmp_estado_unused.md` es descartable (subido por error).
 
 ## Te toca a vos (Juan)
+- Probar v6.15 con la lista de arriba y pasar `dictado.log`.
+- Subir `web/` a festudios.pro/whisper/ y probarlo en el iPhone (agregar a pantalla de inicio).
 - Correr `instalar.bat` y `dev.bat` en `WhisperPRO\app`.
 - Instalar Inno Setup 6 (jrsoftware.org/isdl.php) para poder generar el instalador.
 - Elegir nombre del producto (no "Whisper"): Hablalo / Dictá / Dilo / Voz.app. Decidir precios del plan.
 
 ## Reglas que no se discuten
+- **Mensaje de privacidad exacto.** Se puede decir: "tu historial, tu clave y tus ajustes quedan solo en tu PC; no usamos servidores, no hay cuenta ni telemetría; el audio va directo de tu PC al motor de IA (Groq) con tu propia clave". **No** se puede decir "no sale nada de tu PC" ni "corre 100% local" mientras el dictado use Groq: es falso y rompe la regla de reputación limpia (Store, reseñas, defensa del consumidor).
 - Una sola carpeta: `WhisperPRO/app`. No crear copias en Descargas/Escritorio.
 - `.env` con keys nunca va al proyecto de claude.ai ni a git.
 - Cada parche se prueba con `dev.bat` y se mira `dictado.log` antes de decir que funciona.
 
 ## Historia (no leer al arrancar)
+- 12/10: decisión (Juan) — tipografías con identidad propia y todo guardado en la PC. Por qué: marca diferenciada y mensaje de seguridad. Se eligieron Bricolage Grotesque + Martian Mono (OFL) empaquetadas; los datos ya eran locales (historial, portapapeles, clave, ajustes). Lo que no es local es el audio (Groq): el mensaje de marketing se redactó sin esa trampa (ver reglas).
+- 12/10: decisión (Juan) — atajos configurables desde el panel (hasta 2 de grabación, más capturas de pantalla de región y completa). Por qué: cada persona usa su teclado distinto y Win+Espacio choca con el cambio de idioma de Windows.
+- 12/10: idea (Juan) — extensión de Chrome como vidriera y paso previo a instalar la app; versión web para iPhone. Se hizo la web (`web/`); la extensión queda para después de la Store.
 - 12/10: decisión — cuenta de Microsoft Store Individual. Por qué: Juan es monotributista, sin sociedad; la app sale gratis y no cobra nada todavía. Cuando haya planes pagos con cobro propio, se evalúa abrir cuenta Empresa (SAS) y transferir la app.
 - 12/10: decisión (Juan) — WhisperPRO no se enfoca en el español rioplatense: apunta a Argentina, LATAM y España. Por qué: el mercado es todo el español.
 - 12/10: decisión (Juan) — reputación limpia: invitar a reseñar a todos por igual, sin incentivos ni filtros (`REGLAS-DE-CONFIANZA.md`). Por qué: Trustpilot eliminó el perfil de Wispr Flow por incumplir sus directrices.

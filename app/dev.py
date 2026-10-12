@@ -3,7 +3,7 @@ dictado.py, .env o algo en ui/. Así cada parche se ve al instante sin cerrar na
 import os, sys, time, subprocess
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-WATCH = ["dictado.py", ".env", "ui"]
+WATCH = ["dictado.py", "hotkeys.py", ".env", "ui"]
 
 
 def snapshot():
