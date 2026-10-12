@@ -9,11 +9,13 @@ Sitio estático (HTML + CSS, sin JavaScript ni servicios externos: las tipograf�
 2. **Subir el contenido de esta carpeta** (no la carpeta en sí) a la carpeta `whisperpro/` del hosting de festudios.pro, por SFTP como el resto del sitio. Tiene que quedar:
    `festudios.pro/whisperpro/index.html`, `.../privacidad/index.html`, `.../img/`, `.../fonts/`, `favicon.ico`.
 3. **Ruta.** Las páginas usan `<base href="/whisperpro/">`: tienen que servirse desde esa ruta. `festudios.pro/whisperpro` (sin barra) debe redirigir a `festudios.pro/whisperpro/` (casi todos los hosting lo hacen solos; si no, agregar la redirección).
-4. **Después de publicar:** agregar la URL al sitemap de festudios.pro, pedir la indexación en Search Console y probar el enlace compartiendo la URL en WhatsApp (se ve la imagen `img/og.png`).
+4. **Después de publicar:** sumar `https://festudios.pro/whisperpro/sitemap.xml` al sitemap o al `robots.txt` raíz de festudios.pro (el `robots.txt` solo vale en la raíz del dominio), pedir la indexación en Search Console y probar el enlace compartiendo la URL en WhatsApp (se ve la imagen `img/og.png`).
 
 ## Qué contiene
 - `index.html`: la landing (portada con el Guía, corrección hablada, cómo funciona, conexión guiada, funciones, privacidad, precios Gratis/Pro, preguntas, "Detrás de WhisperPRO" y descarga).
-- `privacidad/index.html`: política de privacidad en lenguaje claro. La Microsoft Store pide esta URL: `https://festudios.pro/whisperpro/privacidad/`.
+- **Páginas legales** (se generan con `python landing/generar_legales.py`; el texto vive en ese archivo): `privacidad/`, `terminos/`, `baja-y-arrepentimiento/` (baja de suscripción y botón de arrepentimiento), `contacto/` (quiénes somos y datos del proveedor) y `licencias/` (componentes de terceros). Más `sitemap.xml`. La Microsoft Store pide la URL de privacidad: `https://festudios.pro/whisperpro/privacidad/`.
+- **Borradores a revisar con un profesional matriculado en Argentina antes de publicar**, sobre todo lo de arrepentimiento, defensa del consumidor, datos personales y el plan Pro. Completar `[CUIT]`, `[DOMICILIO COMERCIAL]` y lo del plan Pro (los detecta `revisar.py`).
+- Para buscadores y tiendas: cada página tiene título, descripción, canonical y `robots`; el sitio no usa cookies ni analítica. **Si se agrega Google Analytics, píxeles o cookies, hay que actualizar la política (sección 8) y sumar un aviso de consentimiento.**
 - `img/`: Guía, logo, ondas y la imagen para compartir en redes. `fonts/`: Bricolage Grotesque y Martian Mono (licencia OFL, incluida).
 
 ## Cuidado con lo que se afirma

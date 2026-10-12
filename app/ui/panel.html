@@ -332,7 +332,7 @@ button.b:hover{filter:brightness(1.15)}
       <li>Si no dictás, no sale nada</li></ul></div>
    </div>
    <div class="dirline"><span class="chip g">carpeta de datos</span><code id="datadir">—</code><button class="btn sm" onclick="api('open_data_dir')">Abrir</button><button class="btn sm d" id="bclear" onclick="clearData()">Borrar historial</button></div>
-   <div class="mono" style="text-align:center;color:#8b92a8;font-size:11px;padding-top:6px"><a href="#" onclick="openSite(event)" style="color:inherit;text-decoration:none">Desarrollado por <strong style="color:var(--tx)">FESTUDIOS</strong> · festudios.pro</a></div>
+   <div class="mono" style="text-align:center;color:#8b92a8;font-size:11px;padding-top:6px;line-height:2"><a href="#" onclick="legal('privacidad',event)" style="color:#aab0c4">Privacidad</a> · <a href="#" onclick="legal('terminos',event)" style="color:#aab0c4">Términos</a> · <a href="#" onclick="legal('contacto',event)" style="color:#aab0c4">Contacto</a> · <a href="#" onclick="legal('licencias',event)" style="color:#aab0c4">Licencias</a><br><a href="#" onclick="openSite(event)" style="color:inherit;text-decoration:none">Desarrollado por <strong style="color:var(--tx)">FESTUDIOS</strong> · festudios.pro</a></div>
   </div>
  </div>
 </div>
@@ -360,7 +360,7 @@ button.b:hover{filter:brightness(1.15)}
   </div>
   <div class="manual det"><input id="mk" placeholder="¿No la detectó? Pegala acá: gsk_…" spellcheck="false"><button class="b" onclick="manualKey()">Conectar</button></div>
   <div class="done"><div class="big">Listo, conectado ✓</div><div class="try">Probá ahora: <span class="kbd" id="hk">Win + Espacio</span>, hablá, y <span class="kbd">Espacio</span> para terminar.</div><button class="b p" onclick="closeSetup()" style="margin-top:6px">Empezar</button></div>
-  <div class="foot det"><span>Tu clave queda solo en esta PC. El audio va directo de tu PC a Groq: FESTUDIOS no lo ve ni lo guarda.</span><a onclick="closeSetup()">Más tarde</a></div>
+  <div class="foot det"><span>Tu clave queda solo en esta PC. El audio va directo de tu PC a Groq: FESTUDIOS no lo ve ni lo guarda.<br>Al conectar aceptás los <a onclick="legal('terminos')">Términos</a> y la <a onclick="legal('privacidad')">Política de privacidad</a>.</span><a onclick="closeSetup()">Más tarde</a></div>
   </div>
 </div></div>
 
@@ -478,6 +478,7 @@ window.addEventListener('pywebviewready',async()=>{
 });
 // ---- ajustes: atajos y capturas ----
 function openSite(e){e.preventDefault();window.pywebview.api.open_site();}
+function legal(p,e){if(e)e.preventDefault();window.pywebview.api.open_legal(p);}
 let S=null, capturing=null;
 const api=(m,...a)=>window.pywebview.api[m](...a);
 function comboHtml(p){return p?p.split(' + ').map(x=>'<kbd>'+esc(x)+'</kbd>').join('<span class="plus">+</span>'):'';}

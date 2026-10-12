@@ -632,7 +632,7 @@ def undo_last():
         _paste(_last["final"] + " ")
     UI["discarded"] = 0
     set_state("done", _last["final"])
-    log("deshacer: " + _last["final"])
+    log("deshacer: " + (_last["final"] if DEBUG else f"{len(_last['final'])} caracteres"))
 
 
 # =====================================================================
@@ -923,10 +923,13 @@ def _finish(frames, secs):
         return
     t_stt = time.time() - t0
     final, discarded = smart_edit(raw)
-    log(f"{time.time() - t0:.1f}s (transcripción {t_stt:.1f}s + corrección {time.time() - t0 - t_stt:.1f}s, {len(parts) + 1} tramos, {secs:.0f}s de audio) | literal: {raw}")
+    # Privacidad: el contenido de lo dictado NO se escribe en el log salvo en modo depuración (DICTADO_DEBUG=1).
+    log(f"{time.time() - t0:.1f}s (transcripción {t_stt:.1f}s + corrección {time.time() - t0 - t_stt:.1f}s, {len(parts) + 1} tramos, {secs:.0f}s de audio)"
+        + (f" | literal: {raw}" if DEBUG else f" | {len(raw.split())} palabras"))
     if discarded:
-        log(f"descartado: {discarded}")
-    log(f"final: {final}")
+        log(f"descartado: {discarded}" if DEBUG else f"descartados: {len(discarded)}")
+    if DEBUG:
+        log(f"final: {final}")
     save_history(raw, final, discarded, secs)
     UI["discarded"] = len(discarded)
     UI["elapsed"] = time.time() - t0
@@ -1707,6 +1710,14 @@ class PanelAPI:
         """Abre festudios.pro en el navegador del usuario (la interfaz no puede navegar sola: solo esta dirección)."""
         import webbrowser
         webbrowser.open("https://festudios.pro/?utm_source=whisperpro&utm_medium=app&utm_campaign=desarrollado-por")
+        return True
+
+    def open_legal(self, page):
+        """Abre una página legal de la landing en el navegador (solo las de esta lista; la interfaz no navega sola)."""
+        import webbrowser
+        ok = {"privacidad", "terminos", "contacto", "baja-y-arrepentimiento", "licencias"}
+        if page in ok:
+            webbrowser.open(f"https://festudios.pro/whisperpro/{page}/")
         return True
 
     def open_data_dir(self):

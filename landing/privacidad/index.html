@@ -5,61 +5,104 @@
 <base href="/whisperpro/">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Política de privacidad — WhisperPRO</title>
-<meta name="description" content="Qué datos guarda WhisperPRO, dónde, y lo único que sale de tu equipo cuando dictás.">
+<meta name="description" content="Qué datos guarda WhisperPRO, dónde, y lo único que sale de tu equipo cuando dictás. Sin cuenta, sin telemetría.">
 <link rel="canonical" href="https://festudios.pro/whisperpro/privacidad/">
+<meta name="robots" content="index,follow">
 <link rel="icon" href="favicon.ico" sizes="any">
 <style>
 @font-face{font-family:'WP Sans';src:url('fonts/Bricolage.woff2') format('woff2');font-weight:200 800;font-stretch:75% 100%;font-display:swap}
 @font-face{font-family:'WP Mono';src:url('fonts/MartianMono.woff2') format('woff2');font-weight:100 800;font-stretch:75% 112%;font-display:swap}
-*{box-sizing:border-box}body{margin:0;background:#0a0b10;color:#c9ccd8;font-family:'WP Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.7;font-size:18px}
-a{color:#c084fc}.wrap{max-width:780px;margin:0 auto;padding:40px 24px 96px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:56px;flex-wrap:wrap}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:#0a0b10;color:#c9ccd8;font-family:'WP Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.7;font-size:18px}
+a{color:#c084fc}a:focus-visible{outline:2px solid #7aa2ff;outline-offset:3px;border-radius:6px}
+.wrap{max-width:800px;margin:0 auto;padding:36px 24px 96px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:48px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:#e9eaf2;font-size:20px;font-weight:600;font-stretch:84%;letter-spacing:-.03em}
 .brand img{width:32px;height:32px;border-radius:9px}.brand b{font-weight:800;color:#c084fc}
 .mono{font-family:'WP Mono',monospace;font-stretch:86%;font-size:12px;color:#8b92a8;letter-spacing:.04em}
-h1{margin:0 0 8px;font-size:clamp(36px,6vw,56px);line-height:1.04;letter-spacing:-.04em;color:#fff;font-variation-settings:"opsz" 72}
-h2{margin:48px 0 10px;font-size:26px;letter-spacing:-.02em;color:#fff}
-ul{padding-left:22px}li{margin:6px 0}
-.box{background:#11131a;border:1px solid #1b1e29;border-radius:18px;padding:22px 26px;margin:20px 0}
+.mono a{color:#8b92a8;text-decoration:none}.mono a:hover{color:#e9eaf2}
+h1{margin:0 0 8px;font-size:clamp(34px,6vw,54px);line-height:1.04;letter-spacing:-.04em;color:#fff;font-variation-settings:"opsz" 72}
+h2{margin:46px 0 10px;font-size:25px;letter-spacing:-.02em;color:#fff;line-height:1.2}
+h3{margin:26px 0 6px;font-size:19px;color:#e9eaf2}
+p{margin:12px 0}ul,ol{padding-left:22px}li{margin:7px 0}
+.box{background:#11131a;border:1px solid #1b1e29;border-radius:18px;padding:22px 26px;margin:22px 0}
 .ok{color:#34e0a1}.out{color:#c084fc}
+.toc{columns:2;column-gap:32px;font-size:15.5px;padding-left:20px}
+.pend{background:rgba(255,193,7,.10);border-radius:4px;padding:0 4px}
+table{width:100%;border-collapse:collapse;font-size:15.5px;margin:18px 0}th,td{text-align:left;padding:10px 12px;border-bottom:1px solid #1b1e29;vertical-align:top}th{color:#8b92a8;font:600 11px 'WP Mono';font-stretch:86%;letter-spacing:.1em;text-transform:uppercase}
+.btn{display:inline-block;margin:6px 10px 6px 0;padding:14px 22px;border-radius:12px;background:linear-gradient(160deg,#9b6bff 0%,#7c3aed 45%,#4c1d95 100%);color:#fff;text-decoration:none;font-weight:800;font-size:17px}
+.btn.s{background:transparent;border:1px solid #2a2e3d;color:#e9eaf2}
+footer{border-top:1px solid #1b1e29;margin-top:72px;padding-top:28px}
+footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer nav a{color:#aab0c4;text-decoration:none;font-size:15px}footer nav a:hover{color:#fff}
+@media (max-width:640px){.toc{columns:1}body{font-size:17px}}
 </style>
 </head>
 <body><div class="wrap">
-<div class="top"><a class="brand" href="./"><img src="img/logo-64.png" alt="">Whisper<b>PRO</b></a><a class="mono" href="https://festudios.pro/">Desarrollado por FESTUDIOS</a></div>
+<div class="top"><a class="brand" href="./"><img src="img/logo-64.png" alt="" width="32" height="32"><span>Whisper<b>PRO</b></span></a><span class="mono"><a href="https://festudios.pro/?utm_source=whisperpro&amp;utm_medium=legal&amp;utm_campaign=desarrollado-por">Desarrollado por FESTUDIOS</a></span></div>
 <h1>Política de privacidad</h1>
-<p class="mono">Última actualización: 12 de octubre de 2026</p>
-<p>WhisperPRO es una aplicación de dictado por voz para Windows (y una versión web para el teléfono) desarrollada por FESTUDIOS. Esta página explica, sin vueltas, qué datos maneja, dónde quedan y qué sale de tu equipo.</p>
+<p class="mono">Documento v1.0 · Última actualización: 12 de octubre de 2026</p>
 
-<h2>En pocas palabras</h2>
+<p>Esta política explica, sin vueltas, qué datos maneja WhisperPRO, dónde quedan, qué sale de tu equipo y qué derechos tenés. WhisperPRO es una aplicación de dictado por voz para Windows (y una versión web para el teléfono) ofrecida por FESTUDIO ARGENTINA («FESTUDIOS», «nosotros»).</p>
+
 <div class="box">
 <p class="ok" style="margin:0 0 8px"><b>Queda en tu equipo</b></p>
-<ul><li>Tu historial de dictados y el portapapeles guardado</li><li>Tu clave de IA y tus ajustes</li><li>Las capturas de pantalla, si activás esa función</li></ul>
+<ul style="margin:0"><li>Tu historial de dictados y el portapapeles guardado</li><li>Tu clave de IA y tus ajustes</li><li>Las capturas de pantalla, si activás esa función</li><li>Un archivo de registro técnico (sin el contenido de lo que dictás, salvo que actives el modo de depuración)</li></ul>
 <p class="out" style="margin:18px 0 8px"><b>Lo único que sale</b></p>
-<ul><li>El audio de cada dictado, directo de tu equipo al motor de IA (Groq), con tu propia clave, para transcribirlo y corregirlo</li></ul>
+<ul style="margin:0"><li>Mientras dictás, el audio y su transcripción viajan directo de tu equipo al motor de IA que conectaste (por defecto, Groq), con tu propia clave</li></ul>
 </div>
-<p>FESTUDIOS no recibe tu voz, tu texto ni tu historial: WhisperPRO no usa servidores nuestros para dictar. No hay cuenta de usuario, ni telemetría, ni estadísticas de uso dentro de la aplicación.</p>
+<p><b>FESTUDIOS no recibe tu voz, tu texto ni tu historial.</b> WhisperPRO no usa servidores nuestros para dictar. No hay cuenta de usuario, ni telemetría, ni estadísticas de uso dentro de la aplicación.</p>
 
-<h2>Qué datos se guardan y dónde</h2>
-<ul>
-<li><b>Historial de dictados:</b> lo que dijiste (literal), lo que se escribió y lo que se descartó, con fecha y duración. Se guarda en un archivo en tu equipo.</li>
-<li><b>Portapapeles:</b> antes de pegar un dictado, la aplicación guarda como texto lo que tenías copiado, para que puedas recuperarlo. Las imágenes y archivos copiados no se guardan.</li>
-<li><b>Clave de IA y ajustes:</b> se guardan en tu equipo. La clave no se envía a FESTUDIOS.</li>
-<li><b>Capturas de pantalla:</b> si activás esa función, se copian al portapapeles y, si lo dejás activado, se guardan en la carpeta Imágenes\WhisperPRO.</li>
-</ul>
-<p>Podés ver todo desde el panel de la aplicación y borrar el historial y el portapapeles con un botón (Ajustes → Privacidad y datos). La carpeta de datos se abre desde ahí mismo.</p>
+<h2>Índice</h2>
+<ol class="toc"><li><a href="privacidad/#responsable">Responsable</a></li><li><a href="privacidad/#datos">Qué datos se guardan en tu equipo</a></li><li><a href="privacidad/#salen">Qué sale de tu equipo</a></li><li><a href="privacidad/#finalidad">Para qué se usan y por cuánto tiempo</a></li><li><a href="privacidad/#borrar">Cómo borrar tus datos</a></li><li><a href="privacidad/#derechos">Tus derechos</a></li><li><a href="privacidad/#seguridad">Seguridad</a></li><li><a href="privacidad/#sitio">Este sitio web y cookies</a></li><li><a href="privacidad/#menores">Menores</a></li><li><a href="privacidad/#cambios">Cambios y contacto</a></li></ol>
 
-<h2>Qué sale de tu equipo</h2>
-<p>Cuando grabás, el audio se envía por internet a <b>Groq</b>, el servicio de transcripción y corrección que elegiste conectar con tu propia clave. Ese tratamiento se rige por la política de privacidad de Groq (groq.com). Si no dictás, no se envía nada. La aplicación abre un navegador solo cuando vos tocás un enlace, por ejemplo para ir a Groq a crear tu clave.</p>
+<h2 id="responsable">1. Responsable</h2>
+<p>FESTUDIO ARGENTINA (marca «FESTUDIOS»), Argentina. Correo de contacto: <a href="mailto:festudioarg@gmail.com">festudioarg@gmail.com</a>. Domicilio: <span class="pend">[DOMICILIO COMERCIAL]</span>. CUIT: <span class="pend">[CUIT]</span>.</p>
+<p>Como la aplicación trata tus datos dentro de tu equipo y los envía directamente al proveedor de IA que elegiste, FESTUDIOS no almacena ni accede a los datos de tu uso. Solo tratamos los datos que nos enviás vos por contacto (por ejemplo, tu correo si nos escribís o te anotás en una lista de espera).</p>
 
-<h2>La versión web para el teléfono</h2>
-<p>Guarda tu clave y tu historial en el navegador de tu teléfono. Solo puede conectarse a Groq. FESTUDIOS no recibe esos datos.</p>
+<h2 id="datos">2. Qué datos se guardan en tu equipo</h2>
+<table><tr><th>Dato</th><th>Dónde</th><th>Para qué</th></tr>
+<tr><td>Historial de dictados: lo que dijiste (literal), lo que se escribió, lo descartado, fecha y duración</td><td>Archivo en la carpeta de datos de la app</td><td>Que puedas buscar, comparar y recuperar tus dictados</td></tr>
+<tr><td>Portapapeles: antes de pegar un dictado, se guarda como texto lo que tenías copiado (no se guardan imágenes ni archivos)</td><td>Archivo en la carpeta de datos</td><td>Que no pierdas lo que habías copiado</td></tr>
+<tr><td>Clave de IA y ajustes (atajos, capturas)</td><td>Archivos en la carpeta de datos</td><td>Que la app funcione con tu configuración</td></tr>
+<tr><td>Capturas de pantalla (si activás esa función)</td><td>Portapapeles y, si lo dejás activado, la carpeta Imágenes\WhisperPRO</td><td>La función de captura que elegiste</td></tr>
+<tr><td>Registro técnico (log)</td><td>Archivo en la carpeta de datos</td><td>Diagnosticar errores. No incluye el contenido de lo que dictás salvo que actives el modo de depuración</td></tr></table>
+<p>La app registra únicamente en tu equipo y nunca envía estos archivos a FESTUDIOS.</p>
 
-<h2>Este sitio web</h2>
-<p>Esta página no usa cookies ni herramientas de análisis. Como cualquier sitio, el servidor puede registrar datos técnicos de la visita (por ejemplo, la dirección IP y la fecha) con fines de seguridad y funcionamiento. Los enlaces a festudios.pro incluyen un parámetro (utm_source=whisperpro) que nos permite saber que viniste desde esta página, y solo se usa si tocás el enlace.</p>
+<h2 id="salen">3. Qué sale de tu equipo</h2>
+<p>Cuando grabás con el atajo, el audio se envía por internet al servicio de transcripción y corrección que conectaste. Por defecto es <b>Groq</b> (Groq, Inc., Estados Unidos), usando <b>tu propia clave</b>. Después, el texto transcripto también se envía a un modelo de lenguaje de ese mismo proveedor para aplicar tus correcciones habladas. Eso significa que tus datos pueden tratarse fuera de la Argentina; esa transferencia la hacés vos al conectar tu clave y se rige por la política de privacidad y los términos del proveedor (groq.com).</p>
+<p>Si configurás otro proveedor en los ajustes avanzados (por ejemplo OpenAI o Google Gemini), los datos van a ese proveedor y rigen sus políticas. Si no hay clave configurada, la aplicación puede usar un modelo de transcripción local en tu equipo (en la versión para desarrolladores), sin enviar nada.</p>
+<p><b>Si no dictás, no sale nada.</b> La aplicación solo abre una página web cuando vos tocás un enlace (por ejemplo, para crear tu clave en Groq o visitar festudios.pro).</p>
+<h3>Versión web para el teléfono</h3>
+<p>Guarda tu clave y tu historial en el almacenamiento del navegador de tu teléfono. Solo puede conectarse a api.groq.com. FESTUDIOS no recibe esos datos.</p>
 
-<h2>Menores</h2>
-<p>La aplicación no está dirigida a menores de 13 años.</p>
+<h2 id="finalidad">4. Para qué se usan y por cuánto tiempo</h2>
+<p>Los datos locales se usan únicamente para que la aplicación funcione y para que consultes tu propia memoria de voz. Permanecen en tu equipo hasta que los borres vos o desinstales la aplicación. FESTUDIOS no conserva copia alguna. El proveedor de IA conserva o descarta el audio según sus propias políticas; consultalas antes de usar el servicio.</p>
+<p>Los datos que nos enviás por correo se usan solo para responderte y se conservan mientras sea necesario para atender tu consulta.</p>
 
-<h2>Cambios y contacto</h2>
-<p>Si esta política cambia, actualizaremos la fecha de arriba. Para consultas sobre privacidad escribinos a <a href="mailto:[EMAIL DE CONTACTO]">[EMAIL DE CONTACTO]</a>.</p>
+<h2 id="borrar">5. Cómo borrar tus datos</h2>
+<ul><li><b>Historial y portapapeles:</b> en el panel de la app, Ajustes → Privacidad y datos → «Borrar historial».</li>
+<li><b>Todo lo demás:</b> en el mismo lugar, «Abrir» muestra la carpeta de datos; borrá los archivos que quieras o la carpeta entera. Al desinstalar la app podés borrar también la carpeta de datos (en la versión instalada, %APPDATA%\WhisperPRO).</li>
+<li><b>Capturas:</b> borrá la carpeta Imágenes\WhisperPRO.</li>
+<li><b>Tu clave de Groq:</b> podés revocarla o eliminarla desde tu cuenta en console.groq.com.</li>
+<li><b>Versión web:</b> Ajustes → «Borrar historial» y «Quitar» la clave, o borrá los datos del sitio en el navegador.</li></ul>
+
+<h2 id="derechos">6. Tus derechos</h2>
+<p>De acuerdo con la Ley 25.326 de Protección de Datos Personales, tenés derecho a acceder, rectificar, actualizar y suprimir tus datos personales. Como FESTUDIOS no almacena datos de tu uso, estos derechos los ejercés directamente sobre tus archivos locales (ver sección 5) y, respecto del proveedor de IA, ante ese proveedor. Para los datos que nos hayas enviado por correo, escribinos a <a href="mailto:festudioarg@gmail.com">festudioarg@gmail.com</a> y respondemos en un plazo máximo de diez días corridos.</p>
+<p>La AGENCIA DE ACCESO A LA INFORMACIÓN PÚBLICA, en su carácter de Órgano de Control de la Ley N° 25.326, tiene la atribución de atender las denuncias y reclamos que interpongan quienes resulten afectados en sus derechos por incumplimiento de las normas vigentes en materia de protección de datos personales.</p>
+<p>Si estás en el Espacio Económico Europeo o en el Reino Unido, también podés ejercer los derechos que te reconoce el RGPD (acceso, rectificación, supresión, limitación, portabilidad y oposición) escribiéndonos al mismo correo.</p>
+
+<h2 id="seguridad">7. Seguridad</h2>
+<p>Los archivos locales se guardan en tu carpeta de usuario <b>sin cifrar</b>, igual que cualquier documento tuyo: protegé tu equipo con las medidas habituales (contraseña de Windows, cifrado de disco). La aplicación no abre puertos ni acepta conexiones entrantes, y su interfaz está configurada para no poder conectarse a internet por sí sola. La clave de IA se guarda localmente en un archivo de configuración; no la compartas.</p>
+
+<h2 id="sitio">8. Este sitio web y cookies</h2>
+<p>Este sitio no usa cookies ni herramientas de análisis o publicidad de terceros, y carga sus tipografías desde el propio sitio. Como cualquier sitio web, el servidor puede registrar datos técnicos de la visita (dirección IP, fecha, página solicitada) con fines de seguridad y funcionamiento. Los enlaces a festudios.pro incluyen un parámetro (utm_source=whisperpro) que solo se usa si tocás el enlace, para saber desde dónde llegaste. Si en el futuro agregamos analítica o cookies, actualizaremos esta página y pediremos tu consentimiento donde corresponda.</p>
+
+<h2 id="menores">9. Menores</h2>
+<p>WhisperPRO no está dirigido a menores de 13 años y no recopilamos intencionalmente datos de menores. Si sos madre, padre o tutor y creés que un menor nos envió datos, escribinos y los eliminamos.</p>
+
+<h2 id="cambios">10. Cambios y contacto</h2>
+<p>Si esta política cambia de forma relevante, actualizaremos la fecha y, cuando corresponda, lo avisaremos dentro de la aplicación. Consultas sobre privacidad: <a href="mailto:festudioarg@gmail.com">festudioarg@gmail.com</a>. Más información: <a href="terminos/">Términos y condiciones</a> · <a href="contacto/">Contacto</a>.</p>
+
+<footer><nav aria-label="Información legal"><a href="privacidad/" aria-current="page" style="color:#fff">Privacidad</a><a href="terminos/">Términos y condiciones</a><a href="baja-y-arrepentimiento/">Cancelar o arrepentirte</a><a href="contacto/">Contacto</a><a href="licencias/">Licencias</a><a href="./">Volver a WhisperPRO</a></nav>
+<p class="mono">FESTUDIO ARGENTINA · <a href="https://festudios.pro/?utm_source=whisperpro&amp;utm_medium=legal&amp;utm_campaign=pie">festudios.pro</a> · Documento v1.0 · Actualizado el 12 de octubre de 2026</p></footer>
 </div></body></html>
