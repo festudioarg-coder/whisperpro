@@ -31,9 +31,9 @@ Herramienta de dictado por voz para Windows (producto de FESTUDIOS): Win + Espac
 
 ## Marca (11/10)
 - Tipografías (12/10): **Bricolage Grotesque** (títulos e interfaz, ejes de ancho y tamaño óptico) y **Martian Mono** (detalles técnicos, usada algo comprimida), ambas OFL, empaquetadas en `app/ui/fonts/` y `web/fonts/` con sus licencias. Sin Google Fonts ni CDN. Logotipo de texto: "Whisper" + "PRO" en el degradé de la marca.
-- Logo definido: squircle degradé coral #FF4D6D → durazno #FF9A5C con 5 barras blancas (sale de `branding/hero-01.png`, generado por Juan en ChatGPT). Redibujado en código (`make_logo` en dictado.py) → `app/logo.ico` y `branding/logo-1024.png`.
+- Logo definido (12/10, Juan pidió violeta púrpura: "prosperidad y futuro"; sin naranja): squircle con degradé violeta #7C3AED → #A855F7 y 5 barras blancas. Acento claro lila #C084FC; estados: escuchando violeta, pensando azul #6EA8FF, listo verde menta #34E0A1, descartar/borrar rosa #FF6B86. Redibujado en código (`make_logo` en dictado.py) → `app/logo.ico`, `branding/logo-1024.png` e íconos de `web/`. **Pendiente:** `branding/hero-01.png` y `ui-ventana-referencia.png` siguen en coral (arte de ChatGPT): rehacerlos con los prompts de `PROMPTS-BRANDING-CHATGPT.md`, ya actualizados a violeta.
 - `branding/ui-ventana-referencia.png`: ventana compacta (tarjeta ESCUCHANDO con onda, caja de texto con lo tachado, barra de controles: ajustes, traducir, stop, onda, notas). Referencia para la vista desplegada.
-- Pendiente de la imagen hero: la figura encapuchada sin cara puede leerse como "hacker/espía" en un producto que escucha tu micrófono; usarla para redes de festudios, no para landing/Product Hunt.
+- Pendiente de la imagen hero (sigue en coral, rehacer en violeta): la figura encapuchada sin cara puede leerse como "hacker/espía" en un producto que escucha tu micrófono; usarla para redes de festudios, no para landing/Product Hunt.
 
 ## Backlog (después de validar el .exe)
 - Links: si el usuario selecciona un texto que es una URL sin link (ej. "festudios.pro/precios"), WhisperPRO lo detecta y ofrece abrirlo (atajo o chip en el overlay). Pedido de Juan 11/10.
@@ -70,6 +70,7 @@ Herramienta de dictado por voz para Windows (producto de FESTUDIOS): Win + Espac
 - Cada parche se prueba con `dev.bat` y se mira `dictado.log` antes de decir que funciona.
 
 ## Historia (no leer al arrancar)
+- 12/10: decisión (Juan) — la marca pasa de coral/durazno a violeta púrpura. Por qué: prosperidad y futuro; el naranja no le gusta. Se cambió en panel, cápsula, versión web, landing, logo e íconos. Lo que es advertencia (descartado, ¿borrar?) quedó en rosa para no confundirse con el color de marca.
 - 12/10: decisión (Juan) — tipografías con identidad propia y todo guardado en la PC. Por qué: marca diferenciada y mensaje de seguridad. Se eligieron Bricolage Grotesque + Martian Mono (OFL) empaquetadas; los datos ya eran locales (historial, portapapeles, clave, ajustes). Lo que no es local es el audio (Groq): el mensaje de marketing se redactó sin esa trampa (ver reglas).
 - 12/10: decisión (Juan) — atajos configurables desde el panel (hasta 2 de grabación, más capturas de pantalla de región y completa). Por qué: cada persona usa su teclado distinto y Win+Espacio choca con el cambio de idioma de Windows.
 - 12/10: idea (Juan) — extensión de Chrome como vidriera y paso previo a instalar la app; versión web para iPhone. Se hizo la web (`web/`); la extensión queda para después de la Store.

@@ -14,11 +14,11 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b0c11;fon
 body{opacity:0;transform:translateY(8px) scale(.985);transform-origin:50% 100%;transition:opacity .26s cubic-bezier(.25,1,.5,1),transform .32s cubic-bezier(.25,1,.5,1)}
 body.vis{opacity:1;transform:none}
 html.demo body{opacity:1;transform:none}
-:root{--a:#ff4d6d;--b:#ff9a5c;--g:255,77,109}
-body[data-state="thinking"]{--a:#7aa2ff;--b:#c58cff;--g:122,162,255}
+:root{--a:#8b5cf6;--b:#c084fc;--g:139,92,246}
+body[data-state="thinking"]{--a:#6ea8ff;--b:#a5c8ff;--g:110,168,255}
 body[data-state="done"]{--a:#34e0a1;--b:#8cf5d2;--g:52,224,161}
 body[data-state="error"]{--a:#9aa0b4;--b:#c9ccd8;--g:154,160,180}
-body.confirm{--a:#ffb547;--b:#ffd27a;--g:255,181,71}
+body.confirm{--a:#ff6b86;--b:#ff9bb0;--g:255,107,134}
 
 #frame,.layer{position:absolute;left:50%;bottom:0;transform:translateX(-50%);
   transition:width .24s cubic-bezier(.25,1,.5,1),height .24s cubic-bezier(.25,1,.5,1),border-radius .24s cubic-bezier(.25,1,.5,1),opacity .2s ease}
@@ -75,7 +75,7 @@ body[data-state="done"] .ind svg{display:block}
 #label{font-size:11px;font-weight:800;letter-spacing:.18em;color:var(--b);white-space:nowrap}
 #sub{font-size:11px;font-weight:600;color:#6b7088;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-#chip{display:none;font-size:11px;font-weight:700;color:#ff8aa0;background:rgba(255,77,109,.12);border:1px solid rgba(255,77,109,.3);border-radius:999px;padding:3px 10px}
+#chip{display:none;font-size:11px;font-weight:700;color:#ff8aa0;background:rgba(255,107,134,.12);border:1px solid rgba(255,107,134,.3);border-radius:999px;padding:3px 10px}
 #time{font-family:'WP Mono',Consolas,monospace;font-size:13px;color:#9aa0b4}
 #wave{display:flex;align-items:center;justify-content:center;gap:6px;height:44px}
 #wave i{display:block;width:5px;height:44px;border-radius:999px;transform:scaleY(.08);transform-origin:center;background:var(--a)}
@@ -94,7 +94,7 @@ body[data-state="done"] #text,body[data-state="error"] #text{display:none}
 body[data-state="done"] #final,body[data-state="error"] #final{display:block}
 body[data-state="done"] #hints{display:flex}
 body[data-state="error"] #final{color:#c9ccd8;font-size:15px;flex:none;margin:6px 0}
-#ask{display:none;align-items:center;gap:10px;font-size:14px;font-weight:700;color:#ffd27a}
+#ask{display:none;align-items:center;gap:10px;font-size:14px;font-weight:700;color:#ff9bb0}
 body.confirm #ask{display:flex}
 body.confirm #text{display:none}
 kbd,#mt,#time,#hints #wc{font-stretch:86%}

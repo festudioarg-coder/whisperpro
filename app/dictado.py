@@ -1205,8 +1205,8 @@ class Overlay:
         x0, y0 = self.PAD, self.PAD
         x1, y1 = x0 + self.W, y0 + self.H
         s = UI["state"]
-        accent = {"listening": "#ff4d6d", "thinking": "#7aa2ff", "done": "#34e0a1", "error": "#ff4d6d"}.get(s, "#7aa2ff")
-        accent2 = {"listening": "#ff9a5c", "thinking": "#c58cff", "done": "#8cf5d2", "error": "#ff9a5c"}.get(s, "#c58cff")
+        accent = {"listening": "#8b5cf6", "thinking": "#6ea8ff", "done": "#34e0a1", "error": "#9aa0b4"}.get(s, "#6ea8ff")
+        accent2 = {"listening": "#c084fc", "thinking": "#a5c8ff", "done": "#8cf5d2", "error": "#c9ccd8"}.get(s, "#a5c8ff")
 
         # halo exterior
         for i in range(10, 0, -1):
@@ -1431,7 +1431,7 @@ class Overlay:
 
         t_final = section("MENSAJE FINAL", "#8cf5d2", "#34e0a1")
         t_raw = section("LO QUE DIJISTE, LITERAL", MUTED, "#1f2330")
-        t_disc = section("DESCARTADO · RECUPERABLE", "#ff8aa0", "#ff4d6d")
+        t_disc = section("DESCARTADO · RECUPERABLE", "#ff8aa0", "#ff6b86")
         t_final.configure(font=(fam, 13, "bold"))
 
         def current():
@@ -1515,12 +1515,12 @@ class Overlay:
 # Logo e ícono de bandeja
 # =====================================================================
 def make_logo(size=256):
-    """Logo WhisperPRO: squircle con degradé coral→durazno y 5 barras blancas de onda de voz."""
+    """Logo WhisperPRO: squircle con degradé violeta y 5 barras blancas de onda de voz."""
     from PIL import Image, ImageDraw
     S = size * 4                                   # supersampling para bordes limpios
     grad = Image.new("RGBA", (S, S))
     gp = grad.load()
-    c1, c2 = (255, 77, 109), (255, 154, 92)        # #FF4D6D → #FF9A5C (diagonal)
+    c1, c2 = (124, 58, 237), (168, 85, 247)        # #7C3AED → #A855F7 (diagonal)
     for y in range(S):
         for x in range(0, S, 4):
             t = (x + y) / (2 * S)

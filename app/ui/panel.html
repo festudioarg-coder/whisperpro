@@ -12,7 +12,7 @@
 :root{
   --bg:#0a0b10;--bg2:#0e1016;--panel:#11131a;--line:#1b1e29;--line2:#262a37;
   --tx:#e9eaf2;--tx2:#aab0c4;--tx3:#6b7088;--tx4:#454a5e;
-  --a:#ff4d6d;--b:#ff9a5c;--ok:#34e0a1;--bad:#ff6b86;--info:#7aa2ff;
+  --a:#8b5cf6;--b:#c084fc;--ok:#34e0a1;--bad:#ff6b86;--info:#7aa2ff;
   --mono:'WP Mono',ui-monospace,Consolas,monospace;--sans:'WP Sans','Segoe UI',system-ui,sans-serif;
 }
 *{box-sizing:border-box}
@@ -24,7 +24,7 @@ button{font-family:inherit}
 /* ---------- barra superior ---------- */
 header{display:flex;align-items:center;gap:18px;height:50px;padding:0 16px;border-bottom:1px solid var(--line);background:var(--bg2);flex-shrink:0}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
-.logo{width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,var(--a),var(--b));display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(255,77,109,.35)}
+.logo{width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#a855f7);display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(139,92,246,.45)}
 h1{margin:0}
 .brandtxt{display:flex;flex-direction:column;gap:4px;line-height:1}
 .by{font:600 8.5px var(--mono);font-stretch:86%;letter-spacing:.17em;text-transform:uppercase;color:#8b92a8;white-space:nowrap}
@@ -188,11 +188,11 @@ button.b{height:36px;padding:0 14px;border-radius:10px;background:transparent;co
 button.b.p{background:#e9eaf2;color:#0c0d13;border-color:#e9eaf2;font-weight:800}
 button.b:hover{filter:brightness(1.15)}
 /* ---- Conectá WhisperPRO (clave de IA) ---- */
-#setup{position:fixed;inset:0;background:radial-gradient(700px 420px at 50% 110%,rgba(255,77,109,.16),transparent 70%),#0c0d13;display:none;align-items:center;justify-content:center;z-index:10}
+#setup{position:fixed;inset:0;background:radial-gradient(700px 420px at 50% 110%,rgba(139,92,246,.2),transparent 70%),#0c0d13;display:none;align-items:center;justify-content:center;z-index:10}
 #setup.on{display:flex}
 .card{width:600px;max-width:calc(100% - 40px);display:flex;flex-direction:column;gap:22px}
 .sh{display:flex;align-items:center;gap:14px}
-.sh .logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#ff4d6d,#ff9a5c)}
+.sh .logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#a855f7)}
 .sh h2{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em}
 .sh p{margin:2px 0 0;color:#9aa0b4;font-size:14px;font-weight:600}
 .steps{display:flex;flex-direction:column;gap:10px}
@@ -200,13 +200,13 @@ button.b:hover{filter:brightness(1.15)}
 .step .n{width:30px;height:30px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;background:#1b1e29;color:#9aa0b4}
 .step .t{flex:1;font-size:14px;font-weight:700;line-height:1.4}
 .step .t small{display:block;font-size:12px;font-weight:600;color:#6b7088;margin-top:2px}
-.step.cur{border-color:rgba(255,77,109,.45);background:#15131a}
-.step.cur .n{background:#ff4d6d;color:#0c0d13}
+.step.cur{border-color:rgba(139,92,246,.5);background:#15131a}
+.step.cur .n{background:#7c3aed;color:#fff}
 .step.ok .n{background:#34e0a1;color:#0c0d13}
 .kbd{font-family:'WP Mono',monospace;font-size:12px;background:#1b1e29;border:1px solid #2a2e3d;border-radius:6px;padding:1px 6px}
 .live{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:#c9ccd8}
-.pulse{width:9px;height:9px;border-radius:50%;background:#ff4d6d;box-shadow:0 0 0 0 rgba(255,77,109,.6);animation:pl 1.4s infinite}
-@keyframes pl{70%{box-shadow:0 0 0 10px rgba(255,77,109,0)}100%{box-shadow:0 0 0 0 rgba(255,77,109,0)}}
+.pulse{width:9px;height:9px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 0 0 rgba(139,92,246,.6);animation:pl 1.4s infinite}
+@keyframes pl{70%{box-shadow:0 0 0 10px rgba(139,92,246,0)}100%{box-shadow:0 0 0 0 rgba(139,92,246,0)}}
 .live.ok{color:#8cf5d2}.live.ok .pulse{background:#34e0a1;animation:none}
 .live.bad{color:#ff8aa0}
 .manual{display:flex;gap:8px}
@@ -241,7 +241,7 @@ button.b:hover{filter:brightness(1.15)}
 <div id="app">
 <header>
   <div class="brand">
-    <span class="logo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0a0b10" stroke-width="2.8" stroke-linecap="round"><path d="M12 3v18M7 8v8M17 8v8M3 11v2M21 11v2"/></svg></span>
+    <span class="logo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><path d="M12 3v18M7 8v8M17 8v8M3 11v2M21 11v2"/></svg></span>
     <div class="brandtxt"><span class="by">Desarrollado por <strong>FESTUDIOS</strong></span><h1 class="wm">Whisper<b>PRO</b></h1></div>
   </div>
   <span class="crumb">memoria <b>/</b> <b id="crumb">dictados</b></span>
