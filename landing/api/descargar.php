@@ -22,7 +22,12 @@ if ($email === null) pagina(403, 'El link venció', 'Los links de descarga duran
 if (!freno('dl', 10, 3600)) pagina(429, 'Demasiados intentos', 'Probá de nuevo en un rato.');
 
 $inst = instalador_actual();
-if ($inst === null) pagina(503, 'Todavía no está disponible', 'Estamos terminando de subir el instalador. Probá de nuevo en unos minutos.');
+if ($inst === null) {
+    $dir = carpeta_privada();
+    $GLOBALS['wp_mail_error'] = 'carpeta=' . $dir . ' existe=' . (is_dir($dir) ? 'si' : 'no') . ' archivos=' . implode(',', array_map('basename', glob($dir . '/*') ?: []));
+    registrar_fallo($email, 'instalador-no-encontrado');
+    pagina(503, 'Todavía no está disponible', 'Estamos terminando de subir el instalador. Probá de nuevo en unos minutos.');
+}
 [$ruta, $version] = $inst;
 
 try {
