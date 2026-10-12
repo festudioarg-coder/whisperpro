@@ -42,6 +42,10 @@ table{width:100%;border-collapse:collapse;font-size:15.5px;margin:18px 0}th,td{t
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn:disabled{opacity:.75;cursor:progress}
 @media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}}
+.paso{display:flex;gap:16px;margin:18px 0}.paso .n{flex:none;width:34px;height:34px;border-radius:50%;background:#7c3aed;color:#fff;font:700 16px/34px 'WP Sans',sans-serif;text-align:center}
+.paso h3{margin:2px 0 4px}.paso p{margin:4px 0}
+figure{margin:14px 0 6px}figure img{display:block;width:100%;height:auto;border-radius:14px;border:1px solid #1b1e29}figcaption{font-size:14px;color:#8b92a8;margin-top:8px}
+.kbd{font:600 14px 'WP Mono',monospace;background:#161923;border:1px solid #262a37;border-radius:6px;padding:1px 7px;color:#e9eaf2;white-space:nowrap}
 footer{border-top:1px solid #1b1e29;margin-top:72px;padding-top:28px}
 footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer nav a{color:#aab0c4;text-decoration:none;font-size:15px}footer nav a:hover{color:#fff}
 @media (max-width:640px){.toc{columns:1}body{font-size:17px}}
@@ -61,11 +65,50 @@ footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer n
 <button class="btn" type="submit" style="border:0;cursor:pointer;font-family:inherit">Enviarme el link</button>
 <p id="e" style="color:#fda4af;margin:12px 0 0" role="alert"></p>
 </form>
-<div id="ok" style="display:none" role="status" aria-live="polite"><div class="exito"><div class="tilde" aria-hidden="true">✓</div><h2>¡Listo! Te enviamos un mail</h2><div class="mail" id="okmail"></div><p style="margin:0">Tocá el link que te mandamos para bajar el instalador (vale 48 horas).</p><ol><li>Abrí tu correo.</li><li>Buscá «Tu descarga de WhisperPRO».</li><li>Tocá el link y se baja el instalador para Windows 10 y 11 (64 bits).</li></ol><p class="chico">El mail llega de «WhisperPRO por FESTUDIOS». Si en unos minutos no aparece, revisá la carpeta de correo no deseado o <a href="#" id="otro">probá con otro mail</a>.</p></div></div>
+<div id="ok" style="display:none" role="status" aria-live="polite"><div class="exito"><div class="tilde" aria-hidden="true">✓</div><h2>¡Listo! Te enviamos un mail</h2><div class="mail" id="okmail"></div><p style="margin:0">Tocá el link que te mandamos para bajar el instalador (vale 48 horas).</p><ol><li>Abrí tu correo.</li><li>Buscá «Tu descarga de WhisperPRO».</li><li>Tocá el link y se baja el instalador para Windows 10 y 11 (64 bits).</li></ol><p class="chico">El mail llega de «WhisperPRO por FESTUDIOS». Si en unos minutos no aparece, revisá la carpeta de correo no deseado o <a href="#" id="otro">probá con otro mail</a>.</p><p class="chico">Mientras esperás: <a href="descargar/#clave">cómo conseguir tu clave gratis de IA</a>, que vas a necesitar al abrir WhisperPRO.</p></div></div>
 <div id="warn" style="display:none" role="alert"><div class="aviso"><h2>Recibimos tu pedido, pero no pudimos enviar el mail</h2><p style="margin:0">Hubo un problema de nuestro lado al mandarlo. No hace falta que repitas nada: ya quedó anotado y te lo enviamos a mano. Si querés apurarlo, escribinos a festudioarg@gmail.com.</p></div></div>
 </div>
 <p class="mono" style="font-size:13px">Si Windows muestra «Windows protegió su PC», tocá «Más información» y después «Ejecutar de todas formas». Es normal en aplicaciones nuevas.</p>
 <div class="box" id="movil"><p style="margin:0 0 8px"><b>¿Desde el teléfono?</b></p><p style="margin:0 0 14px">El instalador es para Windows. En iPhone y Android usá la versión web: se abre en el navegador y la podés agregar a tu pantalla de inicio como una app.</p><a class="btn" href="app/">Abrir la versión web</a></div>
+
+<h2 id="clave">Cómo conseguir tu clave gratis de IA (1 minuto)</h2>
+<p>WhisperPRO usa Groq para transcribir tu voz. Necesitás una <b>clave gratuita</b> (una especie de contraseña propia). Se consigue una sola vez, en tres toques. <b>No hace falta tarjeta.</b></p>
+
+<div class="paso"><span class="n">1</span><div><h3>Entrá a Groq con tu cuenta de Google</h3>
+<p>Abrí <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a> y elegí <span class="kbd">Continue with Google</span> (o con tu mail). La cuenta es gratis.</p>
+</div></div>
+
+<div class="paso"><span class="n">2</span><div><h3>Creá la clave</h3>
+<p>Tocá <span class="kbd">Create API Key</span>, escribí cualquier nombre (por ejemplo «WhisperPRO») y apretá <span class="kbd">Submit</span>.</p>
+</div></div>
+
+<div class="paso"><span class="n">3</span><div><h3>Copiala</h3>
+<p>Apretá <span class="kbd">Copy</span>. La clave empieza con <span class="kbd">gsk_</span> y Groq te la muestra <b>una sola vez</b>. No hace falta que la guardes ni la pegues en ningún lado.</p>
+</div></div>
+
+<h2 id="poner">Cómo ponerla en WhisperPRO</h2>
+<p>Abrí WhisperPRO por primera vez: aparece solo la pantalla <b>«Conectá WhisperPRO»</b>, con el Guía.</p>
+<figure><img src="img/conexion-1.webp" alt="Pantalla Conectá WhisperPRO con tres pasos y el Guía" width="1000" loading="lazy"><figcaption>La pantalla de conexión se abre sola la primera vez.</figcaption></figure>
+<ol>
+<li>Tocá <span class="kbd">Abrir Groq</span>: se abre la página de las claves en tu navegador.</li>
+<li>Hacé los pasos de arriba y apretá <span class="kbd">Copy</span>. Después volvé a WhisperPRO.</li>
+<li><b>WhisperPRO detecta la clave sola</b>, la prueba y la guarda. Cuando termina dice «Listo, conectado».</li>
+</ol>
+<figure><img src="img/conexion-3.webp" alt="Pantalla de WhisperPRO que dice Listo, conectado" width="1000" loading="lazy"><figcaption>Cuando dice «Listo, conectado», ya podés dictar con <span class="kbd">Win + Espacio</span>.</figcaption></figure>
+
+<div class="box">
+<p style="margin:0 0 8px"><b>¿No la detectó?</b></p>
+<p style="margin:0">Pegá la clave en el cuadro «¿No la detectó? Pegala acá: gsk_…» y tocá <span class="kbd">Conectar</span>. Más adelante podés cambiarla desde el ícono de WhisperPRO junto al reloj → <span class="kbd">Cambiar clave de IA</span>.</p>
+</div>
+
+<h3>Cosas que conviene saber</h3>
+<ul>
+<li>Tu clave queda <b>solo en tu PC</b>. FESTUDIOS no la ve ni la guarda.</li>
+<li>No la compartas con nadie: es como una contraseña. Si la perdés o la mostraste sin querer, creá otra en Groq y cambiala en WhisperPRO.</li>
+<li>El plan gratuito de Groq tiene límites de uso. Para dictar normalmente alcanza de sobra.</li>
+<li>Si «Abrir Groq» no abre nada, entrá a mano a <b>console.groq.com/keys</b>.</li>
+</ul>
+
 <script>if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){var m=document.getElementById('movil'),c=document.getElementById('caja');c.parentNode.insertBefore(m,c);document.getElementById('t').textContent='Para bajarlo en tu PC, dejá tu mail y te enviamos el link.';}
 document.getElementById('f').addEventListener('submit',async function(ev){
   ev.preventDefault();var e=document.getElementById('e'),m=document.getElementById('m').value.trim();

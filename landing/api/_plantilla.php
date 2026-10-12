@@ -106,7 +106,7 @@ function mail_descarga(string $link): array {
         . '<div style="font:700 13px/1.4 Segoe UI,Arial,sans-serif;letter-spacing:.1em;color:#6d28d9;margin:22px 0 4px">CÓMO EMPEZAR</div>'
         . mail_pasos([
             '<b>Instalá</b> el programa: abrí el archivo descargado y seguí el asistente.',
-            '<b>Conectá tu clave gratuita de IA.</b> Al abrirlo te guiamos paso a paso; lleva un minuto.',
+            '<b>Conectá tu clave gratuita de IA.</b> Al abrirlo te guiamos paso a paso; lleva un minuto. <a href="' . WP_SITIO . 'descargar/#clave" style="color:#6d28d9">Ver la guía con capturas</a>.',
             '<b>Hablá.</b> Apretá <b>Win + Espacio</b> en cualquier programa y mirá cómo se escribe lo que decís.',
         ])
         . '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:24px 0 0"><tr><td bgcolor="#f5f3ff" style="background:#f5f3ff;border-radius:12px;padding:15px 18px;font:400 14.5px/1.55 Segoe UI,Arial,sans-serif;color:#4c1d95">'
@@ -114,7 +114,7 @@ function mail_descarga(string $link): array {
         . mail_p('Si el botón no funciona, copiá este enlace en tu navegador:<br><a href="' . h($link) . '" style="color:#6d28d9;word-break:break-all;font-size:13px">' . h($link) . '</a>', 'margin-top:22px;font-size:13.5px;color:#6b7280');
     $texto = "Hola,\n\nGracias por elegir WhisperPRO, la aplicación de dictado por voz para Windows que desarrollamos en FESTUDIOS.\n\n"
         . "Tu link de descarga (vale 48 horas):\n$link\n\nPara Windows 10 y 11 (64 bits).\n\n"
-        . "Cómo empezar:\n1) Instalá el programa.\n2) Conectá tu clave gratuita de IA: al abrirlo te guiamos, lleva un minuto.\n3) Apretá Win + Espacio en cualquier programa y hablá.\n\n"
+        . "Cómo empezar:\n1) Instalá el programa.\n2) Conectá tu clave gratuita de IA: al abrirlo te guiamos, lleva un minuto. Guía con capturas: https://festudios.pro/whisperpro/descargar/#clave\n3) Apretá Win + Espacio en cualquier programa y hablá.\n\n"
         . "Si Windows muestra «Windows protegió su PC», tocá «Más información» y después «Ejecutar de todas formas»: es normal en aplicaciones nuevas.\n\n"
         . "¿Dudas? Respondé este mail.\n\nEl equipo de FESTUDIOS · festudios.pro\n" . WP_EMISOR . ' · ' . WP_DATOS . "\n\n"
         . "Recibís este mail porque pediste la descarga en festudios.pro/whisperpro. Para borrar tus datos o no recibir más novedades, respondé con la palabra BAJA.";

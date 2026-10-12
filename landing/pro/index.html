@@ -42,6 +42,10 @@ table{width:100%;border-collapse:collapse;font-size:15.5px;margin:18px 0}th,td{t
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn:disabled{opacity:.75;cursor:progress}
 @media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}}
+.paso{display:flex;gap:16px;margin:18px 0}.paso .n{flex:none;width:34px;height:34px;border-radius:50%;background:#7c3aed;color:#fff;font:700 16px/34px 'WP Sans',sans-serif;text-align:center}
+.paso h3{margin:2px 0 4px}.paso p{margin:4px 0}
+figure{margin:14px 0 6px}figure img{display:block;width:100%;height:auto;border-radius:14px;border:1px solid #1b1e29}figcaption{font-size:14px;color:#8b92a8;margin-top:8px}
+.kbd{font:600 14px 'WP Mono',monospace;background:#161923;border:1px solid #262a37;border-radius:6px;padding:1px 7px;color:#e9eaf2;white-space:nowrap}
 footer{border-top:1px solid #1b1e29;margin-top:72px;padding-top:28px}
 footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer nav a{color:#aab0c4;text-decoration:none;font-size:15px}footer nav a:hover{color:#fff}
 @media (max-width:640px){.toc{columns:1}body{font-size:17px}}
@@ -66,7 +70,7 @@ footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer n
 <button class="btn" type="submit" style="border:0;cursor:pointer;font-family:inherit">Quiero el plan Pro</button>
 <p id="e" style="color:#fda4af;margin:12px 0 0" role="alert"></p>
 </form>
-<div id="ok" style="display:none" role="status" aria-live="polite"><div class="exito"><div class="tilde" aria-hidden="true">✓</div><h2>¡Listo! Te enviamos un mail</h2><div class="mail" id="okmail"></div><p style="margin:0">Confirmá que es tuyo para ver los datos de pago (el link vale 48 horas).</p><ol><li>Abrí tu correo.</li><li>Buscá «Confirmá tu mail para contratar WhisperPRO Pro».</li><li>Tocá el link: te mostramos y te enviamos los datos para transferir.</li></ol><p class="chico">El mail llega de «WhisperPRO por FESTUDIOS». Si en unos minutos no aparece, revisá la carpeta de correo no deseado o <a href="#" id="otro">probá con otro mail</a>.</p></div></div>
+<div id="ok" style="display:none" role="status" aria-live="polite"><div class="exito"><div class="tilde" aria-hidden="true">✓</div><h2>¡Listo! Te enviamos un mail</h2><div class="mail" id="okmail"></div><p style="margin:0">Confirmá que es tuyo para ver los datos de pago (el link vale 48 horas).</p><ol><li>Abrí tu correo.</li><li>Buscá «Confirmá tu mail para contratar WhisperPRO Pro».</li><li>Tocá el link: te mostramos y te enviamos los datos para transferir.</li></ol><p class="chico">El mail llega de «WhisperPRO por FESTUDIOS». Si en unos minutos no aparece, revisá la carpeta de correo no deseado o <a href="#" id="otro">probá con otro mail</a>.</p><p class="chico">Mientras esperás: <a href="descargar/#clave">cómo conseguir tu clave gratis de IA</a>, que vas a necesitar al abrir WhisperPRO.</p></div></div>
 <div id="warn" style="display:none" role="alert"><div class="aviso"><h2>Recibimos tu pedido, pero no pudimos enviar el mail</h2><p style="margin:0">Hubo un problema de nuestro lado al mandarlo. No hace falta que repitas nada: ya quedó anotado y te lo enviamos a mano. Si querés apurarlo, escribinos a festudioarg@gmail.com.</p></div></div>
 </div>
 <p class="mono" style="font-size:13px">Pagás por transferencia bancaria. Tenés 10 días corridos para arrepentirte y podés darte de baja cuando quieras: <a href="baja-y-arrepentimiento/">cómo hacerlo</a>.</p>
