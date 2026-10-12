@@ -21,9 +21,7 @@ for dp, _, fs in os.walk(RAIZ):
             pend.append(f"{rel}: falta img/og.png")
 if not os.path.exists(os.path.join(RAIZ, "descargar", "index.html")):
     pend.append("falta la página descargar/ (python landing/generar_legales.py)")
-else:
-    import re as _re
-    if 'INSTALADOR = ""' in open(os.path.join(RAIZ, "generar_legales.py"), encoding="utf-8").read():
-        print("AVISO: INSTALADOR vacío en generar_legales.py: la página de descarga recoge mails y avisa del lanzamiento (no entrega el instalador).")
+if not os.path.exists(os.path.join(RAIZ, "api", "solicitar.php")):
+    pend.append("falta api/solicitar.php")
 print("\n".join(pend) if pend else "Nada pendiente: se puede publicar.")
 sys.exit(1 if pend else 0)

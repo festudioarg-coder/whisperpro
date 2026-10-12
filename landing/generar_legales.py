@@ -122,7 +122,7 @@ PRIV = f"""
 <p>Guarda tu clave y tu historial en el almacenamiento del navegador de tu teléfono. Solo puede conectarse a api.groq.com. FESTUDIOS no recibe esos datos.</p>
 
 <h3>Si dejás tu mail en nuestra web</h3>
-<p>En la página de descarga podés dejar tu correo para recibir el link del instalador y novedades de WhisperPRO. Lo guardamos en el sistema de contacto de FESTUDIOS (sobre infraestructura de nuestro proveedor de bases de datos), junto con la fecha y la página desde donde lo dejaste, y lo usamos solo para enviarte lo que pediste y, si lo aceptaste, novedades del producto. Podés pedir que lo borremos o darte de baja en cualquier momento escribiendo a {MAIL}. Esto ocurre en el sitio web, no dentro de la aplicación: la aplicación sigue sin cuenta ni telemetría.</p>
+<p>En la página de descarga podés dejar tu correo para recibir el link del instalador y novedades de WhisperPRO. Lo guardamos en el sistema de contacto de FESTUDIOS (sobre infraestructura de nuestro proveedor de bases de datos), junto con la fecha y la página desde donde lo dejaste, y lo usamos solo para enviarte lo que pediste y, si lo aceptaste, novedades del producto. Cuando descargás con ese link registramos la fecha, la versión y una huella de tu conexión que cambia cada día y no permite reconstruir tu IP, solo para contar descargas. Podés pedir que lo borremos o darte de baja en cualquier momento escribiendo a {MAIL}. Esto ocurre en el sitio web, no dentro de la aplicación: la aplicación sigue sin cuenta ni telemetría.</p>
 
 <h2 id="finalidad">4. Para qué se usan y por cuánto tiempo</h2>
 <p>Los datos locales se usan únicamente para que la aplicación funcione y para que consultes tu propia memoria de voz. Permanecen en tu equipo hasta que los borres vos o desinstales la aplicación. FESTUDIOS no conserva copia alguna. El proveedor de IA conserva o descarta el audio según sus propias políticas; consultalas antes de usar el servicio.</p>
@@ -181,7 +181,7 @@ TERM = f"""
 <p>Incluye las funciones esenciales descriptas en nuestra página, sin costo y sin límites impuestos por FESTUDIOS (los límites del proveedor de IA siguen aplicando).</p>
 <h3>7.2 Plan Pro (desde su lanzamiento)</h3>
 <p>El plan Pro agrega herramientas accesorias. Sus condiciones se aplican a partir de su lanzamiento y se informarán antes de contratar:</p>
-<ul><li><b>Precio y moneda:</b> el plan Pro cuesta US$ 5 por mes, y el precio se informa antes de contratar, con los impuestos que correspondan.</li>
+<ul><li><b>Precio y moneda:</b> el plan Pro cuesta US$ 5 por mes. Como el pago es por transferencia en pesos argentinos, el monto en pesos se calcula con el dólar oficial (precio vendedor) del día del pago y se te informa antes de transferir, con los impuestos que correspondan.</li>
 <li><b>Pago:</b> por transferencia bancaria. Escribinos a {MAIL} y te enviamos los datos de la cuenta; una vez acreditado el pago te enviamos tu licencia por correo. Emitimos el comprobante que corresponda.</li>
 <li><b>Renovación:</b> mensual. Podés darte de baja en cualquier momento; la baja rige desde el fin del período ya pagado, sin permanencia mínima ni penalidades.</li>
 <li><b>Cambios de precio:</b> los informamos con al menos 30 días de anticipación y no afectan períodos ya pagados.</li>
@@ -285,33 +285,32 @@ LIC = f"""
 <p>«FESTUDIOS», «WhisperPRO» y el personaje «el Guía» son de FESTUDIOS. WhisperPRO es independiente y no está afiliado a OpenAI, Groq ni Microsoft. Más en <a href="terminos/">Términos y condiciones</a>.</p>
 """
 
-INSTALADOR = ""   # poné acá la URL del instalador cuando exista (ej: "/whisperpro/descargas/WhisperPRO-Setup.exe")
-
 DESCARGAR = f"""
 <p>WhisperPRO es gratis para empezar: dictás en cualquier programa de Windows con un atajo, sin cuenta.</p>
 <div class="box" id="caja">
 <form id="f" novalidate>
-<p style="margin:0 0 10px"><b id="t">{"Dejá tu mail y te mostramos el link de descarga." if INSTALADOR else "Estamos terminando el instalador. Dejá tu mail y te avisamos apenas salga."}</b></p>
+<p style="margin:0 0 10px"><b id="t">Dejá tu mail y te enviamos el link de descarga.</b></p>
 <p style="margin:0 0 14px"><input id="m" type="email" required autocomplete="email" placeholder="tu@mail.com" style="width:100%;max-width:420px;padding:13px 14px;border-radius:12px;border:1px solid #2a2e3d;background:#0a0b10;color:#fff;font:inherit"></p>
 <p style="margin:0 0 14px;font-size:15px"><label><input id="c" type="checkbox" required> Acepto que FESTUDIOS me escriba a este mail con el link y novedades de WhisperPRO. Puedo darme de baja cuando quiera. <a href="privacidad/">Privacidad</a></label></p>
-<button class="btn" type="submit" style="border:0;cursor:pointer;font-family:inherit">{"Ver el link de descarga" if INSTALADOR else "Avisame cuando esté"}</button>
+<button class="btn" type="submit" style="border:0;cursor:pointer;font-family:inherit">Enviarme el link</button>
 <p id="e" style="color:#fda4af;margin:12px 0 0" role="alert"></p>
 </form>
-<div id="ok" style="display:none"><p class="ok"><b>Listo, recibimos tu mail.</b></p>{('<p><a class="btn" href="' + INSTALADOR + '" download>Descargar WhisperPRO para Windows</a></p><p class="mono">Windows 10 y 11 · 64 bits</p>') if INSTALADOR else '<p>Te escribimos a ese correo el día que esté disponible.</p>'}</div>
+<div id="ok" style="display:none"><p class="ok"><b>Listo: te enviamos el link a tu mail.</b></p><p>Revisá también la carpeta de correo no deseado. El link vale 48 horas. Es para Windows 10 y 11 (64 bits).</p></div>
 </div>
+<p class="mono" style="font-size:13px">Si Windows muestra «Windows protegió su PC», tocá «Más información» y después «Ejecutar de todas formas». Es normal en aplicaciones nuevas.</p>
 <div class="box" id="movil"><p style="margin:0 0 8px"><b>¿Desde el teléfono?</b></p><p style="margin:0 0 14px">El instalador es para Windows. En iPhone y Android usá la versión web: se abre en el navegador y la podés agregar a tu pantalla de inicio como una app.</p><a class="btn" href="app/">Abrir la versión web</a></div>
-<script>if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){{var m=document.getElementById('movil'),c=document.getElementById('caja');c.parentNode.insertBefore(m,c);document.getElementById('t').textContent='Para bajarlo en tu PC, dejá tu mail.';}}</script>
-<script>
+<script>if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){{var m=document.getElementById('movil'),c=document.getElementById('caja');c.parentNode.insertBefore(m,c);document.getElementById('t').textContent='Para bajarlo en tu PC, dejá tu mail y te enviamos el link.';}}
 document.getElementById('f').addEventListener('submit',async function(ev){{
   ev.preventDefault();var e=document.getElementById('e'),m=document.getElementById('m').value.trim();
   e.textContent='';
-  if(!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(m)){{e.textContent='Revisá el mail.';return;}}
+  if(!/^[^@\\\\s]+@[^@\\\\s]+\\\\.[^@\\\\s]+$/.test(m)){{e.textContent='Revisá el mail.';return;}}
   if(!document.getElementById('c').checked){{e.textContent='Marcá la casilla para continuar.';return;}}
   try{{
-    var r=await fetch('/lead-rapido.php',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{contacto:m,origen:'whisperpro-descarga',contexto:{json.dumps("descarga" if INSTALADOR else "aviso de lanzamiento")},dispositivo:/Mobi|Android/i.test(navigator.userAgent)?'celular':'compu',pagina:'/whisperpro/descargar/'}})}});
+    var r=await fetch('api/solicitar.php',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{email:m,consentimiento:true,origen:'whisperpro-descarga',dispositivo:/Mobi|Android/i.test(navigator.userAgent)?'celular':'compu'}})}});
+    if(r.status===429){{e.textContent='Demasiados pedidos seguidos. Probá en un rato.';return;}}
     if(!r.ok)throw 0;
     document.getElementById('f').style.display='none';document.getElementById('ok').style.display='block';
-  }}catch(x){{e.textContent='No pudimos guardar tu mail. Probá de nuevo o escribinos a {MAIL}.';}}
+  }}catch(x){{e.textContent='No pudimos enviar el link. Probá de nuevo o escribinos a {MAIL}.';}}
 }});
 </script>
 """

@@ -321,9 +321,10 @@ details[open] summary::after{content:"−"}
       <div class="card col" style="flex-basis:420px;padding:38px;display:flex;flex-direction:column;border-color:#3b2a66">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
           <div class="mono" style="font-size:12px;letter-spacing:.14em;color:#c084fc">PRO</div>
-          <span class="mono" style="font-size:11px;color:#c084fc;border:1px solid rgba(192,132,252,.45);border-radius:999px;padding:3px 12px">Próximamente</span>
+          <span class="mono" style="font-size:11px;color:#c084fc;border:1px solid rgba(192,132,252,.45);border-radius:999px;padding:3px 12px">1 mes gratis</span>
         </div>
         <div style="margin-top:18px;font-size:64px;font-weight:700;letter-spacing:-.045em;line-height:1;font-variation-settings:'opsz' 96">US$ 5<span style="font-size:22px;font-weight:500;color:#8b92a8;letter-spacing:0"> /mes</span></div>
+        <p id="pro-ars" class="mono" style="margin:12px 0 0;font-size:13px;color:#c9ccd8;min-height:20px" aria-live="polite"></p>
         <p style="margin:14px 0 0;color:#aab0c4;font-size:17px;line-height:1.55">Para quien lo usa todo el día y quiere herramientas de más.</p>
         <ul class="chk" style="flex:1">
           <li>Todo lo del plan gratis</li>
@@ -338,8 +339,55 @@ details[open] summary::after{content:"−"}
         <p style="margin:12px 0 0;font-size:13px;color:#8b92a8">Probalo 1 mes gratis desde Ajustes, sin tarjeta ni datos. Después, pago por transferencia bancaria: te escribimos con los datos y, al acreditarse, te enviamos la licencia.</p>
       </div>
     </div>
+
+    <style>
+      .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+      .cmp{width:100%;border-collapse:collapse;margin-top:56px;font-size:16px}
+      .cmp th,.cmp td{padding:13px 14px;border-bottom:1px solid #1b1e29;text-align:center;vertical-align:middle}
+      .cmp th:first-child,.cmp td:first-child{text-align:left}
+      .cmp thead th{font:600 12px 'WP Mono',monospace;letter-spacing:.12em;color:#8b92a8;border-bottom-color:#2a2e3d}
+      .cmp thead th.pro{color:#c084fc}
+      .cmp td.si{color:#34e0a1;font-weight:700}.cmp td.no{color:#4a5066}.cmp td.pro-si{color:#c084fc;font-weight:700;white-space:nowrap}
+      .cmp .tag{font:600 10px 'WP Mono',monospace;color:#c084fc;border:1px solid rgba(192,132,252,.4);border-radius:999px;padding:2px 8px;margin-left:8px;white-space:nowrap}
+      .cmp tr.grupo td{padding-top:26px;font:600 11px 'WP Mono',monospace;letter-spacing:.12em;color:#8b92a8;text-align:left;border-bottom-color:#2a2e3d}
+      @media (max-width:640px){.cmp{font-size:14.5px}.cmp th,.cmp td{padding:11px 6px}}
+    </style>
+    <table class="cmp" aria-label="Comparativa entre el plan Gratis y el plan Pro">
+      <thead><tr><th scope="col"><span class="sr-only">Función</span></th><th scope="col">GRATIS</th><th scope="col" class="pro">PRO</th></tr></thead>
+      <tbody>
+        <tr class="grupo"><td colspan="3">LO ESENCIAL</td></tr>
+        <tr><td>Dictado en vivo en cualquier programa</td><td class="si">✓</td><td class="si">✓</td></tr>
+        <tr><td>Corrección hablada y muletillas fuera</td><td class="si">✓</td><td class="si">✓</td></tr>
+        <tr><td>Memoria de voz completa</td><td class="si">✓</td><td class="si">✓</td></tr>
+        <tr><td>Portapapeles protegido</td><td class="si">✓</td><td class="si">✓</td></tr>
+        <tr><td>Conexión guiada y versión web</td><td class="si">✓</td><td class="si">✓</td></tr>
+        <tr><td>Atajos de fábrica: Win + Espacio, historial y deshacer</td><td class="si">✓</td><td class="si">✓</td></tr>
+        <tr class="grupo"><td colspan="3">SOLO EN PRO</td></tr>
+        <tr><td>Elegir tus propias combinaciones de teclas</td><td class="no">—</td><td class="pro-si">✓</td></tr>
+        <tr><td>Segundo atajo de grabación</td><td class="no">—</td><td class="pro-si">✓</td></tr>
+        <tr><td>Capturas de pantalla con tus atajos</td><td class="no">—</td><td class="pro-si">✓</td></tr>
+        <tr><td>Modos por programa<span class="tag">próx.</span></td><td class="no">—</td><td class="pro-si" style="font:600 11px 'WP Mono',monospace;color:#8b92a8">próx.</td></tr>
+        <tr><td>Diccionario propio y atajos de texto<span class="tag">próx.</span></td><td class="no">—</td><td class="pro-si" style="font:600 11px 'WP Mono',monospace;color:#8b92a8">próx.</td></tr>
+        <tr><td>Editar el texto seleccionado con la voz<span class="tag">próx.</span></td><td class="no">—</td><td class="pro-si" style="font:600 11px 'WP Mono',monospace;color:#8b92a8">próx.</td></tr>
+        <tr class="grupo"><td colspan="3">PRECIO</td></tr>
+        <tr><td>Por mes</td><td class="si">$0</td><td class="pro-si">US$ 5</td></tr>
+      </tbody>
+    </table>
+    <p class="mono" style="margin:18px 0 0;font-size:12px;color:#8b92a8">Las funciones marcadas «próx.» todavía no están disponibles; van incluidas en el Pro cuando salgan. El Pro se puede probar 1 mes gratis desde Ajustes.</p>
   </div>
 </section>
+
+<script>
+(function(){
+  var el=document.getElementById('pro-ars');if(!el||!window.fetch)return;
+  fetch('api/dolar.php').then(function(r){return r.ok?r.json():Promise.reject();}).then(function(d){
+    if(!d||!d.venta)return;
+    var fmt=function(n){return n.toLocaleString('es-AR',{maximumFractionDigits:0});};
+    var ars=Math.round(5*d.venta/50)*50;
+    el.textContent='≈ $'+fmt(ars)+' ARS por mes · dólar oficial hoy: $'+fmt(d.venta);
+  }).catch(function(){});
+})();
+</script>
 
 <!-- ============ PREGUNTAS ============ -->
 <section id="faq" class="sec alt">
