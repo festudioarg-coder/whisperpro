@@ -7,6 +7,7 @@ IMPORTANTE: son borradores redactados para ser ciertos hoy (lo que el código re
 piden la Microsoft Store, Google y la normativa argentina de consumo y datos. Antes de publicar conviene que los
 revise un profesional matriculado en Argentina y que se completen los datos marcados entre corchetes.
 """
+import json
 import os
 
 RAIZ = os.path.dirname(os.path.abspath(__file__))
@@ -25,6 +26,7 @@ PAGINAS = [  # ruta, título del menú
     ("contacto", "Contacto"),
     ("licencias", "Licencias"),
 ]
+EXTRA = ("descargar",)   # páginas que no van en el pie legal
 
 CSS = """
 @font-face{font-family:'WP Sans';src:url('fonts/Bricolage.woff2') format('woff2');font-weight:200 800;font-stretch:75% 100%;font-display:swap}
@@ -78,7 +80,7 @@ def pagina(ruta, titulo, descripcion, cuerpo):
 <body><div class="wrap">
 <div class="top"><a class="brand" href="./"><img src="img/logo-64.png" alt="" width="32" height="32"><span>Whisper<b>PRO</b></span></a><span class="mono"><a href="https://festudios.pro/?utm_source=whisperpro&amp;utm_medium=legal&amp;utm_campaign=desarrollado-por">Desarrollado por FESTUDIOS</a></span></div>
 <h1>{titulo}</h1>
-<p class="mono">Documento {VERSION} · Última actualización: {FECHA}</p>
+{"" if ruta in EXTRA else f"<p class=\"mono\">Documento {VERSION} · Última actualización: {FECHA}</p>"}
 {cuerpo}
 {pie(ruta)}
 </div></body></html>
@@ -118,6 +120,9 @@ PRIV = f"""
 <p><b>Si no dictás, no sale nada.</b> La aplicación solo abre una página web cuando vos tocás un enlace (por ejemplo, para crear tu clave en Groq o visitar festudios.pro).</p>
 <h3>Versión web para el teléfono</h3>
 <p>Guarda tu clave y tu historial en el almacenamiento del navegador de tu teléfono. Solo puede conectarse a api.groq.com. FESTUDIOS no recibe esos datos.</p>
+
+<h3>Si dejás tu mail en nuestra web</h3>
+<p>En la página de descarga podés dejar tu correo para recibir el link del instalador y novedades de WhisperPRO. Lo guardamos en el sistema de contacto de FESTUDIOS (sobre infraestructura de nuestro proveedor de bases de datos), junto con la fecha y la página desde donde lo dejaste, y lo usamos solo para enviarte lo que pediste y, si lo aceptaste, novedades del producto. Podés pedir que lo borremos o darte de baja en cualquier momento escribiendo a {MAIL}. Esto ocurre en el sitio web, no dentro de la aplicación: la aplicación sigue sin cuenta ni telemetría.</p>
 
 <h2 id="finalidad">4. Para qué se usan y por cuánto tiempo</h2>
 <p>Los datos locales se usan únicamente para que la aplicación funcione y para que consultes tu propia memoria de voz. Permanecen en tu equipo hasta que los borres vos o desinstales la aplicación. FESTUDIOS no conserva copia alguna. El proveedor de IA conserva o descarta el audio según sus propias políticas; consultalas antes de usar el servicio.</p>
@@ -280,11 +285,42 @@ LIC = f"""
 <p>«FESTUDIOS», «WhisperPRO» y el personaje «el Guía» son de FESTUDIOS. WhisperPRO es independiente y no está afiliado a OpenAI, Groq ni Microsoft. Más en <a href="terminos/">Términos y condiciones</a>.</p>
 """
 
+INSTALADOR = ""   # poné acá la URL del instalador cuando exista (ej: "/whisperpro/descargas/WhisperPRO-Setup.exe")
+
+DESCARGAR = f"""
+<p>WhisperPRO es gratis para empezar: dictás en cualquier programa de Windows con un atajo, sin cuenta.</p>
+<div class="box" id="caja">
+<form id="f" novalidate>
+<p style="margin:0 0 10px"><b id="t">{"Dejá tu mail y te mostramos el link de descarga." if INSTALADOR else "Estamos terminando el instalador. Dejá tu mail y te avisamos apenas salga."}</b></p>
+<p style="margin:0 0 14px"><input id="m" type="email" required autocomplete="email" placeholder="tu@mail.com" style="width:100%;max-width:420px;padding:13px 14px;border-radius:12px;border:1px solid #2a2e3d;background:#0a0b10;color:#fff;font:inherit"></p>
+<p style="margin:0 0 14px;font-size:15px"><label><input id="c" type="checkbox" required> Acepto que FESTUDIOS me escriba a este mail con el link y novedades de WhisperPRO. Puedo darme de baja cuando quiera. <a href="privacidad/">Privacidad</a></label></p>
+<button class="btn" type="submit" style="border:0;cursor:pointer;font-family:inherit">{"Ver el link de descarga" if INSTALADOR else "Avisame cuando esté"}</button>
+<p id="e" style="color:#fda4af;margin:12px 0 0" role="alert"></p>
+</form>
+<div id="ok" style="display:none"><p class="ok"><b>Listo, recibimos tu mail.</b></p>{('<p><a class="btn" href="' + INSTALADOR + '" download>Descargar WhisperPRO para Windows</a></p><p class="mono">Windows 10 y 11 · 64 bits</p>') if INSTALADOR else '<p>Te escribimos a ese correo el día que esté disponible.</p>'}</div>
+</div>
+<p>¿Preferís probarlo en el teléfono? La versión web para iPhone y Android está en preparación y se anuncia por el mismo medio.</p>
+<script>
+document.getElementById('f').addEventListener('submit',async function(ev){{
+  ev.preventDefault();var e=document.getElementById('e'),m=document.getElementById('m').value.trim();
+  e.textContent='';
+  if(!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(m)){{e.textContent='Revisá el mail.';return;}}
+  if(!document.getElementById('c').checked){{e.textContent='Marcá la casilla para continuar.';return;}}
+  try{{
+    var r=await fetch('/lead-rapido.php',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{contacto:m,origen:'whisperpro-descarga',contexto:{json.dumps("descarga" if INSTALADOR else "aviso de lanzamiento")},dispositivo:/Mobi|Android/i.test(navigator.userAgent)?'celular':'compu',pagina:'/whisperpro/descargar/'}})}});
+    if(!r.ok)throw 0;
+    document.getElementById('f').style.display='none';document.getElementById('ok').style.display='block';
+  }}catch(x){{e.textContent='No pudimos guardar tu mail. Probá de nuevo o escribinos a {MAIL}.';}}
+}});
+</script>
+"""
+
 CUERPOS = {
     "privacidad": ("Política de privacidad", "Qué datos guarda WhisperPRO, dónde, y lo único que sale de tu equipo cuando dictás. Sin cuenta, sin telemetría.", PRIV),
     "terminos": ("Términos y condiciones", "Condiciones de uso de WhisperPRO: licencia, planes, derecho de arrepentimiento, responsabilidad y ley aplicable.", TERM),
     "baja-y-arrepentimiento": ("Cancelar o arrepentirte", "Cómo dar de baja una suscripción de WhisperPRO Pro y cómo ejercer el derecho de arrepentimiento en 10 días.", BAJA),
     "contacto": ("Contacto y datos del proveedor", "Cómo contactar a FESTUDIOS, horarios de atención y datos del proveedor de WhisperPRO.", CONTACTO),
+    "descargar": ("Descargar WhisperPRO", "Descargá WhisperPRO para Windows: dictado por voz en cualquier programa, gratis para empezar.", DESCARGAR),
     "licencias": ("Licencias de terceros", "Componentes de terceros que usa WhisperPRO y sus licencias.", LIC),
 }
 
@@ -293,7 +329,7 @@ if __name__ == "__main__":
         os.makedirs(os.path.join(RAIZ, ruta), exist_ok=True)
         with open(os.path.join(RAIZ, ruta, "index.html"), "w", encoding="utf-8") as f:
             f.write(pagina(ruta, titulo, desc, cuerpo))
-    urls = [("", "1.0")] + [(r + "/", "0.5") for r, _ in PAGINAS]
+    urls = [("", "1.0"), ("descargar/", "0.8")] + [(r + "/", "0.5") for r, _ in PAGINAS]
     items = "\n".join(f"  <url><loc>{BASE}{u}</loc><lastmod>{FECHA_ISO}</lastmod><priority>{p}</priority></url>" for u, p in urls)
     with open(os.path.join(RAIZ, "sitemap.xml"), "w", encoding="utf-8") as f:
         f.write(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{items}\n</urlset>\n')

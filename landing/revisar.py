@@ -16,8 +16,14 @@ for dp, _, fs in os.walk(RAIZ):
             pend.append(f"{rel}: marcador sin completar {m.group(0)}")
         if 'id="descarga-win" href' in txt or re.search(r'id="descarga-win"', txt):
             if re.search(r'<a[^>]*href="#descargar"[^>]*id="descarga-win"', txt):
-                pend.append(f"{rel}: el botón 'Descargar para Windows' todavía apunta a #descargar (poné el link del instalador)")
+                pend.append(f"{rel}: el botón 'Descargar para Windows' todavía apunta a #descargar")
         if "festudios.pro/whisperpro" in txt and "og.png" in txt and not os.path.exists(os.path.join(RAIZ, "img", "og.png")):
             pend.append(f"{rel}: falta img/og.png")
+if not os.path.exists(os.path.join(RAIZ, "descargar", "index.html")):
+    pend.append("falta la página descargar/ (python landing/generar_legales.py)")
+else:
+    import re as _re
+    if 'INSTALADOR = ""' in open(os.path.join(RAIZ, "generar_legales.py"), encoding="utf-8").read():
+        print("AVISO: INSTALADOR vacío en generar_legales.py: la página de descarga recoge mails y avisa del lanzamiento (no entrega el instalador).")
 print("\n".join(pend) if pend else "Nada pendiente: se puede publicar.")
 sys.exit(1 if pend else 0)
