@@ -1807,6 +1807,19 @@ def run_web_ui():
         log("falta la carpeta ui/; uso overlay básico")
         return False
 
+    # Chequeo de la interfaz: si los HTML de ui/ son de una versión vieja (p. ej. otra sesión los pisó o git no los
+    # actualizó), lo dice en el log en vez de mostrar un panel viejo sin explicación.
+    try:
+        _ov = open(os.path.join(UI_DIR, "overlay.html"), encoding="utf-8").read()
+        _pn = open(os.path.join(UI_DIR, "panel.html"), encoding="utf-8").read()
+        _ok = "pillIn" in _ov and "brandtxt" in _pn
+        _t = lambda f: datetime.fromtimestamp(os.path.getmtime(os.path.join(UI_DIR, f))).strftime("%d/%m %H:%M")
+        log(f"ui: {UI_DIR} · panel.html {_t('panel.html')} · overlay.html {_t('overlay.html')} · "
+            + ("interfaz de la versión actual: OK" if _ok else
+               "ATENCIÓN: los archivos de la interfaz son de una versión VIEJA. Ejecutá: git checkout -- ui  (desde la carpeta app)"))
+    except Exception as e:
+        log(f"ui: no pude revisar la interfaz ({e})")
+
     import ctypes
     from ctypes import wintypes
     try:
@@ -2010,7 +2023,7 @@ def run_web_ui():
         start_tray(None)
 
     try:
-        webview.start(on_start, gui="edgechromium", private_mode=False)
+        webview.start(on_start, gui="edgechromium", private_mode=True)   # sin caché entre ejecuciones: nunca muestra un HTML viejo guardado
     except Exception as e:
         log(f"WebView2 no disponible ({e}); uso overlay básico")
         return False
