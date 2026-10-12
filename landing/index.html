@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<base href="/whisperpro/">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WhisperPRO — Dictado por voz para Windows que entiende cuando te corregís</title>
+<meta name="description" content="Apretá Win + Espacio, hablá y el texto aparece donde tengas el cursor. Si te corregís en voz alta, WhisperPRO lo entiende. Historial en tu PC, sin cuenta y sin telemetría. Desarrollado por FESTUDIOS.">
+<link rel="canonical" href="https://festudios.pro/whisperpro/">
+<meta name="theme-color" content="#0a0b10">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_AR">
+<meta property="og:site_name" content="WhisperPRO · FESTUDIOS">
+<meta property="og:title" content="WhisperPRO — Hablá. Se escribe solo.">
+<meta property="og:description" content="Dictado por voz para Windows que entiende cuando te corregís. Tus datos quedan en tu PC.">
+<meta property="og:url" content="https://festudios.pro/whisperpro/">
+<meta property="og:image" content="https://festudios.pro/whisperpro/img/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="preload" href="fonts/Bricolage.woff2" as="font" type="font/woff2" crossorigin>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"WhisperPRO","applicationCategory":"UtilitiesApplication","operatingSystem":"Windows 10, Windows 11","description":"Dictado por voz para Windows que entiende las correcciones habladas. Historial local, sin cuenta ni telemetría.","offers":{"@type":"Offer","price":"0","priceCurrency":"ARS"},"publisher":{"@type":"Organization","name":"FESTUDIOS","url":"https://festudios.pro"},"inLanguage":["es","en"]}
+</script>
+<style>
+@font-face{font-family:'WP Sans';src:url('fonts/Bricolage.woff2') format('woff2');font-weight:200 800;font-stretch:75% 100%;font-display:swap}
+@font-face{font-family:'WP Mono';src:url('fonts/MartianMono.woff2') format('woff2');font-weight:100 800;font-stretch:75% 112%;font-display:swap}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#0a0b10;color:#e9eaf2;font-family:'WP Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#e9eaf2}
+img{max-width:100%}
+.mono{font-family:'WP Mono',ui-monospace,monospace;font-stretch:86%}
+.kbd{font-family:'WP Mono',ui-monospace,monospace;font-stretch:86%;font-size:13px;color:#e9eaf2;background:#161923;border:1px solid #262a37;border-bottom-width:3px;border-radius:8px;padding:3px 10px;white-space:nowrap}
+.kbd-l{font-size:16px;padding:6px 16px;border-radius:10px}
+.wrap{max-width:1180px;margin:0 auto}
+.sec{padding:112px 32px}
+.alt{background:#0e1016;border-top:1px solid #1b1e29;border-bottom:1px solid #1b1e29}
+.eyebrow{font-family:'WP Mono',ui-monospace,monospace;font-stretch:86%;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#c084fc}
+.h2{margin:14px 0 0;font-size:clamp(36px,5vw,60px);line-height:1.04;letter-spacing:-.035em;font-weight:700;font-variation-settings:"opsz" 72}
+.lead{margin:22px 0 0;font-size:clamp(18px,1.6vw,21px);line-height:1.55;color:#aab0c4;max-width:640px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:0 28px;border-radius:14px;font-weight:800;font-size:18px;text-decoration:none;white-space:nowrap;letter-spacing:-.01em}
+.btn-p{background:radial-gradient(120% 90% at 50% -20%,rgba(255,255,255,.32),rgba(255,255,255,0) 60%),linear-gradient(160deg,#9b6bff 0%,#7c3aed 45%,#4c1d95 100%);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 4px rgba(20,0,60,.4),0 14px 44px rgba(124,58,237,.42)}
+.btn-p:hover{filter:brightness(1.08)}
+.btn-s{border:1px solid #2a2e3d;color:#e9eaf2;background:transparent}
+.btn-s:hover{border-color:#5a607a}
+.card{background:#11131a;border:1px solid #1b1e29;border-radius:22px}
+.navlink{color:#aab0c4;text-decoration:none;font-size:15px;font-weight:500}
+.navlink:hover{color:#fff}
+a:focus-visible,summary:focus-visible,.btn:focus-visible{outline:2px solid #7aa2ff;outline-offset:3px;border-radius:8px}
+.logo-nav{display:flex;align-items:center;gap:11px;text-decoration:none;color:#e9eaf2}
+.logo-nav img{width:34px;height:34px;border-radius:10px;display:block}
+.logo-nav span{font-size:21px;font-weight:600;font-stretch:84%;letter-spacing:-.03em;font-variation-settings:"opsz" 48}
+.logo-nav b{font-weight:800;color:#c084fc}
+/* hero */
+.hero{position:relative;overflow:hidden;text-align:center;padding:72px 32px 40px}
+.hero-wave{position:absolute;left:0;right:0;top:120px;height:380px;background:url('img/onda-banner.webp') center/cover no-repeat;opacity:.34;-webkit-mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);pointer-events:none}
+.hero>.wrap{position:relative}
+.demo{position:relative;width:100%;max-width:900px;margin:76px auto 0;text-align:left}
+.win{overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.55)}
+.pill{position:relative;margin:-74px auto 0;width:100%;max-width:620px;background:linear-gradient(180deg,#15161e,#0b0c11);border:1px solid #2f3343;border-top-color:#4a5066;border-radius:34px;padding:18px 26px;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 90px rgba(139,92,246,.22);overflow:hidden}
+.pill .wave{height:112px;margin:2px -26px 0;background:url('img/onda-capsula.webp') center/100% 100% no-repeat;animation:breathe 2.6s ease-in-out infinite alternate}
+@keyframes breathe{from{transform:scaleY(.82)}to{transform:scaleY(1.04)}}
+@keyframes blink{50%{opacity:0}}
+@keyframes pulse{50%{transform:scale(1.4);opacity:.65}}
+@keyframes float{50%{transform:translateY(-10px)}}
+.caret{display:inline-block;width:2px;height:1.05em;background:#a78bfa;margin-left:3px;vertical-align:-.15em;animation:blink 1s step-end infinite}
+.rec-dot{display:block;width:14px;height:14px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 14px rgba(139,92,246,.8);animation:pulse 1.6s ease-in-out infinite}
+/* el Guía */
+.guia{position:relative;display:block;width:var(--w,200px);animation:float 5s ease-in-out infinite}
+.guia img{width:100%;display:block;filter:drop-shadow(0 30px 40px rgba(0,0,0,.6))}
+.guia .eye{position:absolute;left:44.4%;top:30.4%;width:30%;height:9%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(255,236,170,.95),rgba(255,200,90,.45) 45%,transparent 75%);mix-blend-mode:screen;animation:eye 2.6s ease-in-out infinite}
+@keyframes eye{0%,100%{opacity:.55}50%{opacity:1}}
+.bubble{position:absolute;background:#e9eaf2;color:#0a0b10;font-size:15px;font-weight:700;line-height:1.35;padding:12px 16px;border-radius:18px 18px 18px 5px;width:210px;box-shadow:0 14px 40px rgba(0,0,0,.45)}
+.hero-guia{position:absolute;right:-165px;bottom:-60px;--w:190px;z-index:3}
+.hero-guia .bubble{right:-20px;top:-96px;width:210px;border-radius:18px 18px 5px 18px}
+.del{background:rgba(255,107,134,.16);color:#ff93a8;text-decoration:line-through;text-decoration-color:rgba(255,107,134,.7);border-radius:5px;padding:2px 6px}
+.ico{width:44px;height:44px;border-radius:12px;background:#161923;border:1px solid #262a37;display:flex;align-items:center;justify-content:center;color:#c084fc}
+.cols{display:flex;flex-wrap:wrap;gap:22px}
+.col{flex:1 1 320px}
+.feat{flex:1 1 340px;padding:30px}
+.feat h3{margin:22px 0 0;font-size:22px;letter-spacing:-.02em;font-weight:700}
+.feat p{margin:10px 0 0;color:#aab0c4;font-size:16px;line-height:1.6}
+ul.chk{list-style:none;margin:28px 0 0;padding:0;display:flex;flex-direction:column;gap:13px;font-size:16.5px;line-height:1.45}
+ul.chk li{display:flex;gap:12px;align-items:flex-start}
+ul.chk li::before{content:"";flex-shrink:0;width:18px;height:18px;margin-top:2px;border-radius:50%;background:#34e0a1 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.4 2.3 4.6-4.8' fill='none' stroke='%230a0b10' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat}
+ul.chk li.soon{color:#aab0c4}
+ul.chk li.soon::before{background:#161923 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Ccircle cx='6' cy='6' r='1.6' fill='%23c084fc'/%3E%3C/svg%3E") center/12px no-repeat;border:1px solid #2a2e3d}
+.soon-tag{font-family:'WP Mono',monospace;font-stretch:86%;font-size:10.5px;color:#c084fc;border:1px solid rgba(192,132,252,.4);border-radius:999px;padding:1px 9px;margin-left:8px;white-space:nowrap}
+details{border-top:1px solid #1b1e29}
+details:last-of-type{border-bottom:1px solid #1b1e29}
+summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:24px;padding:26px 4px;font-size:clamp(18px,2vw,22px);font-weight:600;letter-spacing:-.015em}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-family:'WP Mono',monospace;font-size:24px;color:#c084fc;flex-shrink:0}
+details[open] summary::after{content:"−"}
+.faq-a{padding:0 4px 28px;color:#aab0c4;font-size:17px;line-height:1.7;max-width:760px}
+@media (max-width:1300px){.hero-guia{right:-24px;bottom:-110px;--w:140px}.hero-guia .bubble{display:none}}
+@media (max-width:760px){.navlinks{display:none!important}.sec{padding:72px 20px}.hero{padding:56px 20px 32px}.pill-sub{display:none}.btn{width:100%}.hero-guia{display:none}.stepguia{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div style="background:#0e1016;border-bottom:1px solid #1b1e29;text-align:center;padding:10px 16px">
+  <a href="https://festudios.pro/?utm_source=whisperpro&amp;utm_medium=landing&amp;utm_campaign=desarrollado-por" class="mono" style="text-decoration:none;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:#8b92a8">Desarrollado por <span style="color:#e9eaf2;font-weight:700">FESTUDIOS</span></a>
+</div>
+
+<header style="display:flex;align-items:center;justify-content:space-between;gap:24px;max-width:1180px;margin:0 auto;padding:22px 32px">
+  <a class="logo-nav" href="#inicio"><img src="img/logo-128.png" alt="" width="34" height="34"><span>Whisper<b>PRO</b></span></a>
+  <nav class="navlinks" style="display:flex;align-items:center;gap:34px" aria-label="Principal">
+    <a class="navlink" href="#como">Cómo funciona</a>
+    <a class="navlink" href="#funciones">Funciones</a>
+    <a class="navlink" href="#privacidad">Privacidad</a>
+    <a class="navlink" href="#precios">Precios</a>
+    <a class="navlink" href="#faq">Preguntas</a>
+  </nav>
+  <a class="btn btn-p" href="#descargar" style="min-height:46px;padding:0 20px;font-size:15px;border-radius:12px">Descargar</a>
+</header>
+
+<main>
+<!-- ============ HERO ============ -->
+<section id="inicio" class="hero">
+  <div class="hero-wave" aria-hidden="true"></div>
+  <div class="wrap" style="display:flex;flex-direction:column;align-items:center">
+    <span class="eyebrow">Dictado por voz para Windows</span>
+    <h1 style="margin:22px 0 0;font-size:clamp(54px,9.4vw,128px);line-height:.95;letter-spacing:-.045em;font-weight:700;font-variation-settings:'opsz' 96;max-width:1000px">Hablá.<br>Se escribe solo.</h1>
+    <p class="lead" style="max-width:680px;margin-top:28px">Apretás <span class="kbd">Win</span> + <span class="kbd">Espacio</span>, hablás con naturalidad y el texto aparece donde tengas el cursor. Si te corregís en voz alta, lo entiende y deja solo lo que querías decir.</p>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:38px;width:100%">
+      <a class="btn btn-p" href="#descargar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>Descargar para Windows</a>
+      <a class="btn btn-s" href="#como">Ver cómo funciona</a>
+    </div>
+    <p class="mono" style="margin:22px 0 0;font-size:12.5px;color:#8b92a8;letter-spacing:.02em">Gratis para empezar · Windows 10 y 11 · Sin cuenta</p>
+
+    <div class="demo">
+      <div class="card win">
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 20px;background:#0e1016;border-bottom:1px solid #1b1e29">
+          <span style="display:flex;gap:7px" aria-hidden="true"><i style="display:block;width:11px;height:11px;border-radius:50%;background:#262a37"></i><i style="display:block;width:11px;height:11px;border-radius:50%;background:#262a37"></i><i style="display:block;width:11px;height:11px;border-radius:50%;background:#262a37"></i></span>
+          <span class="mono" style="font-size:12px;color:#8b92a8">Mensaje nuevo</span>
+        </div>
+        <div style="padding:8px 28px 0">
+          <div style="display:flex;gap:16px;padding:14px 0;border-bottom:1px solid #1b1e29;font-size:15px"><span class="mono" style="color:#8b92a8;width:74px;font-size:12px;padding-top:3px">Para</span><span>Marcos Ferreyra</span></div>
+          <div style="display:flex;gap:16px;padding:14px 0;border-bottom:1px solid #1b1e29;font-size:15px"><span class="mono" style="color:#8b92a8;width:74px;font-size:12px;padding-top:3px">Asunto</span><span>Presupuesto de la web</span></div>
+        </div>
+        <div style="padding:26px 28px 96px;font-size:clamp(18px,2.2vw,24px);line-height:1.5;letter-spacing:-.01em;min-height:250px">Hola Marcos, te escribo por lo del presupuesto de la web. Ya revisé lo que me mandaste y creo que podemos arrancar la semana que viene<span class="caret"></span></div>
+      </div>
+      <div class="pill" role="img" aria-label="Cápsula de grabación de WhisperPRO, escuchando">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div style="display:flex;align-items:center;gap:12px;min-width:0"><span class="rec-dot"></span><span class="mono" style="font-size:11.5px;font-weight:800;letter-spacing:.18em;color:#c084fc">ESCUCHANDO</span><span class="pill-sub" style="font-size:12px;font-weight:600;color:#8b92a8;white-space:nowrap">· Espacio para terminar · Esc para borrar</span></div>
+          <span class="mono" style="font-size:13px;color:#aab0c4">0:07</span>
+        </div>
+        <div class="wave"></div>
+        <div style="font-size:15px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">…y creo que podemos arrancar la semana que viene<span class="caret"></span></div>
+      </div>
+      <div class="hero-guia guia" aria-hidden="true">
+        <img src="img/guia.webp" alt="" width="320" height="560"><span class="eye"></span>
+        <div class="bubble">Hola, soy el Guía. Vos hablá, yo me ocupo de que se escriba bien.</div>
+      </div>
+    </div>
+
+    <ul style="list-style:none;margin:64px 0 0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:14px 34px;color:#8b92a8;font-size:14.5px;font-weight:500">
+      <li>Español de todas las regiones e inglés</li><li>Funciona en cualquier programa</li><li>Sin cuenta ni telemetría</li><li>Tu historial queda en tu PC</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ SE CORRIGE SOLO ============ -->
+<section class="sec alt">
+  <div class="wrap">
+    <span class="eyebrow">Lo que lo hace distinto</span>
+    <h2 class="h2" style="max-width:820px">Te equivocás hablando.<br>Se escribe lo que querías decir.</h2>
+    <p class="lead">Los dictados comunes copian todo, hasta el "no, mejor no". WhisperPRO entiende la corrección y descarta lo que pediste descartar.</p>
+    <div class="cols" style="margin-top:56px;align-items:stretch">
+      <div class="card col" style="flex-basis:420px;padding:30px 32px">
+        <div class="mono" style="font-size:11.5px;letter-spacing:.14em;color:#8b92a8">LO QUE DIJISTE</div>
+        <p class="mono" style="margin:22px 0 0;font-size:15.5px;line-height:2;color:#aab0c4">tengo una idea para un velero con una pantalla de juegos <span class="del">no, mejor no, borrá eso</span> hagamos un avión para que cualquiera pueda volar</p>
+      </div>
+      <div class="card col" style="flex-basis:420px;padding:30px 32px;border-color:rgba(52,224,161,.35)">
+        <div class="mono" style="font-size:11.5px;letter-spacing:.14em;color:#34e0a1">LO QUE SE ESCRIBE</div>
+        <p style="margin:22px 0 0;font-size:clamp(24px,2.6vw,32px);line-height:1.25;font-weight:700;letter-spacing:-.02em;color:#fff">Hagamos un avión para que cualquiera pueda volar.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:26px">
+          <span class="mono" style="font-size:11.5px;color:#ff93a8;background:rgba(255,107,134,.1);border-radius:6px;padding:4px 10px">−1 descarte · recuperable</span>
+          <span class="mono" style="font-size:11.5px;color:#8b92a8;background:#161923;border-radius:6px;padding:4px 10px">copiado al portapapeles</span>
+        </div>
+      </div>
+    </div>
+    <p style="margin:28px 0 0;color:#8b92a8;font-size:16px;line-height:1.6;max-width:700px">También saca las muletillas (eh, o sea, este) y respeta tu forma de hablar: si decís vos, queda vos; si decís tú o usted, también.</p>
+  </div>
+</section>
+
+<!-- ============ CÓMO FUNCIONA ============ -->
+<section id="como" class="sec">
+  <div class="wrap">
+    <span class="eyebrow">Cómo funciona</span>
+    <h2 class="h2">Tres pasos. Sin ventanas.</h2>
+    <div class="cols" style="margin-top:56px">
+      <div class="card col" style="padding:32px">
+        <div class="mono" style="font-size:13px;color:#c084fc">01</div>
+        <h3 style="margin:18px 0 0;font-size:26px;letter-spacing:-.025em;font-weight:700">Apretá el atajo</h3>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:20px"><span class="kbd kbd-l">Win</span><span class="mono" style="color:#8b92a8">+</span><span class="kbd kbd-l">Espacio</span></div>
+        <p style="margin:20px 0 0;color:#aab0c4;font-size:16.5px;line-height:1.6">Empieza a grabar. Podés soltar las teclas y seguir hablando.</p>
+      </div>
+      <div class="card col" style="padding:32px">
+        <div class="mono" style="font-size:13px;color:#c084fc">02</div>
+        <h3 style="margin:18px 0 0;font-size:26px;letter-spacing:-.025em;font-weight:700">Hablá con naturalidad</h3>
+        <div style="height:54px;margin-top:14px;background:url('img/onda-capsula.webp') left center/auto 150% no-repeat" aria-hidden="true"></div>
+        <p style="margin:20px 0 0;color:#aab0c4;font-size:16.5px;line-height:1.6">El texto aparece en vivo en el campo donde tengas el cursor: WhatsApp, Gmail, Word, tu editor.</p>
+      </div>
+      <div class="card col" style="padding:32px">
+        <div class="mono" style="font-size:13px;color:#c084fc">03</div>
+        <h3 style="margin:18px 0 0;font-size:26px;letter-spacing:-.025em;font-weight:700">Cortá con Espacio</h3>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:20px"><span class="kbd kbd-l">Espacio</span></div>
+        <p style="margin:20px 0 0;color:#aab0c4;font-size:16.5px;line-height:1.6">Se aplican tus correcciones, queda escrito y copiado al portapapeles.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:22px;padding:36px 36px 38px">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:baseline">
+        <h3 style="margin:0;font-size:clamp(24px,2.8vw,34px);letter-spacing:-.03em;font-weight:700">Escribís 40 palabras por minuto. Hablás 150.</h3>
+        <span class="mono" style="font-size:11.5px;color:#8b92a8">promedios aproximados</span>
+      </div>
+      <div style="margin-top:30px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:18px"><span class="mono" style="width:78px;font-size:12px;color:#8b92a8">Teclado</span><div style="flex:1;height:14px;background:#161923;border-radius:999px"><div style="width:27%;height:100%;border-radius:999px;background:#454a5e"></div></div><span class="mono" style="width:64px;font-size:12px;color:#aab0c4;text-align:right">~40</span></div>
+        <div style="display:flex;align-items:center;gap:18px"><span class="mono" style="width:78px;font-size:12px;color:#c084fc">Voz</span><div style="flex:1;height:14px;background:#161923;border-radius:999px"><div style="width:100%;height:100%;border-radius:999px;background:linear-gradient(90deg,#7c3aed,#c084fc)"></div></div><span class="mono" style="width:64px;font-size:12px;color:#fff;text-align:right">~150</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONEXIÓN GUIADA (el Guía) ============ -->
+<section class="sec alt">
+  <div class="wrap" style="display:flex;flex-wrap:wrap;align-items:center;gap:56px">
+    <div class="stepguia" style="flex:0 0 auto;margin:0 auto;padding-top:56px">
+      <div class="guia" style="--w:230px" aria-hidden="true">
+        <img src="img/guia.webp" alt="" width="320" height="560" loading="lazy"><span class="eye"></span>
+        <div class="bubble" style="left:-60px;top:-62px;width:230px">Te acompaño la primera vez. Son menos de dos minutos.</div>
+      </div>
+    </div>
+    <div style="flex:1 1 480px">
+      <span class="eyebrow">Conectar es fácil</span>
+      <h2 class="h2">El Guía te lleva de la mano.</h2>
+      <p class="lead">WhisperPRO usa tu propia clave gratuita de Groq para transcribir tu voz. La conexión es guiada y se hace una sola vez.</p>
+      <ol style="list-style:none;margin:36px 0 0;padding:0;display:flex;flex-direction:column;gap:14px">
+        <li class="card" style="padding:20px 22px;display:flex;gap:18px;align-items:flex-start"><span class="mono" style="color:#c084fc;font-size:13px;padding-top:4px">01</span><div><b style="font-size:18px">Abrí Groq y entrá con tu cuenta de Google</b><div style="color:#8b92a8;font-size:15px;margin-top:4px">Un botón de la app te lleva directo.</div></div></li>
+        <li class="card" style="padding:20px 22px;display:flex;gap:18px;align-items:flex-start"><span class="mono" style="color:#c084fc;font-size:13px;padding-top:4px">02</span><div><b style="font-size:18px">Tocá "Create API Key" y después "Copy"</b><div style="color:#8b92a8;font-size:15px;margin-top:4px">No hace falta pegarla en ningún lado.</div></div></li>
+        <li class="card" style="padding:20px 22px;display:flex;gap:18px;align-items:flex-start"><span class="mono" style="color:#34e0a1;font-size:13px;padding-top:4px">03</span><div><b style="font-size:18px">WhisperPRO la detecta, la prueba y la guarda</b><div style="color:#8b92a8;font-size:15px;margin-top:4px">Listo: probá Win + Espacio.</div></div></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FUNCIONES ============ -->
+<section id="funciones" class="sec">
+  <div class="wrap">
+    <span class="eyebrow">Funciones</span>
+    <h2 class="h2" style="max-width:760px">Hecho para quien escribe todo el día.</h2>
+    <div class="cols" style="margin-top:56px;gap:20px">
+      <div class="card feat"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v18M7 8v8M17 8v8M3 11v2M21 11v2"/></svg></span><h3>Texto en vivo</h3><p>Ves lo que decís mientras lo decís, en el campo donde tengas el cursor.</p></div>
+      <div class="card feat"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h11a5 5 0 0 1 0 10H8M4 7l3-3M4 7l3 3"/></svg></span><h3>Entiende tus correcciones</h3><p>"No, mejor no", "borrá eso", "en vez de esto, aquello": descarta lo que pediste y se queda con lo que querías.</p></div>
+      <div class="card feat"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14v16H5zM9 9h6M9 13h6M9 17h3"/></svg></span><h3>Memoria de voz</h3><p>Cada dictado queda guardado en tu PC con lo que dijiste, lo que se escribió y lo descartado. Podés buscar, comparar y recuperar.</p></div>
+      <div class="card feat"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3" width="8" height="4" rx="1.5"/><path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/></svg></span><h3>No pierde lo que copiaste</h3><p>Antes de pegar, guarda lo que tenías en el portapapeles. Lo encontrás después en tu memoria.</p></div>
+      <div class="card feat"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2.5"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg></span><h3>Atajos a tu manera</h3><p>Elegís la combinación que te quede cómoda y si querés grabar pulsando o manteniendo.</p></div>
+      <div class="card feat"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span><h3>Tu forma de hablar</h3><p>Respeta vos, tú, usted o vosotros y tu vocabulario. Español de todas las regiones e inglés.</p></div>
+    </div>
+    <div class="card" style="margin-top:20px;padding:28px 32px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px">
+      <div style="max-width:640px"><h3 style="margin:0;font-size:22px;letter-spacing:-.02em;font-weight:700">¿Y en el celular?</h3><p style="margin:8px 0 0;color:#aab0c4;font-size:16px;line-height:1.6">Hay una versión web que se instala en el iPhone desde Safari. Misma corrección, mismo historial, en tu teléfono.</p></div>
+      <a class="btn btn-s" href="#descargar" style="min-height:48px">Abrir la versión web</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRIVACIDAD ============ -->
+<section id="privacidad" class="sec alt">
+  <div class="wrap">
+    <span class="eyebrow">Privacidad</span>
+    <h2 class="h2" style="max-width:860px">Tus datos son tuyos.<br>Sin cuenta, sin telemetría, sin servidores nuestros en el medio.</h2>
+    <p class="lead">Te contamos exactamente qué pasa con tu voz, sin letra chica.</p>
+    <div class="cols" style="margin-top:56px">
+      <div class="card col" style="flex-basis:420px;padding:34px">
+        <div class="mono" style="font-size:11.5px;letter-spacing:.14em;color:#34e0a1">QUEDA EN TU PC</div>
+        <ul style="list-style:none;margin:22px 0 0;padding:0;display:flex;flex-direction:column;gap:14px;color:#c9ccd8;font-size:17px;line-height:1.5">
+          <li>Tu historial de dictados y tu portapapeles</li><li>Tu clave de IA y tus ajustes</li><li>Tus capturas de pantalla</li>
+          <li>Nada de lo que decís pasa por servidores de FESTUDIOS: no vemos tu voz ni tu texto</li><li>No hay cuenta que crear ni estadísticas de uso que enviar</li>
+        </ul>
+      </div>
+      <div class="card col" style="flex-basis:420px;padding:34px">
+        <div class="mono" style="font-size:11.5px;letter-spacing:.14em;color:#c084fc">LO ÚNICO QUE SALE</div>
+        <ul style="list-style:none;margin:22px 0 0;padding:0;display:flex;flex-direction:column;gap:14px;color:#c9ccd8;font-size:17px;line-height:1.5">
+          <li>Mientras dictás, el audio va directo de tu PC al motor de IA (Groq), con tu propia clave, para transcribirlo y corregirlo</li>
+          <li>Ahí rigen las políticas de privacidad de Groq</li><li>Si no dictás, no sale nada</li><li>Podés borrar todo tu historial con un botón, cuando quieras</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin:28px 0 0"><a href="privacidad/" style="color:#c084fc;font-weight:600">Leer la política de privacidad completa →</a></p>
+  </div>
+</section>
+
+<!-- ============ PRECIOS ============ -->
+<section id="precios" class="sec">
+  <div class="wrap">
+    <span class="eyebrow">Precios</span>
+    <h2 class="h2" style="max-width:820px">Lo importante es gratis.<br>Lo accesorio, en Pro.</h2>
+    <p class="lead">Dictar, corregirte y guardar tu memoria no se paga nunca. Pro suma herramientas extra para quien usa WhisperPRO todo el día.</p>
+    <div class="cols" style="margin-top:56px;align-items:stretch">
+
+      <div class="card col" style="flex-basis:420px;padding:38px;display:flex;flex-direction:column">
+        <div class="mono" style="font-size:12px;letter-spacing:.14em;color:#aab0c4">GRATIS · PARA SIEMPRE</div>
+        <div style="margin-top:18px;font-size:64px;font-weight:700;letter-spacing:-.045em;line-height:1;font-variation-settings:'opsz' 96">$0</div>
+        <p style="margin:14px 0 0;color:#aab0c4;font-size:17px;line-height:1.55">Usás tu propia clave gratuita de Groq. Incluye todo lo esencial.</p>
+        <ul class="chk" style="flex:1">
+          <li>Dictado en vivo en cualquier programa</li>
+          <li>Corrección hablada y muletillas fuera</li>
+          <li>Memoria de voz completa: literal, final, diferencias y descartado recuperable</li>
+          <li>Tu portapapeles protegido</li>
+          <li>Un atajo de grabación a tu gusto</li>
+          <li>Conexión guiada y versión web para iPhone</li>
+        </ul>
+        <a class="btn btn-p" href="#descargar" style="margin-top:34px">Descargar gratis</a>
+      </div>
+
+      <div class="card col" style="flex-basis:420px;padding:38px;display:flex;flex-direction:column;border-color:#3b2a66">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div class="mono" style="font-size:12px;letter-spacing:.14em;color:#c084fc">PRO</div>
+          <span class="mono" style="font-size:11px;color:#c084fc;border:1px solid rgba(192,132,252,.45);border-radius:999px;padding:3px 12px">Próximamente</span>
+        </div>
+        <div style="margin-top:18px;font-size:64px;font-weight:700;letter-spacing:-.045em;line-height:1;font-variation-settings:'opsz' 96">[PRECIO]<span style="font-size:22px;font-weight:500;color:#8b92a8;letter-spacing:0"> /mes</span></div>
+        <p style="margin:14px 0 0;color:#aab0c4;font-size:17px;line-height:1.55">Para quien lo usa todo el día y quiere herramientas de más.</p>
+        <ul class="chk" style="flex:1">
+          <li>Todo lo del plan gratis</li>
+          <li>Capturas de pantalla con tus atajos: región y pantalla completa</li>
+          <li>Segundo atajo de grabación</li>
+          <li class="soon">Modos por programa: un tono en WhatsApp y otro en el editor<span class="soon-tag">próx.</span></li>
+          <li class="soon">Diccionario propio y atajos de texto<span class="soon-tag">próx.</span></li>
+          <li class="soon">Editar el texto seleccionado con la voz<span class="soon-tag">próx.</span></li>
+        </ul>
+        <a class="btn btn-s" href="https://festudios.pro/?utm_source=whisperpro&amp;utm_medium=landing&amp;utm_campaign=pro-lista-de-espera" style="margin-top:34px">Avisame cuando esté</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PREGUNTAS ============ -->
+<section id="faq" class="sec alt">
+  <div class="wrap" style="max-width:900px">
+    <span class="eyebrow">Preguntas</span>
+    <h2 class="h2" style="margin-bottom:44px">Lo que más nos preguntan.</h2>
+    <details><summary>¿Necesito internet?</summary><div class="faq-a">Sí, para dictar. El audio se transcribe en el motor de IA. La app abre sin conexión, y tu historial se puede consultar siempre.</div></details>
+    <details><summary>¿Funciona en cualquier programa?</summary><div class="faq-a">Funciona en cualquier campo donde puedas escribir: WhatsApp, Gmail, Word, tu navegador, tu editor de código. Escribe donde esté el cursor.</div></details>
+    <details><summary>¿Qué es la clave de Groq y cuánto cuesta?</summary><div class="faq-a">Groq es el servicio que transcribe tu voz. Tiene un plan gratuito: creás una cuenta, copiás una clave y WhisperPRO la detecta sola. El Guía te acompaña paso a paso y lleva menos de dos minutos.</div></details>
+    <details><summary>¿Qué pasa con mi privacidad?</summary><div class="faq-a">Tu historial, tu clave y tus ajustes quedan solo en tu PC, no hay cuenta ni telemetría y no pasamos por servidores propios. Lo único que sale es el audio de cada dictado, directo a Groq con tu clave. Si no dictás, no sale nada.</div></details>
+    <details><summary>¿Qué idiomas entiende?</summary><div class="faq-a">Español de todas las regiones (Argentina, Latinoamérica y España) e inglés. Respeta si hablás de vos, de tú, de usted o de vosotros.</div></details>
+    <details><summary>¿Qué incluye el plan gratis y qué el Pro?</summary><div class="faq-a">Dictar, corregirte, la memoria de voz y el portapapeles protegido son gratis. Pro suma herramientas accesorias, como las capturas de pantalla con tus atajos y, más adelante, modos por programa, diccionario propio y edición por voz.</div></details>
+    <details><summary>¿Y en Mac, Android o iPhone?</summary><div class="faq-a">La app de escritorio es para Windows 10 y 11. Para el iPhone hay una versión web que se instala desde Safari. Mac y Android todavía no.</div></details>
+    <details><summary>Windows me muestra una advertencia al instalar</summary><div class="faq-a">Mientras la app no esté publicada en la Microsoft Store, Windows puede mostrar un aviso de SmartScreen en instaladores nuevos. Es normal: tocás "Más información" y "Ejecutar de todas formas". En la Store ya no aparece.</div></details>
+  </div>
+</section>
+
+<!-- ============ DETRÁS DE WHISPERPRO ============ -->
+<section class="sec" style="padding-bottom:0">
+  <div class="wrap">
+    <div class="card" style="padding:clamp(32px,5vw,56px);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:28px">
+      <div style="max-width:660px">
+        <span class="eyebrow">Detrás de WhisperPRO</span>
+        <h2 class="h2" style="font-size:clamp(30px,3.6vw,44px);margin-top:12px">Lo hicimos en FESTUDIOS.</h2>
+        <p class="lead" style="margin-top:16px">FESTUDIOS es un estudio argentino que diseña y desarrolla webs, sistemas y apps a medida para negocios. WhisperPRO es una muestra de cómo trabajamos.</p>
+      </div>
+      <a class="btn btn-s" href="https://festudios.pro/?utm_source=whisperpro&amp;utm_medium=landing&amp;utm_campaign=detras-de-whisperpro">Conocer FESTUDIOS</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DESCARGA ============ -->
+<section id="descargar" class="sec" style="padding-top:48px;padding-bottom:120px">
+  <div class="wrap">
+    <div class="card" style="padding:clamp(40px,7vw,96px) clamp(24px,5vw,72px);text-align:center;display:flex;flex-direction:column;align-items:center;box-shadow:0 0 140px rgba(139,92,246,.16)">
+      <h2 class="h2" style="margin:0;max-width:780px">Probalo hoy.<br>Hablá y mirá cómo se escribe.</h2>
+      <p class="lead" style="max-width:560px">Descargalo gratis, conectalo en un minuto y dictá tu primer mensaje.</p>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:38px;width:100%">
+        <a class="btn btn-p" href="#descargar" id="descarga-win"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>Descargar para Windows</a>
+        <a class="btn btn-s" href="#descargar">Versión web para iPhone</a>
+      </div>
+      <!-- COMPLETAR antes de publicar: reemplazar los href de arriba por el instalador y la versión web -->
+      <p class="mono" style="margin:24px 0 0;font-size:12px;color:#8b92a8">Windows 10 y 11 · Microsoft Store próximamente</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer style="border-top:1px solid #1b1e29;padding:44px 32px 56px">
+  <div style="max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:24px">
+    <a class="logo-nav" href="#inicio"><img src="img/logo-64.png" alt="" width="30" height="30" style="width:30px;height:30px"><span style="font-size:18px">Whisper<b>PRO</b></span></a>
+    <nav style="display:flex;flex-wrap:wrap;gap:12px 30px" aria-label="Pie">
+      <a class="navlink" href="privacidad/">Privacidad</a><a class="navlink" href="#faq">Preguntas</a>
+      <a class="navlink" href="https://festudios.pro/?utm_source=whisperpro&amp;utm_medium=landing&amp;utm_campaign=pie">festudios.pro</a>
+    </nav>
+    <a class="mono" href="https://festudios.pro/?utm_source=whisperpro&amp;utm_medium=landing&amp;utm_campaign=desarrollado-por" style="font-size:12px;color:#8b92a8;text-decoration:none">Desarrollado por <span style="color:#e9eaf2;font-weight:700">FESTUDIOS</span> · Hecho en Argentina · 2026</a>
+  </div>
+</footer>
+</body>
+</html>
