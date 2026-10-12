@@ -80,29 +80,60 @@ class Licencias(unittest.TestCase):
 
 class Prueba(unittest.TestCase):
     def setUp(self):
-        self._r = (L._reg_leer, L._reg_escribir)
-        L._reg_leer = lambda: None
-        L._reg_escribir = lambda v: None
+        self._tmp = tempfile.TemporaryDirectory()
+        self.d = self._tmp.name
+        self._env = {k: os.environ.get(k) for k in ("PROGRAMDATA", "LOCALAPPDATA")}
+        os.environ["PROGRAMDATA"] = os.path.join(self.d, "pd")
+        os.environ["LOCALAPPDATA"] = os.path.join(self.d, "la")
+        self.datos = os.path.join(self.d, "datos")
+        os.makedirs(self.datos)
+        self._reg = (L._leer_copias, L._escribir_copias)
+        self.memreg = []
+        orig_l, orig_e = L._leer_copias, L._escribir_copias
+        L._leer_copias = lambda c: orig_l(c) + list(self.memreg)
+        L._escribir_copias = lambda c, t: (orig_e(c, t), self.memreg.clear(), self.memreg.append(t))
+        self._orig = (orig_l, orig_e)
 
     def tearDown(self):
-        L._reg_leer, L._reg_escribir = self._r
+        L._leer_copias, L._escribir_copias = self._reg
+        for k, v in self._env.items():
+            os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v)
+        self._tmp.cleanup()
 
     def test_prueba_30_dias_una_sola_vez(self):
-        with tempfile.TemporaryDirectory() as d:
-            h = date(2026, 10, 12)
-            self.assertEqual(L.estado_prueba(d, h)["estado"], "nunca")
-            self.assertEqual(L.plan_efectivo(d, entorno={}, hoy=h)[0], "gratis")
-            ok, est = L.iniciar_prueba(d, h)
-            self.assertTrue(ok); self.assertEqual(est["dias"], 30)
-            self.assertEqual(L.plan_efectivo(d, entorno={}, hoy=date(2026, 11, 11))[0], "pro")
-            self.assertEqual(L.plan_efectivo(d, entorno={}, hoy=date(2026, 11, 12))[0], "gratis")
-            self.assertEqual(L.estado_prueba(d, date(2026, 11, 20))["estado"], "vencida")
-            self.assertFalse(L.iniciar_prueba(d, date(2026, 12, 1))[0])
+        h = date(2026, 10, 12)
+        self.assertEqual(L.estado_prueba(self.datos, h)["estado"], "nunca")
+        self.assertEqual(L.plan_efectivo(self.datos, entorno={}, hoy=h)[0], "gratis")
+        ok, est = L.iniciar_prueba(self.datos, h)
+        self.assertTrue(ok); self.assertEqual(est["dias"], 30)
+        self.assertEqual(L.plan_efectivo(self.datos, entorno={}, hoy=date(2026, 11, 11))[0], "pro")
+        self.assertEqual(L.plan_efectivo(self.datos, entorno={}, hoy=date(2026, 11, 12))[0], "gratis")
+        self.assertFalse(L.iniciar_prueba(self.datos, date(2026, 12, 1))[0])
 
-    def test_registro_evita_reiniciar_borrando_el_archivo(self):
-        with tempfile.TemporaryDirectory() as d:
-            L._reg_leer = lambda: "2026-01-01"
-            self.assertEqual(L.estado_prueba(d, date(2026, 10, 12))["estado"], "vencida")
+    def test_borrar_una_copia_no_reinicia(self):
+        L.iniciar_prueba(self.datos, date(2026, 10, 12))
+        os.remove(os.path.join(self.datos, "prueba.json"))
+        self.assertEqual(L.estado_prueba(self.datos, date(2026, 10, 20))["dias"], 22)
+        self.assertTrue(os.path.exists(os.path.join(self.datos, "prueba.json")))   # se repara sola
+
+    def test_editar_la_fecha_invalida_la_prueba(self):
+        L.iniciar_prueba(self.datos, date(2026, 10, 12))
+        ruta = os.path.join(self.datos, "prueba.json")
+        r = json.load(open(ruta)); r["inicio"] = "2026-12-01"
+        json.dump(r, open(ruta, "w"))
+        self.assertEqual(L.estado_prueba(self.datos, date(2026, 10, 13))["estado"], "vencida")
+
+    def test_copiar_el_registro_de_otra_pc_no_sirve(self):
+        L.iniciar_prueba(self.datos, date(2026, 10, 12))
+        ruta = os.path.join(self.datos, "prueba.json")
+        r = json.load(open(ruta)); r["mid"] = "otra-pc"
+        json.dump(r, open(ruta, "w"))
+        self.assertEqual(L.estado_prueba(self.datos, date(2026, 10, 13))["estado"], "vencida")
+
+    def test_atrasar_el_reloj_no_estira_la_prueba(self):
+        L.iniciar_prueba(self.datos, date(2026, 10, 12))
+        L.estado_prueba(self.datos, date(2026, 11, 5))                       # se ve el 5/11
+        self.assertEqual(L.estado_prueba(self.datos, date(2026, 10, 20))["estado"], "vencida")
 
 
 class Gating(unittest.TestCase):

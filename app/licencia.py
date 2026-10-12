@@ -179,52 +179,102 @@ def verificar(texto, hoy=None, publica_hex=None):
 
 
 # ------------------------------------------------------------------ Prueba gratis de Pro ---
+# Sin servidor no existe una prueba imposible de repetir; esto la hace incómoda de trampear: el registro de la
+# prueba va firmado y atado a esta PC, se guarda en cuatro lugares que se reparan entre sí, y si alguien lo
+# toca o atrasa el reloj, la prueba cuenta como usada.
+import hmac
+
 ARCHIVO_PRUEBA = "prueba.json"
 DIAS_PRUEBA = 30
 _REG_CLAVE = r"Software\FESTUDIOS\WhisperPRO"
 
 
-def _reg_leer():
+def _id_pc():
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Cryptography",
+                            0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY) as k:
+            return str(winreg.QueryValueEx(k, "MachineGuid")[0])
+    except Exception:
+        return "sin-id"
+
+
+def _mac(inicio, visto, mid):
+    clave = hashlib.sha256(("FESTUDIOS|prueba|v2|" + mid).encode()).digest()
+    return hmac.new(clave, f"{inicio}|{visto}|{mid}".encode(), hashlib.sha256).hexdigest()
+
+
+def _registro(inicio, visto):
+    mid = _id_pc()
+    return json.dumps({"inicio": inicio, "visto": visto, "mid": mid, "mac": _mac(inicio, visto, mid)})
+
+
+def _rutas(carpeta):
+    r = [os.path.join(carpeta, ARCHIVO_PRUEBA)]
+    for var in ("PROGRAMDATA", "LOCALAPPDATA"):
+        base = os.environ.get(var)
+        if base:
+            r.append(os.path.join(base, "WhisperPRO", "prueba.dat"))
+    return r
+
+
+def _leer_copias(carpeta):
+    out = []
+    for ruta in _rutas(carpeta):
+        try:
+            with open(ruta, encoding="utf-8") as f:
+                out.append(f.read())
+        except OSError:
+            pass
     try:
         import winreg
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, _REG_CLAVE) as k:
-            return winreg.QueryValueEx(k, "prueba")[0]
+            out.append(winreg.QueryValueEx(k, "prueba")[0])
     except Exception:
-        return None
+        pass
+    return out
 
 
-def _reg_escribir(valor):
+def _escribir_copias(carpeta, texto):
+    for ruta in _rutas(carpeta):
+        try:
+            os.makedirs(os.path.dirname(ruta), exist_ok=True)
+            with open(ruta, "w", encoding="utf-8") as f:
+                f.write(texto)
+        except OSError:
+            pass
     try:
         import winreg
         with winreg.CreateKey(winreg.HKEY_CURRENT_USER, _REG_CLAVE) as k:
-            winreg.SetValueEx(k, "prueba", 0, winreg.REG_SZ, valor)
+            winreg.SetValueEx(k, "prueba", 0, winreg.REG_SZ, texto)
     except Exception:
         pass
-
-
-def _inicio_prueba(carpeta):
-    """La fecha más antigua entre el archivo y el registro: borrar uno solo no reinicia la prueba."""
-    fechas = []
-    try:
-        with open(os.path.join(carpeta, ARCHIVO_PRUEBA), encoding="utf-8") as f:
-            fechas.append(date.fromisoformat(json.load(f)["inicio"]))
-    except Exception:
-        pass
-    try:
-        r = _reg_leer()
-        if r:
-            fechas.append(date.fromisoformat(r))
-    except Exception:
-        pass
-    return min(fechas) if fechas else None
 
 
 def estado_prueba(carpeta, hoy=None):
     """{'estado': 'nunca'|'activa'|'vencida', 'dias': días que quedan, 'vence': 'AAAA-MM-DD'}"""
     hoy = hoy or date.today()
-    ini = _inicio_prueba(carpeta)
-    if ini is None:
+    copias = _leer_copias(carpeta)
+    if not copias:
         return {"estado": "nunca", "dias": DIAS_PRUEBA, "vence": ""}
+    mid = _id_pc()
+    inicios, vistos = [], []
+    for raw in copias:
+        try:
+            r = json.loads(raw)
+            ok = r["mid"] == mid and hmac.compare_digest(r["mac"], _mac(r["inicio"], r["visto"], mid))
+            ini, vis = date.fromisoformat(r["inicio"]), date.fromisoformat(r["visto"])
+        except Exception:
+            ok = False
+        if not ok:   # alguien tocó el registro de la prueba o lo copió de otra PC
+            return {"estado": "vencida", "dias": 0, "vence": ""}
+        inicios.append(ini); vistos.append(vis)
+    ini, visto = min(inicios), max(vistos)
+    if hoy.toordinal() < visto.toordinal() - 1:   # reloj atrasado para estirar la prueba
+        return {"estado": "vencida", "dias": 0, "vence": ""}
+    nuevo = max(visto, hoy)
+    if nuevo != visto or len(copias) < len(_rutas(carpeta)) + 1:
+        _escribir_copias(carpeta, _registro(ini.isoformat(), nuevo.isoformat()))   # actualiza y repara copias
     vence = date.fromordinal(ini.toordinal() + DIAS_PRUEBA)
     quedan = (vence - hoy).days
     return {"estado": "activa" if quedan >= 0 else "vencida", "dias": max(quedan, 0), "vence": vence.isoformat()}
@@ -233,15 +283,11 @@ def estado_prueba(carpeta, hoy=None):
 def iniciar_prueba(carpeta, hoy=None):
     """Arranca la prueba de 30 días (una sola vez por PC). Devuelve (True, estado) o (False, mensaje)."""
     hoy = hoy or date.today()
-    est = estado_prueba(carpeta, hoy)
-    if est["estado"] != "nunca":
+    if estado_prueba(carpeta, hoy)["estado"] != "nunca":
         return False, "La prueba gratis ya se usó en esta PC."
-    try:
-        with open(os.path.join(carpeta, ARCHIVO_PRUEBA), "w", encoding="utf-8") as f:
-            json.dump({"inicio": hoy.isoformat()}, f)
-    except OSError:
+    _escribir_copias(carpeta, _registro(hoy.isoformat(), hoy.isoformat()))
+    if not _leer_copias(carpeta):
         return False, "No se pudo iniciar la prueba en esta PC."
-    _reg_escribir(hoy.isoformat())
     return True, estado_prueba(carpeta, hoy)
 
 
