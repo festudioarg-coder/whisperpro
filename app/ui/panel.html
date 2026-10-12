@@ -149,6 +149,24 @@ footer .keys span{display:flex;align-items:center;gap:5px}
 #settings.free .pro-only button,#settings.free .pro-only .sw,#settings.free .pro-only .seg{opacity:.4;pointer-events:none}
 .probadge{display:inline-block;margin-left:8px;font:600 10px var(--mono,monospace);letter-spacing:.08em;padding:2px 7px;border-radius:99px;background:linear-gradient(135deg,#8b5cf6,#c084fc);color:#fff;vertical-align:middle}
 #lic-txt{width:100%;box-sizing:border-box;margin:8px 0;background:var(--bg,#0b0c12);color:var(--tx,#e8eaf2);border:1px solid var(--line);border-radius:8px;padding:8px;font:11px var(--mono,monospace);resize:vertical}
+
+/* ===== preloaders ===== */
+#boot{position:fixed;inset:0;z-index:99;display:grid;place-items:center;background:#0a0b10;transition:opacity .35s,visibility .35s}
+#boot.off{opacity:0;visibility:hidden;pointer-events:none}
+.boot-in{display:flex;flex-direction:column;align-items:center;gap:20px}
+.boot-logo{width:72px;height:72px;border-radius:20px;box-shadow:0 0 44px rgba(139,92,246,.5);animation:bootpulse 1.8s ease-in-out infinite}
+.boot-bars{display:flex;gap:4px;height:28px;align-items:center}
+.boot-bars i{width:4px;height:100%;border-radius:2px;background:linear-gradient(#c084fc,#8b5cf6);transform:scaleY(.25);animation:bootbar 1s ease-in-out infinite}
+.boot-bars i:nth-child(2){animation-delay:.12s}.boot-bars i:nth-child(3){animation-delay:.24s}.boot-bars i:nth-child(4){animation-delay:.36s}.boot-bars i:nth-child(5){animation-delay:.48s}.boot-bars i:nth-child(6){animation-delay:.6s}.boot-bars i:nth-child(7){animation-delay:.72s}
+.boot-t{font:600 11px var(--mono,monospace);letter-spacing:.16em;color:#8b92a8}
+@keyframes bootbar{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+@keyframes bootpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.sk-row{height:62px;margin:0 12px 8px;border-radius:10px;background:linear-gradient(100deg,rgba(255,255,255,.035) 30%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.035) 70%);background-size:220% 100%;animation:shimmer 1.3s linear infinite}
+@keyframes shimmer{from{background-position:120% 0}to{background-position:-120% 0}}
+.spin{display:inline-block;width:12px;height:12px;margin-right:7px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#settings.cargando .gb{opacity:.5;transition:opacity .2s}
+@media (prefers-reduced-motion:reduce){.boot-logo,.boot-bars i,.sk-row,.spin{animation-duration:3s}}
 .grp{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
 .gh{display:flex;align-items:baseline;gap:12px;padding:12px 16px;background:#0f1118;border-bottom:1px solid var(--line)}
 .gh b{font-size:13px;font-weight:700}
@@ -243,6 +261,7 @@ button.b:hover{filter:brightness(1.15)}
 </style>
 </head>
 <body>
+<div id="boot" role="status" aria-label="Abriendo WhisperPRO"><div class="boot-in"><img class="boot-logo" src="img/logo-128.png" alt="" width="72" height="72"><div class="boot-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="boot-t">ABRIENDO TU MEMORIA DE VOZ</div></div></div>
 <div id="app">
 <header>
   <div class="brand">
@@ -265,7 +284,7 @@ button.b:hover{filter:brightness(1.15)}
       <button class="tab" data-tab="clips">Portapapeles <i id="c-clips">0</i></button>
       <button class="tab" data-tab="desc">Descartado <i id="c-desc">0</i></button>
     </div>
-    <div id="list"></div>
+    <div id="list"><div class="sk-row"></div><div class="sk-row" style="opacity:.8"></div><div class="sk-row" style="opacity:.6"></div><div class="sk-row" style="opacity:.4"></div></div>
   </aside>
   <section>
     <div class="toolbar">
@@ -302,7 +321,7 @@ button.b:hover{filter:brightness(1.15)}
     <div class="note" id="free-note">Con el plan Gratis los atajos vienen listos y fijos (Win + Espacio para dictar, historial y deshacer). <b>Pro</b> suma elegir tus propias combinaciones, un segundo atajo y las capturas de pantalla.</div>
     <div id="trial-box"><button class="btn sm" id="btrial" onclick="iniciarPrueba()">Probar Pro 1 mes gratis</button> <span class="note" id="trial-note" style="margin:0 0 0 8px"></span></div>
     <textarea id="lic-txt" rows="3" spellcheck="false" placeholder="Pegá acá la licencia que te enviamos (todo el texto)"></textarea>
-    <div><button class="btn sm" onclick="activarLic()">Activar Pro</button> <button class="btn sm" onclick="openPlan(event)">Ver el plan Pro</button></div>
+    <div><button class="btn sm" id="bact" onclick="activarLic()">Activar Pro</button> <button class="btn sm" onclick="openPlan(event)">Ver el plan Pro</button></div>
    </div>
   </div>
 
@@ -486,8 +505,11 @@ document.addEventListener('keydown',e=>{
   else if(k==='1')setTab('dictados');else if(k==='2')setTab('clips');else if(k==='3')setTab('desc');
   else if(k==='f')setView('final');else if(k==='t')setView('raw');else if(k==='d')setView('diff');
 });
+const bootT0=Date.now();
+function hideBoot(){const b=$('boot');if(!b||b.classList.contains('off'))return;setTimeout(()=>b.classList.add('off'),Math.max(0,500-(Date.now()-bootT0)));}
+setTimeout(hideBoot,8000);   // por si algo tarda: nunca dejar la pantalla de carga puesta
 window.addEventListener('pywebviewready',async()=>{
-  load();
+  try{await load();}catch(e){}finally{hideBoot();}
   try{const i=await window.pywebview.api.info();$('st-ver').textContent='WhisperPRO '+i.version+' · '+i.engine;}catch(e){}
 });
 // ---- ajustes: atajos y capturas ----
@@ -529,18 +551,19 @@ function renderSettings(){
   $('datadir').textContent=S.data_dir||'';
 }
 async function iniciarPrueba(){
-  const r=await api('iniciar_prueba');
+  const r=await conSpin($('btrial'),'Activando…',()=>api('iniciar_prueba'));
   if(r&&r.ok){S=r;showErr('');toast('Prueba de Pro activada: 30 días');}else showErr((r&&r.error)||'No se pudo iniciar la prueba');
   renderSettings();
 }
 async function activarLic(){
   const t=$('lic-txt').value.trim();if(!t){showErr('Pegá primero la licencia.');return;}
-  const r=await api('activar_licencia',t);
+  const r=await conSpin($('bact'),'Verificando…',()=>api('activar_licencia',t));
   if(r&&r.ok){S=r;showErr('');toast('Pro activado');$('lic-txt').value='';}else showErr((r&&r.error)||'No se pudo activar');
   renderSettings();
 }
 function openPlan(e){if(e)e.preventDefault();window.pywebview.api.open_legal('planes');}
-async function loadSettings(){try{S=await api('get_settings');renderSettings();}catch(e){}}
+async function loadSettings(){const el=$('settings');el.classList.add('cargando');try{S=await api('get_settings');renderSettings();}catch(e){}finally{el.classList.remove('cargando');}}
+async function conSpin(btn,txt,fn){const t=btn.innerHTML;btn.disabled=true;btn.innerHTML='<span class="spin"></span>'+txt;try{return await fn();}finally{btn.disabled=false;btn.innerHTML=t;}}
 function openSettings(){$('settings').classList.add('on');$('gear').classList.add('on');showErr('');loadSettings();}
 function closeSettings(){$('settings').classList.remove('on');$('gear').classList.remove('on');}
 function toggleSettings(){$('settings').classList.contains('on')?closeSettings():openSettings();}

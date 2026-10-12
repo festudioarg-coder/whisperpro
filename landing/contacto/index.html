@@ -38,6 +38,10 @@ table{width:100%;border-collapse:collapse;font-size:15.5px;margin:18px 0}th,td{t
 .exito ol{text-align:left;max-width:440px;margin:14px auto 0}.exito .chico{font-size:14.5px;color:#8b92a8;margin-top:16px}
 .aviso{border:1px solid rgba(251,191,36,.5);background:rgba(251,191,36,.08);border-radius:20px;padding:24px 28px;text-align:center}
 .aviso h2{margin:0 0 6px;font-size:24px;color:#fbbf24}
+.spin{display:inline-block;width:15px;height:15px;margin-right:9px;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn:disabled{opacity:.75;cursor:progress}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}}
 footer{border-top:1px solid #1b1e29;margin-top:72px;padding-top:28px}
 footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer nav a{color:#aab0c4;text-decoration:none;font-size:15px}footer nav a:hover{color:#fff}
 @media (max-width:640px){.toc{columns:1}body{font-size:17px}}

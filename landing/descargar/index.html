@@ -38,6 +38,10 @@ table{width:100%;border-collapse:collapse;font-size:15.5px;margin:18px 0}th,td{t
 .exito ol{text-align:left;max-width:440px;margin:14px auto 0}.exito .chico{font-size:14.5px;color:#8b92a8;margin-top:16px}
 .aviso{border:1px solid rgba(251,191,36,.5);background:rgba(251,191,36,.08);border-radius:20px;padding:24px 28px;text-align:center}
 .aviso h2{margin:0 0 6px;font-size:24px;color:#fbbf24}
+.spin{display:inline-block;width:15px;height:15px;margin-right:9px;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn:disabled{opacity:.75;cursor:progress}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}}
 footer{border-top:1px solid #1b1e29;margin-top:72px;padding-top:28px}
 footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer nav a{color:#aab0c4;text-decoration:none;font-size:15px}footer nav a:hover{color:#fff}
 @media (max-width:640px){.toc{columns:1}body{font-size:17px}}
@@ -68,12 +72,13 @@ document.getElementById('f').addEventListener('submit',async function(ev){
   e.textContent='';
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){e.textContent='Ese mail no parece válido. Escribilo así: tu@mail.com';return;}
   if(!document.getElementById('c').checked){e.textContent='Marcá la casilla para continuar.';return;}
+  var bt=document.querySelector('#f button'),bt0=bt.innerHTML;bt.disabled=true;bt.innerHTML='<span class="spin"></span>Enviando…';
   try{
     var r=await fetch('api/solicitar.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:m,consentimiento:true,origen:'whisperpro-descarga',dispositivo:/Mobi|Android/i.test(navigator.userAgent)?'celular':'compu'})});
-    if(r.status===429){e.textContent='Demasiados pedidos seguidos. Probá en un rato.';return;}
+    if(r.status===429){e.textContent='Demasiados pedidos seguidos. Probá en un rato.';bt.disabled=false;bt.innerHTML=bt0;return;}
     if(!r.ok)throw 0;
     var j={};try{j=await r.json();}catch(z){}document.getElementById('f').style.display='none';document.getElementById('okmail').textContent=m;document.getElementById(j.enviado===false?'warn':'ok').style.display='block';window.scrollTo({top:document.getElementById('caja').offsetTop-20,behavior:'smooth'});
-  }catch(x){e.textContent='No pudimos enviar el link. Probá de nuevo o escribinos a festudioarg@gmail.com.';}
+  }catch(x){bt.disabled=false;bt.innerHTML=bt0;e.textContent='No pudimos enviar el link. Probá de nuevo o escribinos a festudioarg@gmail.com.';}
 });
 document.getElementById('otro').addEventListener('click',function(ev){ev.preventDefault();document.getElementById('ok').style.display='none';document.getElementById('f').style.display='';document.getElementById('m').focus();});
 </script>
