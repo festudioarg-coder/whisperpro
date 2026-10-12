@@ -84,6 +84,31 @@ function instalador_actual(): ?array {
 /** Último error de enviar_a(), para dejarlo en el registro (nunca se le muestra tal cual al visitante). */
 $GLOBALS['wp_mail_error'] = '';
 
+/** Arma el mensaje completo (cabeceras + cuerpo). Con $html manda texto y HTML juntos (multipart/alternative). */
+function armar_mime(string $de, string $para, string $asunto, string $cuerpo, ?string $html): string {
+    $h = [
+        'From: WhisperPRO por FESTUDIOS <' . $de . '>',
+        'To: <' . $para . '>',
+        'Reply-To: <festudioarg@gmail.com>',
+        'Subject: =?UTF-8?B?' . base64_encode(clean_header_value($asunto)) . '?=',
+        'MIME-Version: 1.0',
+        'Date: ' . date('r'),
+        'Message-ID: <' . bin2hex(random_bytes(12)) . '@festudios.pro>',
+    ];
+    if ($html === null) {
+        $h[] = 'Content-Type: text/plain; charset=UTF-8';
+        $h[] = 'Content-Transfer-Encoding: base64';
+        $cuerpoMime = chunk_split(base64_encode($cuerpo));
+    } else {
+        $b = 'fe' . bin2hex(random_bytes(10));
+        $h[] = 'Content-Type: multipart/alternative; boundary="' . $b . '"';
+        $cuerpoMime = "--$b\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($cuerpo))
+            . "--$b\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($html))
+            . "--$b--\r\n";
+    }
+    return implode("\r\n", $h) . "\r\n\r\n" . $cuerpoMime;
+}
+
 /** Mail a una persona (la lib compartida solo manda avisos al equipo). */
 function enviar_a(string $para, string $asunto, string $cuerpo, ?string $html = null): bool {
     $falla = function (string $etapa, string $resp = '') { $GLOBALS['wp_mail_error'] = trim($etapa . ' ' . substr(trim($resp), 0, 160)); return false; };
@@ -114,27 +139,7 @@ function enviar_a(string $para, string $asunto, string $cuerpo, ?string $html = 
     smtp_write($s, 'DATA');
     $r = smtp_read($s);
     if (substr($r, 0, 3) !== '354') { fclose($s); return $falla('DATA', $r); }
-    $h = [
-        'From: WhisperPRO por FESTUDIOS <' . $user . '>',
-        'To: <' . $para . '>',
-        'Reply-To: <festudioarg@gmail.com>',
-        'Subject: =?UTF-8?B?' . base64_encode(clean_header_value($asunto)) . '?=',
-        'MIME-Version: 1.0',
-        'Date: ' . date('r'),
-        'Message-ID: <' . bin2hex(random_bytes(12)) . '@festudios.pro>',
-    ];
-    if ($html === null) {
-        $h[] = 'Content-Type: text/plain; charset=UTF-8';
-        $h[] = 'Content-Transfer-Encoding: base64';
-        $cuerpoMime = chunk_split(base64_encode($cuerpo));
-    } else {
-        $b = 'fe' . bin2hex(random_bytes(10));
-        $h[] = 'Content-Type: multipart/alternative; boundary="' . $b . '"';
-        $cuerpoMime = "--$b\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($cuerpo))
-            . "--$b\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($html))
-            . "--$b--\r\n";
-    }
-    smtp_write($s, implode("\r\n", $h) . "\r\n\r\n" . $cuerpoMime . "\r\n.");
+    smtp_write($s, armar_mime($user, $para, $asunto, $cuerpo, $html) . "\r\n.");
     $r = smtp_read($s);
     smtp_write($s, 'QUIT'); fclose($s);
     if (substr($r, 0, 3) !== '250') return $falla('envío no aceptado', $r);
