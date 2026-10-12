@@ -45,8 +45,8 @@ $enviado = enviar_a($email, $m['asunto'], $m['texto'], $m['html']);
 if (!$enviado) registrar_fallo($email, 'descarga');
 
 try {
-    $st = db()->prepare('INSERT INTO solicitudes (ts,email,origen,dispositivo,enviado) VALUES (?,?,?,?,?)');
-    $st->execute([date('c'), $email, $origen, $disp, $enviado ? 1 : 0]);
+    $st = db()->prepare('INSERT INTO solicitudes (ts,email,origen,dispositivo,enviado,respuesta) VALUES (?,?,?,?,?,?)');
+    $st->execute([date('c'), $email, $origen, $disp, $enviado ? 1 : 0, $enviado ? $GLOBALS['wp_mail_resp'] : $GLOBALS['wp_mail_error']]);
 } catch (Throwable $e) { /* el registro no debe frenar la entrega */ }
 
 json_salir(200, ['ok' => true, 'enviado' => $enviado]);

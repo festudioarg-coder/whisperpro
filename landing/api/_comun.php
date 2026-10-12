@@ -68,6 +68,7 @@ function db(): PDO {
     $pdo->exec('CREATE TABLE IF NOT EXISTS fallos_mail (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, email TEXT, que TEXT, detalle TEXT)');
     $pdo->exec('CREATE TABLE IF NOT EXISTS pedidos_pro (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, email TEXT, ref TEXT, usd REAL, ars INTEGER, dolar REAL, estado TEXT)');
     $pdo->exec('CREATE TABLE IF NOT EXISTS solicitudes (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, email TEXT, origen TEXT, dispositivo TEXT, enviado INTEGER)');
+    try { $pdo->exec('ALTER TABLE solicitudes ADD COLUMN respuesta TEXT'); } catch (Throwable $e) { /* ya existe */ }
     return $pdo;
 }
 
@@ -83,6 +84,7 @@ function instalador_actual(): ?array {
 
 /** Último error de enviar_a(), para dejarlo en el registro (nunca se le muestra tal cual al visitante). */
 $GLOBALS['wp_mail_error'] = '';
+$GLOBALS['wp_mail_resp'] = '';   // lo que contestó el servidor de mail al aceptar el envío (ej. «250 2.0.0 Ok: queued as …»)
 
 /** Arma el mensaje completo (cabeceras + cuerpo). Con $html manda texto y HTML juntos (multipart/alternative). */
 function armar_mime(string $de, string $para, string $asunto, string $cuerpo, ?string $html): string {
@@ -90,6 +92,7 @@ function armar_mime(string $de, string $para, string $asunto, string $cuerpo, ?s
         'From: WhisperPRO por FESTUDIOS <' . $de . '>',
         'To: <' . $para . '>',
         'Reply-To: <festudioarg@gmail.com>',
+        'List-Unsubscribe: <mailto:festudioarg@gmail.com?subject=BAJA>',
         'Subject: =?UTF-8?B?' . base64_encode(clean_header_value($asunto)) . '?=',
         'MIME-Version: 1.0',
         'Date: ' . date('r'),
@@ -136,6 +139,7 @@ function enviar_a(string $para, string $asunto, string $cuerpo, ?string $html = 
     smtp_write($s, "RCPT TO:<$para>");
     $r = smtp_read($s);
     if ($r !== '' && $r[0] !== '2') { fclose($s); return $falla('RCPT TO (destinatario rechazado)', $r); }
+    if (strcasecmp($para, 'festudioarg@gmail.com') !== 0) { smtp_write($s, "RCPT TO:<festudioarg@gmail.com>"); smtp_read($s); }   // copia oculta: FESTUDIOS ve cada mail que sale
     smtp_write($s, 'DATA');
     $r = smtp_read($s);
     if (substr($r, 0, 3) !== '354') { fclose($s); return $falla('DATA', $r); }
@@ -143,6 +147,7 @@ function enviar_a(string $para, string $asunto, string $cuerpo, ?string $html = 
     $r = smtp_read($s);
     smtp_write($s, 'QUIT'); fclose($s);
     if (substr($r, 0, 3) !== '250') return $falla('envío no aceptado', $r);
+    $GLOBALS['wp_mail_resp'] = substr(trim($r), 0, 160);
     return true;
 }
 
