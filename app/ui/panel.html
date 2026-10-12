@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Memoria de voz</title>
+<style>
+@font-face{font-family:'Manrope';src:url('fonts/Manrope.woff2') format('woff2');font-weight:200 800}
+@font-face{font-family:'JetBrains Mono';src:url('fonts/JetBrainsMono.woff2') format('woff2');font-weight:500}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0c0d13;color:#e9eaf2;font-family:'Manrope','Segoe UI',system-ui,sans-serif;overflow:hidden}
+.mono{font-family:'JetBrains Mono',Consolas,monospace}
+#app{display:flex;flex-direction:column;height:100%}
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #1c1f29}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:28px;height:28px;border-radius:9px;background:#ff4d6d;display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(255,77,109,.45)}
+h1{font-size:16px;font-weight:800;margin:0;letter-spacing:-.01em}
+.stat{font-size:12px;font-weight:600;color:#6b7088}
+input[type=search]{width:300px;height:40px;background:#14161f;border:1px solid #262a37;border-radius:12px;color:#e9eaf2;font-family:inherit;font-size:13px;font-weight:600;padding:0 14px;outline:none}
+input[type=search]:focus{border-color:#7aa2ff}
+main{display:flex;flex:1;min-height:0}
+aside{width:360px;border-right:1px solid #1c1f29;display:flex;flex-direction:column}
+.tabs{display:flex;gap:6px;padding:14px 16px 10px}
+.tab{height:32px;padding:0 14px;border-radius:999px;background:transparent;color:#9aa0b4;border:1px solid #262a37;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.tab.on{background:#e9eaf2;color:#0c0d13;border-color:#e9eaf2;font-weight:800}
+#list{flex:1;overflow:auto;padding:0 10px 10px}
+#list::-webkit-scrollbar{width:8px}#list::-webkit-scrollbar-thumb{background:#262a37;border-radius:8px}
+.day{padding:10px 6px 4px;font-size:10px;font-weight:800;letter-spacing:.16em;color:#5c627a}
+.item{padding:12px 14px;border-radius:14px;border:1px solid transparent;cursor:pointer;display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+.item:hover{background:#12141b}
+.item.on{background:#15181f;border-color:#262a37}
+.item .top{display:flex;justify-content:space-between;align-items:center}
+.item .ts{font-size:11px;color:#6b7088}
+.item .txt{font-size:13px;font-weight:600;line-height:1.4;color:#c9ccd8;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.item.on .txt{color:#fff}
+.chip{font-size:10px;font-weight:800;color:#ff8aa0;background:rgba(255,77,109,.12);border-radius:999px;padding:2px 8px}
+section{flex:1;min-width:0;display:flex;flex-direction:column;padding:22px 26px;gap:16px;overflow:auto}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.btns{display:flex;gap:8px}
+button.b{height:36px;padding:0 14px;border-radius:10px;background:transparent;color:#c9ccd8;border:1px solid #262a37;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+button.b.p{background:#e9eaf2;color:#0c0d13;border-color:#e9eaf2;font-weight:800}
+button.b.d{background:rgba(255,77,109,.12);color:#ff8aa0;border-color:rgba(255,77,109,.3);font-weight:800}
+button.b:hover{filter:brightness(1.15)}
+.lab{font-size:10px;font-weight:800;letter-spacing:.16em}
+.box{background:#12141b;border:1px solid #1f2330;border-radius:14px;padding:16px 20px;font-size:14px;font-weight:500;line-height:1.55;color:#c9ccd8;white-space:pre-wrap;-webkit-user-select:text;user-select:text}
+.box.final{font-size:22px;font-weight:700;line-height:1.3;letter-spacing:-.01em;color:#fff;border-left:3px solid #34e0a1}
+.box.disc{border-left:3px solid #ff4d6d;color:#e9eaf2;font-weight:600}
+.empty{color:#5c627a;font-size:13px;padding:40px 10px;text-align:center}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#1b1e29;border:1px solid #2a2e3d;color:#e9eaf2;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:700;opacity:0;transition:.25s;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%)}
+
+/* ---- Conectá WhisperPRO (clave de IA) ---- */
+#setup{position:fixed;inset:0;background:radial-gradient(700px 420px at 50% 110%,rgba(255,77,109,.16),transparent 70%),#0c0d13;display:none;align-items:center;justify-content:center;z-index:10}
+#setup.on{display:flex}
+.card{width:600px;max-width:calc(100% - 40px);display:flex;flex-direction:column;gap:22px}
+.sh{display:flex;align-items:center;gap:14px}
+.sh .logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#ff4d6d,#ff9a5c)}
+.sh h2{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em}
+.sh p{margin:2px 0 0;color:#9aa0b4;font-size:14px;font-weight:600}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;gap:16px;align-items:center;padding:16px 18px;border-radius:16px;background:#12141b;border:1px solid #1f2330;transition:.25s}
+.step .n{width:30px;height:30px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;background:#1b1e29;color:#9aa0b4}
+.step .t{flex:1;font-size:14px;font-weight:700;line-height:1.4}
+.step .t small{display:block;font-size:12px;font-weight:600;color:#6b7088;margin-top:2px}
+.step.cur{border-color:rgba(255,77,109,.45);background:#15131a}
+.step.cur .n{background:#ff4d6d;color:#0c0d13}
+.step.ok .n{background:#34e0a1;color:#0c0d13}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:12px;background:#1b1e29;border:1px solid #2a2e3d;border-radius:6px;padding:1px 6px}
+.live{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:#c9ccd8}
+.pulse{width:9px;height:9px;border-radius:50%;background:#ff4d6d;box-shadow:0 0 0 0 rgba(255,77,109,.6);animation:pl 1.4s infinite}
+@keyframes pl{70%{box-shadow:0 0 0 10px rgba(255,77,109,0)}100%{box-shadow:0 0 0 0 rgba(255,77,109,0)}}
+.live.ok{color:#8cf5d2}.live.ok .pulse{background:#34e0a1;animation:none}
+.live.bad{color:#ff8aa0}
+.manual{display:flex;gap:8px}
+.manual input{flex:1;height:40px;background:#12141b;border:1px solid #262a37;border-radius:12px;color:#e9eaf2;font-family:'JetBrains Mono',monospace;font-size:12px;padding:0 14px;outline:none}
+.manual input:focus{border-color:#7aa2ff}
+.foot{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:#6b7088;gap:16px}
+.foot a{color:#9aa0b4;cursor:pointer;text-decoration:underline;white-space:nowrap}
+/* el Guía (mascota FESTUDIOS) */
+.wrap{display:flex;align-items:center;gap:44px}
+.guia{position:relative;width:200px;flex-shrink:0;animation:float 4.5s ease-in-out infinite}
+.guia img{width:100%;display:block;filter:drop-shadow(0 30px 40px rgba(0,0,0,.6))}
+.guia .eye{position:absolute;left:44.4%;top:30.4%;width:30%;height:9%;transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(closest-side,rgba(255,236,170,.95),rgba(255,200,90,.45) 45%,transparent 75%);mix-blend-mode:screen;animation:eye 2.6s ease-in-out infinite}
+.guia::after{content:"";position:absolute;left:50%;bottom:-26px;width:60%;height:18px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(255,190,90,.22),transparent);animation:shadow 4.5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes shadow{0%,100%{opacity:1;width:60%}50%{opacity:.6;width:50%}}
+@keyframes eye{0%,100%{opacity:.55}50%{opacity:1}}
+.guia.ok .eye{animation:flash .9s ease 1;background:radial-gradient(closest-side,rgba(180,255,220,1),rgba(52,224,161,.5) 45%,transparent 75%);opacity:1}
+@keyframes flash{0%{opacity:.3;transform:translate(-50%,-50%) scale(.6)}40%{opacity:1;transform:translate(-50%,-50%) scale(1.5)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.bubble{position:absolute;left:70%;top:-28px;background:#e9eaf2;color:#0c0d13;font-size:12px;font-weight:800;line-height:1.3;padding:9px 12px;border-radius:14px 14px 14px 4px;width:170px;box-shadow:0 10px 30px rgba(0,0,0,.4);animation:bin .5s .3s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes bin{from{opacity:0;transform:translateY(8px) scale(.9)}to{opacity:1;transform:none}}
+.empty .guia{width:110px;margin:0 auto 14px}
+.done{display:none;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:10px 0}
+.card.fin .steps,.card.fin .manual,.card.fin .det{display:none}.card.fin .done{display:flex}
+.done .big{font-size:22px;font-weight:800}
+.card.fin .sh{justify-content:center}
+.done .try{font-size:15px;font-weight:700;color:#c9ccd8}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="brand">
+    <span class="logo"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0a0b10" stroke-width="2.6" stroke-linecap="round"><path d="M12 3v18M7 8v8M17 8v8M3 11v2M21 11v2"/></svg></span>
+    <h1>Memoria de voz</h1>
+    <span class="stat" id="stat"></span>
+  </div>
+  <input id="q" type="search" placeholder="Buscar lo que dijiste…" aria-label="Buscar">
+</header>
+<main>
+  <aside>
+    <div class="tabs">
+      <button class="tab on" data-tab="dictados">Dictados</button>
+      <button class="tab" data-tab="clips">Portapapeles</button>
+      <button class="tab" data-tab="desc">Descartado</button>
+    </div>
+    <div id="list"></div>
+  </aside>
+  <section>
+    <div class="bar">
+      <span class="mono" id="meta" style="font-size:12px;color:#9aa0b4"></span>
+      <div class="btns">
+        <button class="b p" onclick="act('copy_final')">Copiar final</button>
+        <button class="b" onclick="act('copy_raw')">Copiar literal</button>
+        <button class="b" onclick="act('paste_again')">Pegar de nuevo</button>
+      </div>
+    </div>
+    <div><div class="lab" style="color:#8cf5d2;margin-bottom:8px">MENSAJE FINAL</div><div class="box final" id="final"></div></div>
+    <div><div class="lab" style="color:#9aa0b4;margin-bottom:8px">LO QUE DIJISTE, LITERAL</div><div class="box" id="raw"></div></div>
+    <div>
+      <div class="bar" style="margin-bottom:8px"><span class="lab" style="color:#ff8aa0">DESCARTADO · RECUPERABLE</span><span style="font-size:11px;font-weight:600;color:#6b7088">Nada se pierde: queda guardado en el historial</span></div>
+      <div class="bar" style="gap:14px"><div class="box disc" id="disc" style="flex:1"></div><button class="b d" onclick="act('recover')" style="flex-shrink:0">Recuperar</button></div>
+    </div>
+  </section>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<div id="setup"><div class="wrap">
+  <div class="guia" id="guia"><img src="img/guia.png" alt="El Guía de FESTUDIOS"><span class="eye"></span><div class="bubble" id="bub">Hola, soy el Guía. Te conecto en un minuto.</div></div>
+  <div class="card" id="card">
+  <div class="sh"><span class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M12 4v16M7.5 8v8M16.5 8v8M3 11v2M21 11v2"/></svg></span><div><h2>Conectá WhisperPRO</h2><p>Un minuto, una sola vez. Gratis.</p></div></div>
+  <div class="steps">
+    <div class="step cur" id="s1"><span class="n">1</span><div class="t">Abrí Groq y entrá con tu cuenta de Google<small>Es el motor que transcribe tu voz. La cuenta es gratis.</small></div><button class="b p" onclick="openGroq()">Abrir Groq ↗</button></div>
+    <div class="step" id="s2"><span class="n">2</span><div class="t">Tocá <span class="kbd">Create API Key</span>, poné cualquier nombre y apretá <span class="kbd">Copy</span><small>No hace falta pegarla en ningún lado.</small></div></div>
+    <div class="step" id="s3"><span class="n">3</span><div class="t"><div class="live" id="live"><span class="pulse"></span><span id="livet">Esperando que copies la clave…</span></div><small>WhisperPRO la detecta sola, la prueba y la guarda.</small></div></div>
+  </div>
+  <div class="manual det"><input id="mk" placeholder="¿No la detectó? Pegala acá: gsk_…" spellcheck="false"><button class="b" onclick="manualKey()">Conectar</button></div>
+  <div class="done"><div class="big">Listo, conectado ✓</div><div class="try">Probá ahora: <span class="kbd" id="hk">Win + Espacio</span>, hablá, y <span class="kbd">Espacio</span> para terminar.</div><button class="b p" onclick="closeSetup()" style="margin-top:6px">Empezar</button></div>
+  <div class="foot det"><span>Tu clave queda solo en esta PC. El audio va directo de tu PC a Groq: FESTUDIOS no lo ve ni lo guarda.</span><a onclick="closeSetup()">Más tarde</a></div>
+  </div>
+</div></div>
+<script>
+let tab='dictados', items=[], sel=0;
+const $=id=>document.getElementById(id);
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1600);}
+function fmt(ts){const d=ts.slice(0,10),h=ts.slice(11,16),today=new Date().toISOString().slice(0,10);return d===today?h:ts.slice(5,10).replace('-','/')+' '+h;}
+function dayLabel(ts){const d=ts.slice(0,10),now=new Date();const today=now.toISOString().slice(0,10);now.setDate(now.getDate()-1);const y=now.toISOString().slice(0,10);return d===today?'HOY':d===y?'AYER':d;}
+async function load(){
+  const q=$('q').value;
+  const r=await window.pywebview.api.load(tab,q);
+  items=r.items;$('stat').textContent=r.stat;sel=0;render();
+}
+function render(){
+  const L=$('list');L.innerHTML='';let last='';
+  if(!items.length){L.innerHTML='<div class="empty"><div class="guia"><img src="img/guia.png" alt=""><span class="eye"></span></div>Todavía no hay nada acá.<br>Apretá Win + Espacio y hablá.</div>';show();return;}
+  items.forEach((it,i)=>{
+    const dl=dayLabel(it.ts);if(dl!==last){last=dl;const d=document.createElement('div');d.className='day';d.textContent=dl;L.appendChild(d);}
+    const el=document.createElement('div');el.className='item'+(i===sel?' on':'');el.onclick=()=>{sel=i;render();};
+    const n=(it.descartado||[]).length;
+    el.innerHTML='<div class="top"><span class="ts mono">'+fmt(it.ts)+(it.origen?' · '+it.origen:'')+'</span>'+(n?'<span class="chip">'+n+(n===1?' descarte':' descartes')+'</span>':'')+'</div><div class="txt"></div>';
+    el.querySelector('.txt').textContent=it.final;L.appendChild(el);
+  });
+  show();
+}
+function show(){
+  const it=items[sel];
+  if(!it){$('final').textContent='';$('raw').textContent='';$('disc').textContent='';$('meta').textContent='';return;}
+  $('final').textContent=it.final;$('raw').textContent=it.raw;
+  $('disc').textContent=(it.descartado||[]).length?it.descartado.map(d=>'• '+d).join('\n'):'—';
+  $('meta').textContent=it.ts.replace('T',' ')+(it.segundos?' · '+it.segundos+' s':'')+(it.origen?' · '+it.origen:'');
+}
+async function act(a){const it=items[sel];if(!it)return;const m=await window.pywebview.api.action(a,it);if(m)toast(m);}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');tab=b.dataset.tab;load();});
+$('q').addEventListener('input',load);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('setup').classList.contains('on'))closeSetup();else window.pywebview.api.close();}});
+window.addEventListener('pywebviewready',load);
+// ---- conexión guiada de la clave ----
+let scanT=null, scanBusy=false;
+function step(n){[1,2,3].forEach(i=>{const e=$('s'+i);e.classList.toggle('ok',i<n);e.classList.toggle('cur',i===n);});}
+function setLive(cls,txt){const l=$('live');l.className='live'+(cls?' '+cls:'');$('livet').textContent=txt;}
+async function openSetup(){
+  $('setup').classList.add('on');$('card').classList.remove('fin');$('guia').classList.remove('ok');$('bub').textContent='Hola, soy el Guía. Te conecto en un minuto.';step(1);setLive('','Esperando que copies la clave…');
+  try{const st=await window.pywebview.api.key_status();if(st.hotkey)$('hk').textContent=st.hotkey.replace(/space/i,'Espacio').replace(/caps ?lock/i,'Bloq Mayús').replace(/\+/g,' + ').replace(/\b\w/g,c=>c.toUpperCase());}catch(e){}
+  clearInterval(scanT);scanT=setInterval(scan,900);
+}
+function closeSetup(){clearInterval(scanT);$('setup').classList.remove('on');load();}
+async function openGroq(){await window.pywebview.api.open_groq();step(2);$('bub').textContent='Tocá Create API Key y después Copy. Yo la agarro solo.';}
+function result(r){
+  if(r.st==='ok'){clearInterval(scanT);step(4);$('guia').classList.add('ok');$('bub').textContent='¡Listo! Ya te escucho.';setLive('ok','Conectada '+(r.key||''));setTimeout(()=>$('card').classList.add('fin'),500);}
+  else if(r.st==='bad'){step(3);$('bub').textContent='Esa no anduvo. Copiá una nueva y la pruebo.';setLive('bad',r.msg||'Esa clave no funcionó. Copiá una nueva.');}
+}
+async function scan(){
+  if(scanBusy)return;scanBusy=true;
+  try{result(await window.pywebview.api.scan_clipboard());}catch(e){}finally{scanBusy=false;}
+}
+async function manualKey(){
+  const v=$('mk').value.trim();if(!v)return;setLive('','Comprobando…');step(3);
+  result(await window.pywebview.api.save_key(v));
+}
+window.addEventListener('pywebviewready',async()=>{try{const st=await window.pywebview.api.key_status();if(!st.has)openSetup();}catch(e){}});
+</script>
+</body>
+</html>

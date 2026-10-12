@@ -1,0 +1,12 @@
+sounddevice
+numpy
+keyboard
+pyperclip
+python-dotenv
+groq
+faster-whisper
+openai
+google-genai
+pystray
+pillow
+pywebview

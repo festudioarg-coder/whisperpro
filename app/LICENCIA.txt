@@ -1,0 +1,24 @@
+WhisperPRO — Contrato de licencia de usuario final (EULA)
+© 2026 FESTUDIOS (Juan Ignacio Ibarlucia), Olavarría, Argentina. Todos los derechos reservados.
+
+Este software se licencia, no se vende. Al instalarlo o usarlo aceptás estas condiciones.
+
+1. Licencia. FESTUDIOS te otorga una licencia personal, no exclusiva e intransferible para instalar y usar WhisperPRO en los dispositivos que permita tu plan (gratis, Pro, de por vida o Equipo).
+
+2. Lo que no podés hacer. No podés copiar el software para redistribuirlo, venderlo, alquilarlo ni sublicenciarlo; modificarlo, descompilarlo, aplicarle ingeniería inversa ni crear obras derivadas; quitar o alterar nombres, logos, avisos de propiedad, firmas digitales o información de versión; ni usarlo para fines ilegales.
+
+3. Propiedad. El software, su código, diseño, nombre y logos son propiedad de FESTUDIOS y están protegidos por la Ley 11.723 de Propiedad Intelectual de la República Argentina y tratados internacionales. Esta licencia no te transfiere ningún derecho de propiedad.
+
+4. Tus datos. Tu voz se procesa para transcribirla y no se guarda audio. El historial de dictados se guarda solo en tu computadora y podés borrarlo cuando quieras. FESTUDIOS no usa tus dictados para entrenar modelos.
+
+5. Servicios de terceros. La transcripción y la corrección usan proveedores de inteligencia artificial externos; su disponibilidad puede variar. FESTUDIOS puede cambiar de proveedor sin aviso para mantener el servicio.
+
+6. Actualizaciones. El software puede buscar e instalar actualizaciones. Los planes de por vida incluyen actualizaciones por el período indicado al comprar.
+
+7. Sin garantías. El software se entrega "tal cual". En la máxima medida permitida por la ley, FESTUDIOS no se hace responsable por daños indirectos derivados del uso o la imposibilidad de uso del software, incluyendo texto transcripto o corregido de manera incorrecta: revisá siempre lo que envías.
+
+8. Terminación. Esta licencia termina automáticamente si incumplís estas condiciones. Al terminar debés desinstalar el software.
+
+9. Ley aplicable. Este contrato se rige por las leyes de la República Argentina. Cualquier controversia se somete a los tribunales ordinarios de Olavarría, Provincia de Buenos Aires.
+
+Contacto: festudioarg@gmail.com

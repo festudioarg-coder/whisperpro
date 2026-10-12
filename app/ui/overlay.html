@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>WhisperPRO overlay</title>
+<style>
+@font-face{font-family:'Manrope';src:url('fonts/Manrope.woff2') format('woff2');font-weight:200 800}
+@font-face{font-family:'JetBrains Mono';src:url('fonts/JetBrainsMono.woff2') format('woff2');font-weight:500}
+*{box-sizing:border-box}
+/* La ventana tiene EXACTAMENTE la forma de la píldora (Windows la recorta): todo llena el 100%. */
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b0c11;font-family:'Manrope','Segoe UI',system-ui,sans-serif;color:#e9eaf2;-webkit-user-select:none;user-select:none;cursor:default}
+:root{--a:#ff4d6d;--b:#ff9a5c;--g:255,77,109}
+body[data-state="thinking"]{--a:#7aa2ff;--b:#c58cff;--g:122,162,255}
+body[data-state="done"]{--a:#34e0a1;--b:#8cf5d2;--g:52,224,161}
+body[data-state="error"]{--a:#9aa0b4;--b:#c9ccd8;--g:154,160,180}
+body.confirm{--a:#ffb547;--b:#ffd27a;--g:255,181,71}
+
+#frame,.layer{position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+  transition:width .18s cubic-bezier(.2,.8,.2,1),height .18s cubic-bezier(.2,.8,.2,1),border-radius .18s,opacity .16s ease}
+body.mini #frame,body.mini .layer{width:196px;height:44px;border-radius:22px}
+body.full #frame,body.full .layer{width:600px;height:150px;border-radius:34px}
+.layer{overflow:hidden}
+#frame{border:1px solid #2a2e3c;border-top-color:#454a5e;
+  background:radial-gradient(ellipse at 50% 140%,rgba(var(--g),.28),transparent 65%),linear-gradient(180deg,#15161e,#0b0c11);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);transition:background .3s}
+
+
+body.mini #cap{opacity:0;pointer-events:none}
+body.full #mini{opacity:0;pointer-events:none}
+body.full #cap{transition-delay:.06s}
+
+/* ---------- píldora ---------- */
+#mini{display:flex;align-items:center;gap:10px;padding:0 16px 0 15px}
+.dot{position:relative;width:10px;height:10px;border-radius:50%;background:var(--a);box-shadow:0 0 0 3px rgba(var(--g),.18),0 0 12px var(--a);flex-shrink:0}
+body[data-state="listening"] .dot{animation:pulse 1.5s ease-in-out infinite}
+body[data-state="thinking"] .dot{background:transparent;box-shadow:none;border:2px solid rgba(var(--g),.3);border-top-color:var(--a);animation:spin 1s linear infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.7}}
+@keyframes spin{to{transform:rotate(360deg)}}
+#mini .bars{flex:1;display:flex;align-items:center;justify-content:center;gap:3px;height:24px}
+#mini .bars i{display:block;width:3px;height:24px;border-radius:2px;transform:scaleY(.22);transform-origin:center;background:var(--a)}
+/* listo: el punto se transforma en un tilde y aparece "Copiado al portapapeles" */
+body.mini[data-state="done"] #frame,body.mini[data-state="done"] .layer{width:236px}
+.dot{display:flex;align-items:center;justify-content:center;transition:width .22s cubic-bezier(.2,.8,.2,1),height .22s cubic-bezier(.2,.8,.2,1)}
+.dot svg,.ind svg{overflow:visible}
+.dot svg{display:none}
+.chk path{stroke-dasharray:16;stroke-dashoffset:16}
+body[data-state="done"] .chk path{animation:draw .34s .14s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+body[data-state="done"] .dot{width:20px;height:20px;box-shadow:0 0 0 4px rgba(var(--g),.16),0 0 16px rgba(var(--g),.7);animation:pop .38s cubic-bezier(.3,1.6,.5,1)}
+body[data-state="done"] .dot svg{display:block}
+@keyframes pop{0%{transform:scale(.55)}100%{transform:scale(1)}}
+#okmsg{display:none;font-size:12px;font-weight:800;letter-spacing:-.005em;color:#e9eaf2;white-space:nowrap;opacity:0}
+body[data-state="done"] #okmsg{display:block;animation:fadein .26s .12s ease forwards}
+body[data-state="done"] #mini .bars,body[data-state="done"] #mt{display:none}
+body[data-state="done"] #mini{justify-content:center}
+@keyframes fadein{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
+body[data-state="done"] .ind{animation:pop .38s cubic-bezier(.3,1.6,.5,1)}
+#mt{font-family:'JetBrains Mono',Consolas,monospace;font-size:11px;color:#9aa0b4;flex-shrink:0;min-width:30px;text-align:right}
+body.confirm #mt,body[data-state="done"] #mt,body[data-state="error"] #mt{font-family:'Manrope';font-weight:800;font-size:10px;letter-spacing:.08em;color:var(--a)}
+
+/* ---------- cápsula desplegada ---------- */
+#cap{display:flex;flex-direction:column;justify-content:space-between;padding:18px 26px 16px}
+.row{display:flex;align-items:center;justify-content:space-between;height:18px}
+.left{display:flex;align-items:center;gap:11px;min-width:0}
+.ind{width:15px;height:15px;border-radius:50%;background:var(--a);box-shadow:0 0 14px rgba(var(--g),.6);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+body[data-state="listening"] .ind{animation:pulse 1.6s ease-in-out infinite}
+body[data-state="thinking"] .ind{background:transparent;box-shadow:none;border:2.5px solid rgba(var(--g),.25);border-top-color:var(--a);animation:spin .9s linear infinite}
+.ind svg{display:none}
+body[data-state="done"] .ind svg{display:block}
+#label{font-size:11px;font-weight:800;letter-spacing:.18em;color:var(--b);white-space:nowrap}
+#sub{font-size:11px;font-weight:600;color:#6b7088;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+#chip{display:none;font-size:11px;font-weight:700;color:#ff8aa0;background:rgba(255,77,109,.12);border:1px solid rgba(255,77,109,.3);border-radius:999px;padding:3px 10px}
+#time{font-family:'JetBrains Mono',Consolas,monospace;font-size:13px;color:#9aa0b4}
+#wave{display:flex;align-items:center;justify-content:center;gap:6px;height:44px}
+#wave i{display:block;width:5px;height:44px;border-radius:999px;transform:scaleY(.08);transform-origin:center;background:var(--a)}
+body[data-state="done"] #wave,body[data-state="error"] #wave{display:none}
+#text{display:block;font-size:15px;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;height:20px;color:#fff}
+#text span{flex-shrink:0}
+#text.dim{color:#5c627a}
+#caret{display:inline-block;width:2px;height:16px;background:var(--a);margin-left:3px;transform:translateY(2px);animation:caret 1s step-end infinite}
+@keyframes caret{0%,49%{opacity:1}50%,100%{opacity:0}}
+#final{display:none;font-size:18px;font-weight:700;line-height:1.25;color:#fff;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hints{display:none;align-items:center;gap:18px;font-size:11px;font-weight:700;color:#6b7088}
+kbd{font-family:'JetBrains Mono',Consolas,monospace;font-size:10px;font-weight:500;color:#c9ccd8;background:#1b1e29;border:1px solid #2a2e3d;border-bottom-width:2px;border-radius:6px;padding:2px 7px}
+body[data-state="done"] #text,body[data-state="error"] #text{display:none}
+body[data-state="done"] #final,body[data-state="error"] #final{display:block}
+body[data-state="done"] #hints{display:flex}
+body[data-state="error"] #final{color:#c9ccd8;font-size:15px}
+#ask{display:none;align-items:center;gap:10px;font-size:14px;font-weight:700;color:#ffd27a}
+body.confirm #ask{display:flex}
+body.confirm #text{display:none}
+html.demo,html.demo body{background:#0e0f14}
+html.demo body{display:block}
+html.demo #frame,html.demo .layer{bottom:auto;top:50%;transform:translate(-50%,-50%)}
+</style>
+</head>
+<body data-state="idle" class="mini">
+<div id="frame"></div>
+<div id="mini" class="layer">
+  <span class="dot"><svg class="chk" width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5l3 3 6-6" stroke="#0a0b10" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  <span class="bars"></span>
+  <span id="mt">0:00</span>
+  <span id="okmsg">Copiado al portapapeles</span>
+</div>
+<div id="cap" class="layer" role="status">
+  <div class="row">
+    <div class="left">
+      <span class="ind"><svg class="chk" width="10" height="8" viewBox="0 0 11 9" fill="none"><path d="M1 4.5l3 3 6-6" stroke="#0a0b10" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span id="label">ESCUCHANDO</span>
+      <span id="sub">· Espacio para terminar · Esc para borrar</span>
+    </div>
+    <div class="right"><span id="chip"></span><span id="time">0:00</span></div>
+  </div>
+  <div id="wave"></div>
+  <div id="text" class="dim"><span id="livetxt">hablá…</span><span id="caret"></span></div>
+  <div id="ask">¿Borrar lo grabado? &nbsp;<kbd>Esc</kbd> sí, borrar &nbsp;·&nbsp; <kbd>Espacio</kbd> no, terminar</div>
+  <div id="final"></div>
+  <div id="hints"><span><kbd class="k">Win</kbd> + <kbd>H</kbd> historial</span><span><kbd class="k">Win</kbd> + <kbd>Z</kbd> deshacer</span></div>
+</div>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const NB=29, NM=13;
+  function mk(parent,n){const out=[];for(let i=0;i<n;i++){const b=document.createElement('i');const k=i/(n-1);b.style.background='color-mix(in srgb, var(--a) '+Math.round((1-k)*100)+'%, var(--b))';parent.appendChild(b);out.push(b);}return out;}
+  const big=mk($('wave'),NB), small=mk(document.querySelector('#mini .bars'),NM);
+  const hist=new Array(NB).fill(0), cur=new Array(NB).fill(.06);
+  let acc=0, queue=[], state='idle', mode='mini', confirm=false, t0=0, t=0, last=0, prev={};
+  const labels={listening:'ESCUCHANDO',thinking:'INTERPRETANDO',done:'COPIADO',error:'LISTO'};
+  const subs={listening:'· Espacio para terminar · Esc para borrar',thinking:'· aplicando tus correcciones',done:'· pegado y copiado al portapapeles',error:''};
+
+  function apply(d){
+    if(d.state!==state){
+      state=d.state;document.body.dataset.state=state;
+      $('label').textContent=labels[state]||'';$('sub').textContent=subs[state]||'';
+      if(state==='listening'){t0=performance.now();hist.fill(0);queue=[];$('chip').style.display='none';}
+      if(state==='done')$('mt').textContent='LISTO';
+      if(state==='error')$('mt').textContent='—';
+    }
+    if(d.confirm!==confirm){confirm=d.confirm;document.body.classList.toggle('confirm',confirm);
+      if(confirm){$('label').textContent='¿BORRAR?';$('sub').textContent='';$('mt').textContent='¿BORRAR?';}
+      else{$('label').textContent=labels[state]||'';$('sub').textContent=subs[state]||'';}}
+    if(d.mode!==mode){mode=d.mode;document.body.classList.toggle('mini',mode==='mini');document.body.classList.toggle('full',mode==='full');}
+    if(d.live!==prev.live){const has=!!d.live;$('livetxt').textContent=has?d.live:'hablá…';$('text').className=has?'':'dim';const tx=$('text');tx.scrollLeft=tx.scrollWidth;}
+    if(d.text!==prev.text)$('final').textContent=d.text;
+    if(d.discarded!==prev.discarded){const n=d.discarded;$('chip').style.display=n?'inline-block':'none';$('chip').textContent=n===1?'1 idea descartada':n+' ideas descartadas';}
+    if(state==='done')$('time').textContent=(d.elapsed||0).toFixed(1)+' s';
+    if(d.hint!==prev.hint)document.querySelectorAll('kbd.k').forEach(k=>k.textContent=d.hint);
+    if(d.levels&&d.levels.length)queue.push(...d.levels);
+    prev=d;
+  }
+  async function pollLoop(){
+    while(true){
+      try{ apply(await window.pywebview.api.poll()); }catch(e){}
+      await new Promise(r=>setTimeout(r, state==='idle'?150:33));
+    }
+  }
+  function frame(now){
+    const dt=Math.min(.05,(now-last)/1000||.016);last=now;t+=dt;
+    const mid=(NB-1)/2;
+    if(state==='listening'){
+      acc+=dt;
+      let steps=0;
+      while(acc>=0.03){acc-=0.03;steps++;}
+      if(queue.length>8)steps+=1;            // si se atrasó, se pone al día
+      steps=Math.min(steps,queue.length);
+      for(let s=0;s<steps;s++){
+        const v=queue.shift();
+        for(let i=0;i<mid;i++)hist[i]=hist[i+1];
+        for(let i=NB-1;i>mid;i--)hist[i]=hist[i-1];
+        hist[mid]=v;
+      }
+      const sec=(now-t0)/1000,txt=Math.floor(sec/60)+':'+String(Math.floor(sec%60)).padStart(2,'0');
+      $('time').textContent=txt;if(!confirm)$('mt').textContent=txt;
+    }
+    for(let i=0;i<NB;i++){
+      let target;
+      if(state==='listening'){const env=1-Math.pow(Math.abs(i-mid)/mid,2)*.55;target=.1+.9*Math.min(1,hist[i]*1.15)*env+.05*(.5+.5*Math.sin(t*6+i*.55));}
+      else if(state==='thinking'){target=.12+.3*(.5+.5*Math.sin(t*7-i*.35));}
+      else target=.06;
+      cur[i]+=(target-cur[i])*.4;
+    }
+    for(let i=0;i<NB;i++)big[i].style.transform='scaleY('+Math.max(.06,cur[i]).toFixed(3)+')';
+    for(let j=0;j<NM;j++){const i=Math.round(j*(NB-1)/(NM-1));small[j].style.transform='scaleY('+Math.max(.2,Math.min(1,cur[i]*1.1)).toFixed(3)+')';}
+    requestAnimationFrame(frame);
+  }
+  setTimeout(()=>{ if(started) return;
+    document.documentElement.classList.add('demo');
+    let k=0, phase=0;
+    setInterval(()=>{ k++;
+      const st = k<160?'listening':(k<200?'thinking':(k<260?'done':'listening'));
+      if(k>=260)k=0;
+      if(k%55===0) phase=(phase+1)%2;
+      const talk=Math.max(0,Math.sin(k/3)*.5+Math.sin(k/1.7)*.3+.35)*(k%40<32?1:.1);
+      apply({state:st, mode: phase? 'full':'mini', confirm:false, live:'tengo una idea para un velero… no, mejor no, borrá eso', text:'Hagamos un avión para que cualquiera pueda volar.', discarded:1, elapsed:0.9, hint:'Win', levels: st==='listening'?[talk,talk*.8]:[]});
+    },60);
+  },1500);
+  let started=false;
+  function startPoll(){ if(started) return; if(window.pywebview&&window.pywebview.api&&window.pywebview.api.poll){ started=true; pollLoop(); } }
+  window.addEventListener('pywebviewready',startPoll);
+  const iv=setInterval(()=>{ startPoll(); if(started) clearInterval(iv); },200);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
