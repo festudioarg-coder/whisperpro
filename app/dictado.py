@@ -1644,7 +1644,12 @@ def start_tray(root):
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("Salir", on_quit),
     )
-    icon = pystray.Icon(name, make_logo(64), f"{name} · escuchando atajos", menu)
+    try:
+        from PIL import Image
+        img = Image.open(os.path.join(RES, "logo-tray.png"))          # el logo de la marca (onda luminosa)
+    except Exception:
+        img = make_logo(64)                                           # respaldo si falta el archivo
+    icon = pystray.Icon(name, img, f"{name} · escuchando atajos", menu)
     threading.Thread(target=icon.run, daemon=True).start()
     return icon
 

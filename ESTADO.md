@@ -72,6 +72,7 @@ Herramienta de dictado por voz para Windows (producto de FESTUDIOS): Win + Espac
 - Cada parche se prueba con `dev.bat` y se mira `dictado.log` antes de decir que funciona.
 
 ## Historia (no leer al arrancar)
+- 12/10: decisión (Juan) — el logo es la onda luminosa (opción B de `branding/propuestas/`), no las barras. Se genera con `python branding/generar_logo.py` (fina en tamaños grandes, simplificada de 3 a 4 líneas en 16–64 px para que se lea). Archivos nuevos que el instalador tiene que incluir: `app/logo.ico`, `app/logo-tray.png` y `app/ui/img/logo-*.png` (la bandeja los lee de ahí; si falta `logo-tray.png` cae al logo de barras).
 - 12/10: decisión (Juan) — la marca pasa de coral/durazno a violeta púrpura. Por qué: prosperidad y futuro; el naranja no le gusta. Se cambió en panel, cápsula, versión web, landing, logo e íconos. Lo que es advertencia (descartado, ¿borrar?) quedó en rosa para no confundirse con el color de marca.
 - 12/10: decisión (Juan) — tipografías con identidad propia y todo guardado en la PC. Por qué: marca diferenciada y mensaje de seguridad. Se eligieron Bricolage Grotesque + Martian Mono (OFL) empaquetadas; los datos ya eran locales (historial, portapapeles, clave, ajustes). Lo que no es local es el audio (Groq): el mensaje de marketing se redactó sin esa trampa (ver reglas).
 - 12/10: decisión (Juan) — atajos configurables desde el panel (hasta 2 de grabación, más capturas de pantalla de región y completa). Por qué: cada persona usa su teclado distinto y Win+Espacio choca con el cambio de idioma de Windows.
