@@ -26,6 +26,9 @@ header{display:flex;align-items:center;gap:18px;height:50px;padding:0 16px;borde
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
 .logo{width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,var(--a),var(--b));display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(255,77,109,.35)}
 h1{margin:0}
+.brandtxt{display:flex;flex-direction:column;gap:4px;line-height:1}
+.by{font:600 8.5px var(--mono);font-stretch:86%;letter-spacing:.17em;text-transform:uppercase;color:#8b92a8;white-space:nowrap}
+.by strong{color:var(--tx);font-weight:700}
 /* logotipo: Bricolage Grotesque cerrada de ancho, con "PRO" en el degradé de la marca */
 .wm{font-size:16px;font-weight:600;font-stretch:84%;letter-spacing:-.03em;font-variation-settings:"opsz" 48;line-height:1}
 .wm b{font-weight:800;margin-left:1px;background:linear-gradient(90deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -239,7 +242,7 @@ button.b:hover{filter:brightness(1.15)}
 <header>
   <div class="brand">
     <span class="logo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0a0b10" stroke-width="2.8" stroke-linecap="round"><path d="M12 3v18M7 8v8M17 8v8M3 11v2M21 11v2"/></svg></span>
-    <h1 class="wm">Whisper<b>PRO</b></h1>
+    <div class="brandtxt"><span class="by">Desarrollado por <strong>FESTUDIOS</strong></span><h1 class="wm">Whisper<b>PRO</b></h1></div>
   </div>
   <span class="crumb">memoria <b>/</b> <b id="crumb">dictados</b></span>
   <span class="grow"></span>
@@ -327,6 +330,7 @@ button.b:hover{filter:brightness(1.15)}
       <li>Si no dictás, no sale nada</li></ul></div>
    </div>
    <div class="dirline"><span class="chip g">carpeta de datos</span><code id="datadir">—</code><button class="btn sm" onclick="api('open_data_dir')">Abrir</button><button class="btn sm d" id="bclear" onclick="clearData()">Borrar historial</button></div>
+   <div class="mono" style="text-align:center;color:#8b92a8;font-size:11px;padding-top:6px">Desarrollado por <strong style="color:var(--tx)">FESTUDIOS</strong> · festudios.pro</div>
   </div>
  </div>
 </div>

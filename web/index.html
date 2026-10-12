@@ -31,6 +31,9 @@ kbd,.mono{font-family:var(--mono);font-stretch:86%}
 header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 6px}
 .wm{font-size:20px;font-weight:600;font-stretch:84%;letter-spacing:-.03em;font-variation-settings:"opsz" 48;display:flex;align-items:center;gap:9px}
 .wm i{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--a),var(--b));display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(255,77,109,.35);font-style:normal}
+.col{display:flex;flex-direction:column;gap:4px;line-height:1}
+.by{font:600 8.5px var(--mono);font-stretch:86%;letter-spacing:.17em;text-transform:uppercase;color:#8b92a8;white-space:nowrap}
+.by strong{color:var(--tx);font-weight:700}
 .wm b{font-weight:800;margin-left:1px;background:linear-gradient(90deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
 .ib{width:38px;height:38px;border-radius:11px;border:1px solid var(--line2);background:transparent;color:var(--tx2);display:flex;align-items:center;justify-content:center}
 main{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -112,7 +115,7 @@ a{color:var(--info)}
 </head>
 <body data-s="idle">
 <header>
-  <div class="wm"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0a0b10" stroke-width="2.8" stroke-linecap="round"><path d="M12 3v18M7 8v8M17 8v8M3 11v2M21 11v2"/></svg></i><span>Whisper<b>PRO</b></span></div>
+  <div class="wm"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0a0b10" stroke-width="2.8" stroke-linecap="round"><path d="M12 3v18M7 8v8M17 8v8M3 11v2M21 11v2"/></svg></i><span class="col"><small class="by">Desarrollado por <strong>FESTUDIOS</strong></small><span>Whisper<b>PRO</b></span></span></div>
   <button class="ib" id="gear" aria-label="Ajustes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button>
 </header>
 <main>
@@ -174,7 +177,7 @@ a{color:var(--info)}
       <div>En Safari: tocá <b style="color:var(--tx)">Compartir</b> → <b style="color:var(--tx)">Agregar a pantalla de inicio</b>. Se abre como una app, sin barra del navegador.</div>
       <div class="small">La primera vez que grabes, iOS pide permiso para el micrófono.</div>
     </div></div>
-    <div class="small mono" style="text-align:center;padding:6px 0 0">WhisperPRO web · v1.0</div>
+    <div class="small mono" style="text-align:center;padding:6px 0 0">Desarrollado por <strong style="color:var(--tx)">FESTUDIOS</strong> · WhisperPRO web v1.0</div>
   </div>
 </div>
 <div class="toast" id="toast"></div>

@@ -20,7 +20,8 @@ Herramienta de dictado por voz para Windows (producto de FESTUDIOS): Win + Espac
 4. Juan: subir `web/` a un hosting con HTTPS (festudios.pro/whisper/ por SFTP) y probar en el iPhone. Si Groq bloquea las llamadas desde el navegador (CORS) hay que ver el plan B (ver `web/LEEME.md`).
 
 ## Prueba de v6.15 (qué mirar en dev.bat)
-1. **Una sola instancia:** abrí `dictado.bat` dos veces: la segunda muestra "ya está abierto" y no arranca. Revisá la barra de tareas y el Administrador de tareas: un solo pythonw.
+1. **Que corra la versión nueva:** `dev.bat` y `dictado.bat` ahora cierran cualquier copia vieja (python, pythonw o el instalado) antes de arrancar. El panel nuevo tiene abajo la barra `listo | WhisperPRO v6.15` y arriba "Desarrollado por FESTUDIOS"; si ves el título "Memoria de voz", es una copia vieja.
+1b. **Una sola instancia:** abrí `dictado.bat` dos veces: la segunda muestra "ya está abierto" y no arranca. Revisá la barra de tareas y el Administrador de tareas: un solo pythonw.
 2. **No traba el teclado:** Win+Espacio varias veces seguidas y escribiendo en otro programa; no tiene que haber retrasos. Si el log dice `error en el hook de teclado`, pasarlo.
 3. **Píldora:** aparece y desaparece con fundido, se despliega al pasar el mouse, y en la vista final el texto sale completo (hasta 6 renglones) con conteo de palabras. Pasar el mouse por encima la mantiene abierta hasta 10 s.
 4. **Portapapeles:** copiá algo, dictá y pegá el dictado; en el panel → Portapapeles tiene que aparecer lo que habías copiado como "anterior".
