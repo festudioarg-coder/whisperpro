@@ -1360,7 +1360,7 @@ class Overlay:
         fam = self.f_text[0]
         win = tk.Toplevel(self.root)
         self.hist_win = win
-        win.title("Memoria de voz")
+        win.title("FESTUDIOS · Memoria de voz")
         try:
             win.iconbitmap(os.path.join(BASE, "logo.ico"))
         except Exception:
@@ -1970,7 +1970,7 @@ def run_web_ui():
     BOTTOM = 52           # separación de la barra de tareas
 
     api = PanelAPI()
-    panel = webview.create_window(f"{APP_NAME} — Memoria de voz", os.path.join(UI_DIR, "panel.html"), js_api=api,
+    panel = webview.create_window(f"FESTUDIOS · {APP_NAME} — Memoria de voz", os.path.join(UI_DIR, "panel.html"), js_api=api,
                                   width=1120, height=680, background_color="#0c0d13", min_size=(900, 560))
     api._win = panel
     overlay = webview.create_window(f"{APP_NAME} overlay", os.path.join(UI_DIR, "overlay.html"), js_api=OverlayAPI(),
