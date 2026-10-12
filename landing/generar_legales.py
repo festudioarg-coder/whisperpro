@@ -312,8 +312,8 @@ CLAVE = f"""
 <p>WhisperPRO usa Groq para transcribir tu voz. Necesitás una <b>clave gratuita</b> (una especie de contraseña propia). Se consigue una sola vez, en tres toques. <b>No hace falta tarjeta.</b></p>
 
 <div class="paso"><span class="n">1</span><div><h3>Entrá a Groq con tu cuenta de Google</h3>
-<p>Abrí <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a> y elegí <span class="kbd">Continue with Google</span> (o con tu mail). La cuenta es gratis.</p>
-{_fig("groq-1.png", "Pantalla de inicio de sesión de Groq", "Entrá con tu cuenta de Google.")}</div></div>
+<p>Abrí <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a> y elegí <span class="kbd">Continue with Google</span> (también podés entrar con GitHub o con tu mail). La cuenta es gratis.</p>
+{_fig("groq-1.png", "Pantalla de inicio de sesión de Groq", "Pantalla de Groq: elegí «Continue with Google» o el método que prefieras.")}</div></div>
 
 <div class="paso"><span class="n">2</span><div><h3>Creá la clave</h3>
 <p>Tocá <span class="kbd">Create API Key</span>, escribí cualquier nombre (por ejemplo «WhisperPRO») y apretá <span class="kbd">Submit</span>.</p>
