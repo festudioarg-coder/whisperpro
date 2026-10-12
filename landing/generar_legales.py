@@ -299,7 +299,8 @@ DESCARGAR = f"""
 </form>
 <div id="ok" style="display:none"><p class="ok"><b>Listo, recibimos tu mail.</b></p>{('<p><a class="btn" href="' + INSTALADOR + '" download>Descargar WhisperPRO para Windows</a></p><p class="mono">Windows 10 y 11 · 64 bits</p>') if INSTALADOR else '<p>Te escribimos a ese correo el día que esté disponible.</p>'}</div>
 </div>
-<p>¿Preferís probarlo en el teléfono? La versión web para iPhone y Android está en preparación y se anuncia por el mismo medio.</p>
+<div class="box" id="movil"><p style="margin:0 0 8px"><b>¿Desde el teléfono?</b></p><p style="margin:0 0 14px">El instalador es para Windows. En iPhone y Android usá la versión web: se abre en el navegador y la podés agregar a tu pantalla de inicio como una app.</p><a class="btn" href="app/">Abrir la versión web</a></div>
+<script>if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){{var m=document.getElementById('movil'),c=document.getElementById('caja');c.parentNode.insertBefore(m,c);document.getElementById('t').textContent='Para bajarlo en tu PC, dejá tu mail.';}}</script>
 <script>
 document.getElementById('f').addEventListener('submit',async function(ev){{
   ev.preventDefault();var e=document.getElementById('e'),m=document.getElementById('m').value.trim();
@@ -329,7 +330,7 @@ if __name__ == "__main__":
         os.makedirs(os.path.join(RAIZ, ruta), exist_ok=True)
         with open(os.path.join(RAIZ, ruta, "index.html"), "w", encoding="utf-8") as f:
             f.write(pagina(ruta, titulo, desc, cuerpo))
-    urls = [("", "1.0"), ("descargar/", "0.8")] + [(r + "/", "0.5") for r, _ in PAGINAS]
+    urls = [("", "1.0"), ("descargar/", "0.8"), ("app/", "0.6")] + [(r + "/", "0.5") for r, _ in PAGINAS]
     items = "\n".join(f"  <url><loc>{BASE}{u}</loc><lastmod>{FECHA_ISO}</lastmod><priority>{p}</priority></url>" for u, p in urls)
     with open(os.path.join(RAIZ, "sitemap.xml"), "w", encoding="utf-8") as f:
         f.write(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{items}\n</urlset>\n')

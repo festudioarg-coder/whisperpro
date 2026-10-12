@@ -53,7 +53,8 @@ footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer n
 </form>
 <div id="ok" style="display:none"><p class="ok"><b>Listo, recibimos tu mail.</b></p><p>Te escribimos a ese correo el día que esté disponible.</p></div>
 </div>
-<p>¿Preferís probarlo en el teléfono? La versión web para iPhone y Android está en preparación y se anuncia por el mismo medio.</p>
+<div class="box" id="movil"><p style="margin:0 0 8px"><b>¿Desde el teléfono?</b></p><p style="margin:0 0 14px">El instalador es para Windows. En iPhone y Android usá la versión web: se abre en el navegador y la podés agregar a tu pantalla de inicio como una app.</p><a class="btn" href="app/">Abrir la versión web</a></div>
+<script>if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){var m=document.getElementById('movil'),c=document.getElementById('caja');c.parentNode.insertBefore(m,c);document.getElementById('t').textContent='Para bajarlo en tu PC, dejá tu mail.';}</script>
 <script>
 document.getElementById('f').addEventListener('submit',async function(ev){
   ev.preventDefault();var e=document.getElementById('e'),m=document.getElementById('m').value.trim();
