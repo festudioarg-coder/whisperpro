@@ -24,11 +24,13 @@ button{font-family:inherit}
 /* ---------- barra superior ---------- */
 header{display:flex;align-items:center;gap:18px;height:50px;padding:0 16px;border-bottom:1px solid var(--line);background:var(--bg2);flex-shrink:0}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
-.logo{width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#a855f7);display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(139,92,246,.45)}
+.logo{width:24px;height:24px;border-radius:8px;background:radial-gradient(120% 65% at 50% -12%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%),linear-gradient(150deg,#ac7cff 0%,#7c3aed 38%,#54168f 72%,#2c0c6c 100%);display:flex;align-items:center;justify-content:center;inset 0 1px 0 rgba(255,255,255,.5),inset 0 -2px 3px rgba(20,0,60,.5),0 4px 14px rgba(76,29,149,.55)}
 h1{margin:0}
 .brandtxt{display:flex;flex-direction:column;gap:4px;line-height:1}
 .by{font:600 8.5px var(--mono);font-stretch:86%;letter-spacing:.17em;text-transform:uppercase;color:#8b92a8;white-space:nowrap}
-.by strong{color:var(--tx);font-weight:700}
+.by{text-decoration:none;cursor:pointer}
+.by strong{color:var(--tx);font-weight:700;border-bottom:1px solid transparent;transition:border-color .15s}
+.by:hover strong{border-bottom-color:var(--b)}
 /* logotipo: Bricolage Grotesque cerrada de ancho, con "PRO" en el degradé de la marca */
 .wm{font-size:16px;font-weight:600;font-stretch:84%;letter-spacing:-.03em;font-variation-settings:"opsz" 48;line-height:1}
 .wm b{font-weight:800;margin-left:1px;background:linear-gradient(90deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -192,7 +194,7 @@ button.b:hover{filter:brightness(1.15)}
 #setup.on{display:flex}
 .card{width:600px;max-width:calc(100% - 40px);display:flex;flex-direction:column;gap:22px}
 .sh{display:flex;align-items:center;gap:14px}
-.sh .logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#a855f7)}
+.sh .logo{width:44px;height:44px;border-radius:14px;background:radial-gradient(120% 65% at 50% -12%,rgba(255,255,255,.42),rgba(255,255,255,0) 62%),linear-gradient(150deg,#ac7cff 0%,#7c3aed 38%,#54168f 72%,#2c0c6c 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -3px 5px rgba(20,0,60,.5),0 8px 26px rgba(76,29,149,.6)}
 .sh h2{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em}
 .sh p{margin:2px 0 0;color:#9aa0b4;font-size:14px;font-weight:600}
 .steps{display:flex;flex-direction:column;gap:10px}
@@ -242,7 +244,7 @@ button.b:hover{filter:brightness(1.15)}
 <header>
   <div class="brand">
     <span class="logo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><path d="M12 3v18M7 8v8M17 8v8M3 11v2M21 11v2"/></svg></span>
-    <div class="brandtxt"><span class="by">Desarrollado por <strong>FESTUDIOS</strong></span><h1 class="wm">Whisper<b>PRO</b></h1></div>
+    <div class="brandtxt"><a class="by" href="#" onclick="openSite(event)" title="Abrir festudios.pro">Desarrollado por <strong>FESTUDIOS</strong></a><h1 class="wm">Whisper<b>PRO</b></h1></div>
   </div>
   <span class="crumb">memoria <b>/</b> <b id="crumb">dictados</b></span>
   <span class="grow"></span>
@@ -330,7 +332,7 @@ button.b:hover{filter:brightness(1.15)}
       <li>Si no dictás, no sale nada</li></ul></div>
    </div>
    <div class="dirline"><span class="chip g">carpeta de datos</span><code id="datadir">—</code><button class="btn sm" onclick="api('open_data_dir')">Abrir</button><button class="btn sm d" id="bclear" onclick="clearData()">Borrar historial</button></div>
-   <div class="mono" style="text-align:center;color:#8b92a8;font-size:11px;padding-top:6px">Desarrollado por <strong style="color:var(--tx)">FESTUDIOS</strong> · festudios.pro</div>
+   <div class="mono" style="text-align:center;color:#8b92a8;font-size:11px;padding-top:6px"><a href="#" onclick="openSite(event)" style="color:inherit;text-decoration:none">Desarrollado por <strong style="color:var(--tx)">FESTUDIOS</strong> · festudios.pro</a></div>
   </div>
  </div>
 </div>
@@ -475,6 +477,7 @@ window.addEventListener('pywebviewready',async()=>{
   try{const i=await window.pywebview.api.info();$('st-ver').textContent='WhisperPRO '+i.version+' · '+i.engine;}catch(e){}
 });
 // ---- ajustes: atajos y capturas ----
+function openSite(e){e.preventDefault();window.pywebview.api.open_site();}
 let S=null, capturing=null;
 const api=(m,...a)=>window.pywebview.api[m](...a);
 function comboHtml(p){return p?p.split(' + ').map(x=>'<kbd>'+esc(x)+'</kbd>').join('<span class="plus">+</span>'):'';}

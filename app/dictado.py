@@ -1514,35 +1514,83 @@ class Overlay:
 # =====================================================================
 # Logo e ícono de bandeja
 # =====================================================================
-def make_logo(size=256):
-    """Logo WhisperPRO: squircle con degradé violeta y 5 barras blancas de onda de voz."""
-    from PIL import Image, ImageDraw
-    S = size * 4                                   # supersampling para bordes limpios
-    grad = Image.new("RGBA", (S, S))
-    gp = grad.load()
-    c1, c2 = (124, 58, 237), (168, 85, 247)        # #7C3AED → #A855F7 (diagonal)
-    for y in range(S):
-        for x in range(0, S, 4):
-            t = (x + y) / (2 * S)
-            col = tuple(int(c1[i] + (c2[i] - c1[i]) * t) for i in range(3)) + (255,)
-            for k in range(4):
-                if x + k < S:
-                    gp[x + k, y] = col
+def make_logo(size=256, bars_on=True):
+    """Logo WhisperPRO: squircle violeta con degradé hacia violeta oscuro, reflejo de vidrio arriba,
+    borde de luz, sombra propia y 5 barras blancas de onda de voz con profundidad."""
+    from PIL import Image, ImageDraw, ImageFilter
+    S = size * (4 if size <= 256 else 2)            # supersampling para bordes limpios
+    ys, xs = np.mgrid[0:S, 0:S].astype(np.float32) / S
+
+    def stops(t, pts):
+        """Degradé por tramos: pts = [(posición, (r, g, b)), ...]."""
+        out = np.zeros(t.shape + (3,), np.float32)
+        for i in range(3):
+            out[..., i] = np.interp(t, [q[0] for q in pts], [q[1][i] for q in pts])
+        return out
+
+    # forma: squircle con margen para la sombra
+    pad, rad = 0.07, 0.22
+    box = (int(S * pad), int(S * pad * 0.8), int(S * (1 - pad)), int(S * (1 - pad * 1.2)))
     mask = Image.new("L", (S, S), 0)
-    m = ImageDraw.Draw(mask)
-    pad = int(S * 0.02)
-    m.rounded_rectangle((pad, pad, S - pad, S - pad), radius=int(S * 0.24), fill=255)
-    img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-    img.paste(grad, (0, 0), mask)
-    d = ImageDraw.Draw(img)
+    ImageDraw.Draw(mask).rounded_rectangle(box, radius=int(S * rad), fill=255)
+    m = np.asarray(mask, np.float32) / 255
+
+    # cuerpo: violeta claro arriba a la izquierda → violeta → violeta muy oscuro abajo a la derecha
+    t = np.clip(0.42 * xs + 0.58 * ys, 0, 1)
+    t = np.clip((t - 0.10) / 0.82, 0, 1)
+    rgb = stops(t, [(0.0, (172, 124, 255)), (0.38, (124, 58, 237)), (0.72, (84, 28, 178)), (1.0, (44, 12, 108))])
+    # luz suave desde arriba a la izquierda
+    glow = np.clip(1 - np.hypot(xs - 0.30, ys - 0.22) / 0.62, 0, 1) ** 2 * 0.30
+    rgb = rgb * (1 - glow[..., None]) + np.array([214, 190, 255], np.float32) * glow[..., None]
+
+    # reflejo de vidrio: una elipse grande que cubre la mitad de arriba, más clara en el borde superior
+    ell = ((xs - 0.5) / 0.60) ** 2 + ((ys + 0.20) / 0.72) ** 2
+    refl = (ell < 1).astype(np.float32) * np.clip(1 - (ys - 0.07) / 0.40, 0, 1) ** 1.3 * 0.36
+    refl = np.where(ys < 0.55, refl, 0)
+    rgb = rgb * (1 - refl[..., None]) + 255 * refl[..., None]
+
+    # borde de luz arriba y sombra interior abajo
+    inner = Image.new("L", (S, S), 0)
+    ib = int(S * 0.012)
+    ImageDraw.Draw(inner).rounded_rectangle((box[0] + ib, box[1] + ib, box[2] - ib, box[3] - ib), radius=int(S * rad) - ib, fill=255)
+    rim = np.clip(m - np.asarray(inner, np.float32) / 255, 0, 1)
+    top = np.clip(1 - (ys - box[1] / S) / 0.55, 0, 1) ** 1.2
+    bot = np.clip((ys - 0.55) / 0.40, 0, 1)
+    rgb = rgb * (1 - rim[..., None] * top[..., None] * 0.55) + 255 * rim[..., None] * top[..., None] * 0.55
+    rgb = rgb * (1 - rim[..., None] * bot[..., None] * 0.45)
+
+    body = Image.fromarray(np.clip(rgb, 0, 255).astype(np.uint8), "RGB").convert("RGBA")
+    body.putalpha(mask)
+
+    # sombra del ícono (profundidad)
+    sh = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    sm = mask.filter(ImageFilter.GaussianBlur(S * 0.022)).point(lambda v: int(v * 0.55))
+    sh.paste(Image.new("RGBA", (S, S), (30, 6, 80, 255)), (0, int(S * 0.022)), sm)
+    img = Image.alpha_composite(sh, body)
+
+    # barras de onda: sombra suave debajo + degradé blanco→lila
+    if not bars_on:
+        return img.resize((size, size), Image.LANCZOS)
     bars = [0.30, 0.52, 0.80, 0.52, 0.30]
-    bw, gap = S * 0.075, S * 0.065
-    x = (S - (len(bars) * bw + (len(bars) - 1) * gap)) / 2
+    bw, gap = S * 0.072, S * 0.062
+    cx, cy = (box[0] + box[2]) / 2, (box[1] + box[3]) / 2
+    x = cx - (len(bars) * bw + (len(bars) - 1) * gap) / 2
+    shadow = Image.new("L", (S, S), 0)
+    face = Image.new("L", (S, S), 0)
+    sd, fd = ImageDraw.Draw(shadow), ImageDraw.Draw(face)
     for h in bars:
-        bh = S * 0.62 * h
-        y0 = (S - bh) / 2
-        d.rounded_rectangle((x, y0, x + bw, y0 + bh), radius=bw / 2, fill=(255, 255, 255, 255))
+        bh = S * 0.56 * h
+        y0 = cy - bh / 2
+        sd.rounded_rectangle((x, y0 + S * 0.016, x + bw, y0 + bh + S * 0.016), radius=bw / 2, fill=255)
+        fd.rounded_rectangle((x, y0, x + bw, y0 + bh), radius=bw / 2, fill=255)
         x += bw + gap
+    shadow = shadow.filter(ImageFilter.GaussianBlur(S * 0.012)).point(lambda v: int(v * 0.5))
+    img = Image.alpha_composite(img, Image.merge("RGBA", (Image.new("L", (S, S), 24), Image.new("L", (S, S), 0), Image.new("L", (S, S), 70), shadow)))
+    g = np.clip((ys - 0.2) / 0.6, 0, 1)
+    barrgb = stops(g, [(0.0, (255, 255, 255)), (1.0, (226, 212, 255))])
+    bar_img = Image.fromarray(barrgb.astype(np.uint8), "RGB").convert("RGBA")
+    bar_img.putalpha(face)
+    img = Image.alpha_composite(img, bar_img)
     return img.resize((size, size), Image.LANCZOS)
 
 
@@ -1584,7 +1632,8 @@ def start_tray(root):
 
     menu = pystray.Menu(
         pystray.MenuItem(lambda item: f"{name} v{VERSION[1:]}", None, enabled=False),
-        pystray.MenuItem(lambda item: f"Atajo: {HOTKEY}", None, enabled=False),
+        pystray.MenuItem("Desarrollado por FESTUDIOS · festudios.pro", lambda i, it: PanelAPI().open_site()),
+        pystray.MenuItem(lambda item: "Atajo: " + (hk.pretty(_settings["rec"][0]["combo"]) if _settings.get("rec") else HOTKEY), None, enabled=False),
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("Historial y portapapeles", on_history, default=True),
         pystray.MenuItem(lambda item: "Cambiar clave de IA" if has_any_key() else "Conectar clave de IA (gratis)",
@@ -1648,6 +1697,12 @@ class PanelAPI:
 
     def get_settings(self):
         return self._settings_view()
+
+    def open_site(self):
+        """Abre festudios.pro en el navegador del usuario (la interfaz no puede navegar sola: solo esta dirección)."""
+        import webbrowser
+        webbrowser.open("https://festudios.pro/?utm_source=whisperpro&utm_medium=app&utm_campaign=desarrollado-por")
+        return True
 
     def open_data_dir(self):
         """Abre la carpeta donde viven los datos del usuario (historial, portapapeles, ajustes, clave)."""

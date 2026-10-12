@@ -1,0 +1,42 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Propuesta onda luminosa</title>
+<style>
+@font-face{font-family:'WP Sans';src:url('../../app/ui/fonts/Bricolage.woff2') format('woff2');font-weight:200 800;font-stretch:75% 100%}
+@font-face{font-family:'WP Mono';src:url('../../app/ui/fonts/MartianMono.woff2') format('woff2');font-weight:100 800;font-stretch:75% 112%}
+*{box-sizing:border-box}body{margin:0;width:1500px;background:#0a0b10;color:#e9eaf2;font-family:'WP Sans',sans-serif}
+.mono{font-family:'WP Mono',monospace;font-stretch:86%}
+.sec{padding:44px 60px}.lab{font:600 11px 'WP Mono';font-stretch:86%;letter-spacing:.16em;color:#8b92a8;text-transform:uppercase;margin-bottom:22px}
+.row{display:flex;align-items:flex-end;gap:46px}
+.logo{display:flex;flex-direction:column;align-items:center;gap:12px}.logo small{font:500 11px 'WP Mono';font-stretch:86%;color:#8b92a8}
+.sizes{display:flex;align-items:flex-end;gap:16px;margin-top:6px}
+.cap{position:relative;width:640px;border-radius:34px;padding:18px 28px 18px;background:linear-gradient(180deg,#15161e,#0b0c11);border:1px solid #2f3343;border-top-color:#4a5066;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 90px rgba(139,92,246,.22);overflow:hidden}
+.cap .top{display:flex;justify-content:space-between;align-items:center}
+.cap .l{display:flex;align-items:center;gap:12px}
+.dot{width:14px;height:14px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 14px rgba(139,92,246,.8)}
+.cap .lb{font:800 11.5px 'WP Mono';font-stretch:86%;letter-spacing:.18em;color:#c084fc}
+.cap .sub{font-size:12px;font-weight:600;color:#8b92a8}
+.wave{height:120px;margin:4px -28px 0;background:url('onda-capsula.png') center/100% 100% no-repeat}
+.txt{font-size:16px;font-weight:600;color:#fff}
+.banner{position:relative;height:430px;border-radius:26px;overflow:hidden;border:1px solid #1b1e29;background:radial-gradient(900px 300px at 50% 55%,rgba(124,58,237,.18),transparent 70%),#0a0b10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.banner .w{position:absolute;inset:auto 0 24px 0;height:250px;background:url('onda-banner.png') center/100% 100% no-repeat;opacity:.95}
+.banner h1{position:relative;margin:0 0 0;font-size:96px;line-height:.95;letter-spacing:-.045em;font-weight:700;font-variation-settings:'opsz' 96;text-shadow:0 4px 40px rgba(10,11,16,.9)}
+.banner p{position:relative;margin:14px 0 0;font-size:19px;color:#aab0c4}
+</style></head><body>
+<div class="sec">
+ <div class="lab">Logo · tres opciones</div>
+ <div class="row">
+  <div class="logo"><img src="logo-barras-1024.png" width="300"><small>A · barras (actual)</small><div class="sizes"><img src="logo-barras-1024.png" width="64"><img src="logo-barras-1024.png" width="32"><img src="logo-barras-1024.png" width="16"></div></div>
+  <div class="logo"><img src="logo-onda-1024.png" width="300"><small>B · onda luminosa</small><div class="sizes"><img src="logo-onda-1024.png" width="64"><img src="logo-onda-1024.png" width="32"><img src="logo-onda-1024.png" width="16"></div></div>
+  <div class="logo"><img src="logo-onda-suave-1024.png" width="300"><small>C · onda suave, tono azul-lila</small><div class="sizes"><img src="logo-onda-suave-1024.png" width="64"><img src="logo-onda-suave-1024.png" width="32"><img src="logo-onda-suave-1024.png" width="16"></div></div>
+  <div style="flex:1;font-size:14px;line-height:1.6;color:#aab0c4;padding-bottom:70px"><b style="color:#fff">Cómo lo leo:</b> la onda luminosa (B) se ve como una pieza de marca en grande. A 32 y 16 px las líneas finas se funden en una mancha: para la bandeja de Windows conviene seguir usando las barras (A), que quedan nítidas.</div>
+ </div>
+</div>
+<div class="sec" style="padding-top:10px">
+ <div class="lab">Cápsula de grabación · con la onda luminosa</div>
+ <div class="cap"><div class="top"><div class="l"><span class="dot"></span><span class="lb">ESCUCHANDO</span><span class="sub">· Espacio para terminar · Esc para borrar</span></div><span class="mono" style="color:#aab0c4;font-size:13px">0:07</span></div>
+  <div class="wave"></div><div class="txt">…y creo que podemos arrancar la semana que viene</div></div>
+</div>
+<div class="sec" style="padding-top:10px">
+ <div class="lab">Portada de la landing · la onda como protagonista</div>
+ <div class="banner"><div class="w"></div><h1>Hablá.<br>Se escribe solo.</h1></div>
+</div>
+</body></html>
