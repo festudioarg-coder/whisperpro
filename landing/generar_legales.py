@@ -176,7 +176,7 @@ TERM = f"""
 <p>Incluye las funciones esenciales descriptas en nuestra página, sin costo y sin límites impuestos por FESTUDIOS (los límites del proveedor de IA siguen aplicando).</p>
 <h3>7.2 Plan Pro (desde su lanzamiento)</h3>
 <p>El plan Pro agrega herramientas accesorias. Sus condiciones se aplican a partir de su lanzamiento y se informarán antes de contratar:</p>
-<ul><li><b>Precio y moneda:</b> se informa en pesos argentinos antes de contratar, con los impuestos incluidos cuando corresponda. <span class="pend">[PRECIO Y COMPROBANTE A DEFINIR]</span></li>
+<ul><li><b>Precio y moneda:</b> el plan Pro cuesta US$ 5 por mes, y el precio se informa antes de contratar, con los impuestos que correspondan. <span class="pend">[MEDIO DE COBRO Y COMPROBANTE A DEFINIR]</span></li>
 <li><b>Pago:</b> mediante los medios que se informen en el momento de contratar.</li>
 <li><b>Renovación:</b> mensual. Podés darte de baja en cualquier momento; la baja rige desde el fin del período ya pagado, sin permanencia mínima ni penalidades.</li>
 <li><b>Cambios de precio:</b> los informamos con al menos 30 días de anticipación y no afectan períodos ya pagados.</li>

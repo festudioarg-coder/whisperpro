@@ -61,12 +61,12 @@ Herramienta de dictado por voz para Windows (producto de FESTUDIOS): Win + Espac
 
 ## Te toca a vos (Juan)
 - Generar las claves de licencia (`python herramientas/licencias.py claves`), commitear la pública y guardar la privada en un lugar seguro con copia.
-- Publicar `landing/` en festudios.pro/whisperpro/ (ver `landing/LEEME.md`); antes `python landing/revisar.py` (faltan [PRECIO], [CUIT], [DOMICILIO], link de descarga).
+- Publicar `landing/` en festudios.pro/whisperpro/ (ver `landing/LEEME.md`); antes `python landing/revisar.py` (faltan [CUIT], [DOMICILIO], link de descarga).
 - Probar v6.15 con la lista de arriba y pasar `dictado.log`.
 - Subir `web/` a festudios.pro/whisper/ y probarlo en el iPhone (agregar a pantalla de inicio).
 - Correr `instalar.bat` y `dev.bat` en `WhisperPRO\app`.
 - Instalar Inno Setup 6 (jrsoftware.org/isdl.php) para poder generar el instalador.
-- Elegir nombre del producto (no "Whisper"): Hablalo / Dictá / Dilo / Voz.app. Decidir precios del plan.
+- Elegir nombre del producto (no "Whisper"): Hablalo / Dictá / Dilo / Voz.app. Precio del Pro: US$ 5/mes (decidido 12/10; definir medio de cobro y comprobante).
 
 ## Reglas que no se discuten
 - **Mensaje de privacidad exacto.** Se puede decir: "tu historial, tu clave y tus ajustes quedan solo en tu PC; no usamos servidores, no hay cuenta ni telemetría; el audio va directo de tu PC al motor de IA (Groq) con tu propia clave". **No** se puede decir "no sale nada de tu PC" ni "corre 100% local" mientras el dictado use Groq: es falso y rompe la regla de reputación limpia (Store, reseñas, defensa del consumidor).
