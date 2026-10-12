@@ -21,3 +21,4 @@ dist/
 *.key
 licencias-emitidas/
 app/licencia.json
+selftest.txt

@@ -2185,7 +2185,104 @@ def _timer_resolution():
 # =====================================================================
 # main
 # =====================================================================
+def selftest():
+    """WhisperPRO.exe --selftest: comprueba que el programa empaquetado trae todo lo que necesita (recursos, clave de
+    licencias, librerías) sin abrir nada. build.bat lo corre antes de armar el instalador y lo frena si falla.
+    Deja el resultado en selftest.txt (carpeta de datos). Código de salida 0 = todo bien."""
+    res, fallos = [], 0
+
+    def chk(nombre, fn):
+        nonlocal fallos
+        try:
+            det = fn()
+            res.append(f"OK    {nombre}" + (f" ({det})" if det else ""))
+        except Exception as e:
+            fallos += 1
+            res.append(f"FALLA {nombre}: {type(e).__name__}: {e}")
+
+    def existe(rel):
+        def f():
+            ruta = os.path.join(RES, rel)
+            if not os.path.exists(ruta):
+                raise FileNotFoundError(ruta)
+            return f"{os.path.getsize(ruta)} bytes" if os.path.isfile(ruta) else ""
+        return f
+
+    for rel in ("ui/panel.html", "ui/overlay.html", "ui/fonts/Bricolage.woff2", "ui/fonts/MartianMono.woff2",
+                "ui/img/logo-64.png", "ui/img/logo-128.png", "ui/img/guia.png", "logo-tray.png", ".env.example",
+                "licencia_clave_publica.txt"):
+        chk("recurso " + rel, existe(rel))
+
+    def clave():
+        h = lic._publica_hex()
+        if len(h) != 64:
+            raise ValueError("la clave pública de licencias falta o está mal (no se podría activar Pro)")
+        ok, msg = lic.verificar("{}")
+        if "todavía no puede activar" in str(msg):
+            raise ValueError("no carga la clave pública")
+        return "clave cargada"
+    chk("licencias", clave)
+
+    def atajos():
+        ok, msg = hk.validate(hk.default_settings(FREE_HOTKEY), HISTORY_KEY)
+        if not ok:
+            raise ValueError(msg)
+    chk("atajos de fábrica", atajos)
+
+    def logo():
+        return str(make_logo(64).size)
+    chk("logo de la bandeja", logo)
+
+    def prueba_pro():
+        import tempfile as _t
+        with _t.TemporaryDirectory() as d:
+            return lic.estado_prueba(d)["estado"]
+    chk("prueba gratis (lectura)", prueba_pro)
+
+    def escribible():
+        ruta = os.path.join(BASE, ".selftest")
+        with open(ruta, "w") as f:
+            f.write("ok")
+        os.remove(ruta)
+        return BASE
+    chk("carpeta de datos escribible", escribible)
+
+    def libs():
+        import webview, pystray  # noqa: F401
+        return "webview, pystray"
+    chk("librerías de interfaz", libs)
+
+    def mic():
+        return str(len(sd.query_devices())) + " dispositivos de audio"
+    chk("audio (PortAudio)", mic)
+
+    def webview2():
+        import winreg
+        for raiz, sub in ((winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"),
+                          (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"),
+                          (winreg.HKEY_CURRENT_USER, r"Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}")):
+            try:
+                with winreg.OpenKey(raiz, sub) as k:
+                    return "versión " + str(winreg.QueryValueEx(k, "pv")[0])
+            except OSError:
+                continue
+        raise FileNotFoundError("WebView2 Runtime no está instalado en esta PC (Windows 10 viejo): la interfaz no abriría")
+    chk("WebView2 Runtime", webview2)
+
+    texto = f"WhisperPRO {VERSION} · autoprueba · {'EMPAQUETADO' if FROZEN else 'desarrollo'}\n" + "\n".join(res) \
+        + f"\n\nRESULTADO: {'TODO BIEN' if not fallos else str(fallos) + ' FALLA(S)'}\n"
+    try:
+        with open(os.path.join(BASE, "selftest.txt"), "w", encoding="utf-8") as f:
+            f.write(texto)
+    except OSError:
+        pass
+    print(texto, flush=True)
+    return 1 if fallos else 0
+
+
 def main():
+    if "--selftest" in sys.argv:
+        sys.exit(selftest())
     if not single_instance():
         log("ya hay un WhisperPRO abierto: no arranco otro")
         print("WhisperPRO ya está abierto (buscá el ícono junto al reloj).", flush=True)
