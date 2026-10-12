@@ -23,18 +23,18 @@ function b64u(string $s): string { return rtrim(strtr(base64_encode($s), '+/', '
 function b64u_dec(string $s): string { return (string)base64_decode(strtr($s, '-_', '+/')); }
 
 /** Token firmado: email + vencimiento. Sin base de datos: se verifica con la firma. */
-function crear_token(string $email, int $ahora): string {
-    $cuerpo = b64u(json_encode(['e' => $email, 'x' => $ahora + TOKEN_HORAS * 3600]));
+function crear_token(string $email, int $ahora, string $tipo = 'dl'): string {
+    $cuerpo = b64u(json_encode(['e' => $email, 'x' => $ahora + TOKEN_HORAS * 3600, 'k' => $tipo]));
     return $cuerpo . '.' . substr(hash_hmac('sha256', $cuerpo, secreto()), 0, 32);
 }
 
 /** Devuelve el email si el token es válido y no venció; si no, null. */
-function abrir_token(string $t, int $ahora): ?string {
+function abrir_token(string $t, int $ahora, string $tipo = 'dl'): ?string {
     $p = explode('.', $t, 2);
     if (count($p) !== 2) return null;
     if (!hash_equals(substr(hash_hmac('sha256', $p[0], secreto()), 0, 32), $p[1])) return null;
     $d = json_decode(b64u_dec($p[0]), true);
-    if (!is_array($d) || ($d['x'] ?? 0) < $ahora || !is_string($d['e'] ?? null)) return null;
+    if (!is_array($d) || ($d['x'] ?? 0) < $ahora || !is_string($d['e'] ?? null) || ($d['k'] ?? 'dl') !== $tipo) return null;
     return $d['e'];
 }
 
@@ -64,6 +64,7 @@ function db(): PDO {
     $pdo = new PDO('sqlite:' . $dir . '/descargas.sqlite');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->exec('CREATE TABLE IF NOT EXISTS descargas (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, email TEXT, version TEXT, origen TEXT, ip TEXT, ua TEXT)');
+    $pdo->exec('CREATE TABLE IF NOT EXISTS pedidos_pro (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, email TEXT, ref TEXT, usd REAL, ars INTEGER, dolar REAL, estado TEXT)');
     $pdo->exec('CREATE TABLE IF NOT EXISTS solicitudes (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, email TEXT, origen TEXT, dispositivo TEXT, enviado INTEGER)');
     return $pdo;
 }
@@ -119,5 +120,33 @@ function json_salir(int $code, array $data): void {
     header('Content-Type: application/json; charset=utf-8');
     header('X-Content-Type-Options: nosniff');
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+/** Dólar oficial (precio de venta), con caché de una hora. null si no hay dato. */
+function cotizacion(): ?array {
+    $cache = sys_get_temp_dir() . '/fe-wp-dolar-oficial.json';
+    $g = is_readable($cache) ? json_decode((string)file_get_contents($cache), true) : null;
+    if (is_array($g) && ($g['t'] ?? 0) > time() - 3600) return $g;
+    $ch = curl_init('https://dolarapi.com/v1/dolares/oficial');
+    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 6, CURLOPT_HTTPHEADER => ['Accept: application/json']]);
+    $r = json_decode((string)curl_exec($ch), true);
+    curl_close($ch);
+    if (is_array($r) && is_numeric($r['venta'] ?? null) && $r['venta'] > 100) {
+        $out = ['venta' => (float)$r['venta'], 'fecha' => (string)($r['fechaActualizacion'] ?? date('c')), 'fuente' => 'dolarapi.com', 't' => time()];
+        @file_put_contents($cache, json_encode($out), LOCK_EX);
+        return $out;
+    }
+    return is_array($g) ? $g : null;
+}
+
+function pagina_html(int $code, string $titulo, string $html): void {
+    http_response_code($code);
+    header('Content-Type: text/html; charset=utf-8');
+    header('X-Robots-Tag: noindex');
+    header('Cache-Control: private, no-store');
+    echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' . $titulo . ' — WhisperPRO</title>'
+       . '<body style="margin:0;background:#0a0b10;color:#c9ccd8;font:18px/1.6 system-ui,sans-serif"><main style="max-width:600px;margin:9vh auto;padding:0 24px">'
+       . '<h1 style="color:#fff;letter-spacing:-.03em">' . $titulo . '</h1>' . $html . '</main>';
     exit;
 }

@@ -26,7 +26,7 @@ PAGINAS = [  # ruta, título del menú
     ("contacto", "Contacto"),
     ("licencias", "Licencias"),
 ]
-EXTRA = ("descargar",)   # páginas que no van en el pie legal
+EXTRA = ("descargar", "pro")   # páginas que no van en el pie legal
 
 CSS = """
 @font-face{font-family:'WP Sans';src:url('fonts/Bricolage.woff2') format('woff2');font-weight:200 800;font-stretch:75% 100%;font-display:swap}
@@ -182,7 +182,7 @@ TERM = f"""
 <h3>7.2 Plan Pro (desde su lanzamiento)</h3>
 <p>El plan Pro agrega herramientas accesorias. Sus condiciones se aplican a partir de su lanzamiento y se informarán antes de contratar:</p>
 <ul><li><b>Precio y moneda:</b> el plan Pro cuesta US$ 5 por mes. Como el pago es por transferencia en pesos argentinos, el monto en pesos se calcula con el dólar oficial (precio vendedor) del día del pago y se te informa antes de transferir, con los impuestos que correspondan.</li>
-<li><b>Pago:</b> por transferencia bancaria. Escribinos a {MAIL} y te enviamos los datos de la cuenta; una vez acreditado el pago te enviamos tu licencia por correo. Emitimos el comprobante que corresponda.</li>
+<li><b>Pago:</b> por transferencia bancaria. Pedís el plan en la página <a href="pro/">Contratar Pro</a>, confirmás tu correo y te mostramos y enviamos los datos de la cuenta; una vez acreditado el pago te enviamos tu licencia por correo. Emitimos el comprobante que corresponda.</li>
 <li><b>Renovación:</b> mensual. Podés darte de baja en cualquier momento; la baja rige desde el fin del período ya pagado, sin permanencia mínima ni penalidades.</li>
 <li><b>Cambios de precio:</b> los informamos con al menos 30 días de anticipación y no afectan períodos ya pagados.</li>
 <li><b>Falta de pago:</b> si no se renueva el pago, el plan Pro deja de estar activo y la aplicación sigue funcionando con las funciones gratuitas. No se acumulan deudas ni intereses.</li>
@@ -315,12 +315,50 @@ document.getElementById('f').addEventListener('submit',async function(ev){{
 </script>
 """
 
+PRO_PAGE = f"""
+<p>WhisperPRO Pro suma atajos a tu medida, un segundo atajo y las capturas de pantalla. Cuesta <b>US$ 5 por mes</b> <span id="ars" class="mono"></span>. Antes de pagar podés <b>probarlo 1 mes gratis</b> desde Ajustes, sin tarjeta ni datos.</p>
+<ol>
+<li>Dejás tu mail y lo confirmás con el link que te enviamos.</li>
+<li>Te mostramos y te enviamos por mail los datos para transferir (con el monto en pesos de hoy).</li>
+<li>Transferís y respondés el mail con el comprobante.</li>
+<li>Te enviamos tu licencia y la activás en WhisperPRO → Ajustes → Activar Pro.</li>
+</ol>
+<div class="box" id="caja">
+<form id="f" novalidate>
+<p style="margin:0 0 14px"><input id="m" type="email" required autocomplete="email" placeholder="tu@mail.com" style="width:100%;max-width:420px;padding:13px 14px;border-radius:12px;border:1px solid #2a2e3d;background:#0a0b10;color:#fff;font:inherit"></p>
+<p style="margin:0 0 14px;font-size:15px"><label><input id="c" type="checkbox" required> Acepto que FESTUDIOS me escriba a este mail por mi pedido y con novedades de WhisperPRO. Puedo darme de baja cuando quiera. <a href="privacidad/">Privacidad</a> · <a href="terminos/">Términos</a></label></p>
+<button class="btn" type="submit" style="border:0;cursor:pointer;font-family:inherit">Quiero el plan Pro</button>
+<p id="e" style="color:#fda4af;margin:12px 0 0" role="alert"></p>
+</form>
+<div id="ok" style="display:none"><p class="ok"><b>Revisá tu mail.</b></p><p>Te enviamos un link para confirmar que es tuyo. Cuando lo toques te mostramos los datos de pago. Si no lo ves, mirá la carpeta de correo no deseado. El link vale 48 horas.</p></div>
+</div>
+<p class="mono" style="font-size:13px">Pagás por transferencia bancaria. Tenés 10 días corridos para arrepentirte y podés darte de baja cuando quieras: <a href="baja-y-arrepentimiento/">cómo hacerlo</a>.</p>
+<script>
+fetch('api/dolar.php').then(function(r){{return r.ok?r.json():Promise.reject();}}).then(function(d){{
+  if(d&&d.venta)document.getElementById('ars').textContent='(≈ $'+(Math.round(5*d.venta/50)*50).toLocaleString('es-AR')+' ARS al dólar oficial de hoy)';
+}}).catch(function(){{}});
+document.getElementById('f').addEventListener('submit',async function(ev){{
+  ev.preventDefault();var e=document.getElementById('e'),m=document.getElementById('m').value.trim();
+  e.textContent='';
+  if(!/^[^@\\\\s]+@[^@\\\\s]+\\\\.[^@\\\\s]+$/.test(m)){{e.textContent='Revisá el mail.';return;}}
+  if(!document.getElementById('c').checked){{e.textContent='Marcá la casilla para continuar.';return;}}
+  try{{
+    var r=await fetch('api/contratar.php',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{email:m,consentimiento:true}})}});
+    if(r.status===429){{e.textContent='Demasiados pedidos seguidos. Probá en un rato.';return;}}
+    if(!r.ok)throw 0;
+    document.getElementById('f').style.display='none';document.getElementById('ok').style.display='block';
+  }}catch(x){{e.textContent='No pudimos enviar el mail. Probá de nuevo o escribinos a {MAIL}.';}}
+}});
+</script>
+"""
+
 CUERPOS = {
     "privacidad": ("Política de privacidad", "Qué datos guarda WhisperPRO, dónde, y lo único que sale de tu equipo cuando dictás. Sin cuenta, sin telemetría.", PRIV),
     "terminos": ("Términos y condiciones", "Condiciones de uso de WhisperPRO: licencia, planes, derecho de arrepentimiento, responsabilidad y ley aplicable.", TERM),
     "baja-y-arrepentimiento": ("Cancelar o arrepentirte", "Cómo dar de baja una suscripción de WhisperPRO Pro y cómo ejercer el derecho de arrepentimiento en 10 días.", BAJA),
     "contacto": ("Contacto y datos del proveedor", "Cómo contactar a FESTUDIOS, horarios de atención y datos del proveedor de WhisperPRO.", CONTACTO),
     "descargar": ("Descargar WhisperPRO", "Descargá WhisperPRO para Windows: dictado por voz en cualquier programa, gratis para empezar.", DESCARGAR),
+    "pro": ("Contratar WhisperPRO Pro", "Contratá el plan Pro de WhisperPRO: US$ 5 por mes, atajos a tu medida y capturas de pantalla. Probalo 1 mes gratis.", PRO_PAGE),
     "licencias": ("Licencias de terceros", "Componentes de terceros que usa WhisperPRO y sus licencias.", LIC),
 }
 
@@ -329,7 +367,7 @@ if __name__ == "__main__":
         os.makedirs(os.path.join(RAIZ, ruta), exist_ok=True)
         with open(os.path.join(RAIZ, ruta, "index.html"), "w", encoding="utf-8") as f:
             f.write(pagina(ruta, titulo, desc, cuerpo))
-    urls = [("", "1.0"), ("descargar/", "0.8"), ("app/", "0.6")] + [(r + "/", "0.5") for r, _ in PAGINAS]
+    urls = [("", "1.0"), ("descargar/", "0.8"), ("pro/", "0.7"), ("app/", "0.6")] + [(r + "/", "0.5") for r, _ in PAGINAS]
     items = "\n".join(f"  <url><loc>{BASE}{u}</loc><lastmod>{FECHA_ISO}</lastmod><priority>{p}</priority></url>" for u, p in urls)
     with open(os.path.join(RAIZ, "sitemap.xml"), "w", encoding="utf-8") as f:
         f.write(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{items}\n</urlset>\n')
