@@ -32,6 +32,12 @@ p{margin:12px 0}ul,ol{padding-left:22px}li{margin:7px 0}
 table{width:100%;border-collapse:collapse;font-size:15.5px;margin:18px 0}th,td{text-align:left;padding:10px 12px;border-bottom:1px solid #1b1e29;vertical-align:top}th{color:#8b92a8;font:600 11px 'WP Mono';font-stretch:86%;letter-spacing:.1em;text-transform:uppercase}
 .btn{display:inline-block;margin:6px 10px 6px 0;padding:14px 22px;border-radius:12px;background:linear-gradient(160deg,#9b6bff 0%,#7c3aed 45%,#4c1d95 100%);color:#fff;text-decoration:none;font-weight:800;font-size:17px}
 .btn.s{background:transparent;border:1px solid #2a2e3d;color:#e9eaf2}
+.exito{border:1px solid rgba(52,224,161,.45);background:linear-gradient(160deg,rgba(52,224,161,.10),rgba(52,224,161,.02));border-radius:20px;padding:30px 28px;text-align:center}
+.exito .tilde{width:68px;height:68px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;background:#34e0a1;color:#05140d;font-size:38px;font-weight:800;box-shadow:0 0 0 10px rgba(52,224,161,.14)}
+.exito h2{margin:0 0 6px;font-size:28px}.exito .mail{display:inline-block;margin:6px 0 12px;padding:5px 14px;border-radius:999px;background:#0a0b10;border:1px solid #2a2e3d;color:#fff;font-size:17px;word-break:break-all}
+.exito ol{text-align:left;max-width:440px;margin:14px auto 0}.exito .chico{font-size:14.5px;color:#8b92a8;margin-top:16px}
+.aviso{border:1px solid rgba(251,191,36,.5);background:rgba(251,191,36,.08);border-radius:20px;padding:24px 28px;text-align:center}
+.aviso h2{margin:0 0 6px;font-size:24px;color:#fbbf24}
 footer{border-top:1px solid #1b1e29;margin-top:72px;padding-top:28px}
 footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer nav a{color:#aab0c4;text-decoration:none;font-size:15px}footer nav a:hover{color:#fff}
 @media (max-width:640px){.toc{columns:1}body{font-size:17px}}
@@ -56,7 +62,8 @@ footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer n
 <button class="btn" type="submit" style="border:0;cursor:pointer;font-family:inherit">Quiero el plan Pro</button>
 <p id="e" style="color:#fda4af;margin:12px 0 0" role="alert"></p>
 </form>
-<div id="ok" style="display:none"><p class="ok"><b>Revisá tu mail.</b></p><p>Te enviamos un link para confirmar que es tuyo. Cuando lo toques te mostramos los datos de pago. Si no lo ves, mirá la carpeta de correo no deseado. El link vale 48 horas.</p></div>
+<div id="ok" style="display:none" role="status" aria-live="polite"><div class="exito"><div class="tilde" aria-hidden="true">✓</div><h2>¡Listo! Te enviamos un mail</h2><div class="mail" id="okmail"></div><p style="margin:0">Confirmá que es tuyo para ver los datos de pago (el link vale 48 horas).</p><ol><li>Abrí tu correo.</li><li>Buscá «Confirmá tu mail para contratar WhisperPRO Pro».</li><li>Tocá el link: te mostramos y te enviamos los datos para transferir.</li></ol><p class="chico">El mail llega de «WhisperPRO por FESTUDIOS». Si en unos minutos no aparece, revisá la carpeta de correo no deseado o <a href="#" id="otro">probá con otro mail</a>.</p></div></div>
+<div id="warn" style="display:none" role="alert"><div class="aviso"><h2>Recibimos tu pedido, pero no pudimos enviar el mail</h2><p style="margin:0">Hubo un problema de nuestro lado al mandarlo. No hace falta que repitas nada: ya quedó anotado y te lo enviamos a mano. Si querés apurarlo, escribinos a festudioarg@gmail.com.</p></div></div>
 </div>
 <p class="mono" style="font-size:13px">Pagás por transferencia bancaria. Tenés 10 días corridos para arrepentirte y podés darte de baja cuando quieras: <a href="baja-y-arrepentimiento/">cómo hacerlo</a>.</p>
 <script>
@@ -66,15 +73,16 @@ fetch('api/dolar.php').then(function(r){return r.ok?r.json():Promise.reject();})
 document.getElementById('f').addEventListener('submit',async function(ev){
   ev.preventDefault();var e=document.getElementById('e'),m=document.getElementById('m').value.trim();
   e.textContent='';
-  if(!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(m)){e.textContent='Revisá el mail.';return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){e.textContent='Ese mail no parece válido. Escribilo así: tu@mail.com';return;}
   if(!document.getElementById('c').checked){e.textContent='Marcá la casilla para continuar.';return;}
   try{
     var r=await fetch('api/contratar.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:m,consentimiento:true})});
     if(r.status===429){e.textContent='Demasiados pedidos seguidos. Probá en un rato.';return;}
     if(!r.ok)throw 0;
-    document.getElementById('f').style.display='none';document.getElementById('ok').style.display='block';
+    var j={};try{j=await r.json();}catch(z){}document.getElementById('f').style.display='none';document.getElementById('okmail').textContent=m;document.getElementById(j.enviado===false?'warn':'ok').style.display='block';window.scrollTo({top:document.getElementById('caja').offsetTop-20,behavior:'smooth'});
   }catch(x){e.textContent='No pudimos enviar el mail. Probá de nuevo o escribinos a festudioarg@gmail.com.';}
 });
+document.getElementById('otro').addEventListener('click',function(ev){ev.preventDefault();document.getElementById('ok').style.display='none';document.getElementById('f').style.display='';document.getElementById('m').focus();});
 </script>
 
 <footer><nav aria-label="Información legal"><a href="privacidad/">Privacidad</a><a href="terminos/">Términos y condiciones</a><a href="baja-y-arrepentimiento/">Cancelar o arrepentirte</a><a href="contacto/">Contacto</a><a href="licencias/">Licencias</a><a href="./">Volver a WhisperPRO</a></nav>

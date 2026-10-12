@@ -35,8 +35,9 @@ if ($url && $key) {
 }
 
 $link = 'https://festudios.pro/whisperpro/api/pagar.php?t=' . crear_token($email, time(), 'pro');
-enviar_a($email, 'Confirmá tu mail para contratar WhisperPRO Pro',
+$enviado = enviar_a($email, 'Confirmá tu mail para contratar WhisperPRO Pro',
     "Hola,\n\nPediste contratar WhisperPRO Pro (US$ 5 por mes). Para confirmar que este mail es tuyo, tocá el link (vale 48 horas):\n\n$link\n\n"
     . "Al confirmarlo te mostramos los datos para pagar por transferencia bancaria y te los enviamos también por mail.\n\n"
     . "Si no pediste esto, ignorá este mensaje: no pasa nada.\n\nFESTUDIOS · festudios.pro");
-json_salir(200, ['ok' => true]);
+if (!$enviado) registrar_fallo($email, 'pro-verificacion');
+json_salir(200, ['ok' => true, 'enviado' => $enviado]);

@@ -64,6 +64,7 @@ function db(): PDO {
     $pdo = new PDO('sqlite:' . $dir . '/descargas.sqlite');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->exec('CREATE TABLE IF NOT EXISTS descargas (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, email TEXT, version TEXT, origen TEXT, ip TEXT, ua TEXT)');
+    $pdo->exec('CREATE TABLE IF NOT EXISTS fallos_mail (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, email TEXT, que TEXT, detalle TEXT)');
     $pdo->exec('CREATE TABLE IF NOT EXISTS pedidos_pro (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, email TEXT, ref TEXT, usd REAL, ars INTEGER, dolar REAL, estado TEXT)');
     $pdo->exec('CREATE TABLE IF NOT EXISTS solicitudes (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, email TEXT, origen TEXT, dispositivo TEXT, enviado INTEGER)');
     return $pdo;
@@ -79,27 +80,39 @@ function instalador_actual(): ?array {
     return $mejor;
 }
 
-/** Mail a una persona (la lib compartida solo manda avisos al equipo). Copia oculta a FESTUDIOS. */
+/** Último error de enviar_a(), para dejarlo en el registro (nunca se le muestra tal cual al visitante). */
+$GLOBALS['wp_mail_error'] = '';
+
+/** Mail a una persona (la lib compartida solo manda avisos al equipo). */
 function enviar_a(string $para, string $asunto, string $cuerpo): bool {
+    $falla = function (string $etapa, string $resp = '') { $GLOBALS['wp_mail_error'] = trim($etapa . ' ' . substr(trim($resp), 0, 160)); return false; };
     $host = env('SMTP_HOST'); $port = (int)env('SMTP_PORT', 587);
     $user = env('SMTP_USER'); $pass = env('SMTP_PASS');
-    if (!$host || !$user || !$pass) return false;
+    if (!$host || !$user || !$pass) return $falla('faltan SMTP_HOST/SMTP_USER/SMTP_PASS en env.php');
     $ehlo = strtolower(substr(strrchr($user, '@') ?: '@festudios.pro', 1));
     $s = @stream_socket_client("tcp://$host:$port", $errno, $errstr, 10);
-    if (!$s) return false;
+    if (!$s) return $falla("no conecta con $host:$port", $errstr);
     stream_set_timeout($s, 10);
     smtp_read($s); smtp_write($s, 'EHLO ' . $ehlo); smtp_read($s);
     smtp_write($s, 'STARTTLS');
-    if (substr(smtp_read($s), 0, 3) !== '220') { fclose($s); return false; }
-    if (!stream_socket_enable_crypto($s, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) { fclose($s); return false; }
+    $r = smtp_read($s);
+    if (substr($r, 0, 3) !== '220') { fclose($s); return $falla('STARTTLS', $r); }
+    if (!stream_socket_enable_crypto($s, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) { fclose($s); return $falla('TLS'); }
     smtp_write($s, 'EHLO ' . $ehlo); smtp_read($s);
     smtp_write($s, 'AUTH LOGIN'); smtp_read($s);
     smtp_write($s, base64_encode($user)); smtp_read($s);
     smtp_write($s, base64_encode($pass));
-    if (substr(smtp_read($s), 0, 3) !== '235') { fclose($s); return false; }
-    smtp_write($s, "MAIL FROM:<$user>"); smtp_read($s);
-    smtp_write($s, "RCPT TO:<$para>"); smtp_read($s);
-    smtp_write($s, 'DATA'); smtp_read($s);
+    $r = smtp_read($s);
+    if (substr($r, 0, 3) !== '235') { fclose($s); return $falla('usuario o clave SMTP rechazados', $r); }
+    smtp_write($s, "MAIL FROM:<$user>");
+    $r = smtp_read($s);
+    if ($r !== '' && $r[0] !== '2') { fclose($s); return $falla('MAIL FROM', $r); }
+    smtp_write($s, "RCPT TO:<$para>");
+    $r = smtp_read($s);
+    if ($r !== '' && $r[0] !== '2') { fclose($s); return $falla('RCPT TO (destinatario rechazado)', $r); }
+    smtp_write($s, 'DATA');
+    $r = smtp_read($s);
+    if (substr($r, 0, 3) !== '354') { fclose($s); return $falla('DATA', $r); }
     $h = [
         'From: WhisperPRO por FESTUDIOS <' . $user . '>',
         'To: <' . $para . '>',
@@ -110,9 +123,18 @@ function enviar_a(string $para, string $asunto, string $cuerpo): bool {
         'Date: ' . date('r'),
     ];
     smtp_write($s, implode("\r\n", $h) . "\r\n\r\n" . preg_replace('/^\./m', '..', $cuerpo) . "\r\n.");
-    $ok = substr(smtp_read($s), 0, 3) === '250';
+    $r = smtp_read($s);
     smtp_write($s, 'QUIT'); fclose($s);
-    return $ok;
+    if (substr($r, 0, 3) !== '250') return $falla('envío no aceptado', $r);
+    return true;
+}
+
+/** Deja asentado por qué falló un mail (se ve en estadisticas.php). */
+function registrar_fallo(string $email, string $que): void {
+    try {
+        db()->prepare('INSERT INTO fallos_mail (ts,email,que,detalle) VALUES (?,?,?,?)')
+            ->execute([date('c'), $email, $que, (string)($GLOBALS['wp_mail_error'] ?? '')]);
+    } catch (Throwable $e) { /* nada */ }
 }
 
 function json_salir(int $code, array $data): void {
