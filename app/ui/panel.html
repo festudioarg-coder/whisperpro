@@ -146,6 +146,11 @@ footer .keys span{display:flex;align-items:center;gap:5px}
 .sp-in{max-width:820px;margin:0 auto;padding:26px 28px 40px;display:flex;flex-direction:column;gap:18px}
 .sp-head{display:flex;align-items:center;justify-content:space-between}
 .sp-head h2{margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em}
+#settings.free .pro-only button,#settings.free .pro-only .sw,#settings.free .pro-only .seg{opacity:.4;pointer-events:none}
+#settings.free #addrec{display:none!important}
+.probadge{display:none;margin-left:8px;font:600 10px var(--mono,monospace);letter-spacing:.08em;padding:2px 7px;border-radius:99px;background:linear-gradient(135deg,#8b5cf6,#c084fc);color:#fff;vertical-align:middle}
+#settings.free .probadge{display:inline-block}
+#lic-txt{width:100%;box-sizing:border-box;margin:8px 0;background:var(--bg,#0b0c12);color:var(--tx,#e8eaf2);border:1px solid var(--line);border-radius:8px;padding:8px;font:11px var(--mono,monospace);resize:vertical}
 .grp{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
 .gh{display:flex;align-items:baseline;gap:12px;padding:12px 16px;background:#0f1118;border-bottom:1px solid var(--line)}
 .gh b{font-size:13px;font-weight:700}
@@ -292,8 +297,18 @@ button.b:hover{filter:brightness(1.15)}
   <div class="sp-head"><h2>Ajustes</h2><button class="btn" onclick="closeSettings()">Volver <kbd>Esc</kbd></button></div>
   <div class="err" id="serr"></div>
 
-  <div class="grp">
-   <div class="gh"><b>Atajos de grabación</b><span>hasta 2 · se guardan al instante</span></div>
+  <div class="grp planbox">
+   <div class="gh"><b>Tu plan: <span id="plan-name">Gratis</span></b><span id="plan-sub"></span></div>
+   <div class="gb" id="plan-free">
+    <div class="note">Con el plan Gratis los atajos vienen listos y fijos (Win + Espacio para dictar, historial y deshacer). <b>Pro</b> suma elegir tus propias combinaciones, un segundo atajo y las capturas de pantalla.</div>
+    <textarea id="lic-txt" rows="3" spellcheck="false" placeholder="Pegá acá la licencia que te enviamos (todo el texto)"></textarea>
+    <div><button class="btn sm" onclick="activarLic()">Activar Pro</button> <button class="btn sm" onclick="openPlan(event)">Ver el plan Pro</button></div>
+   </div>
+   <div class="gb" id="plan-pro" style="display:none"><div class="note" id="plan-pro-note"></div></div>
+  </div>
+
+  <div class="grp" id="g-rec">
+   <div class="gh"><b>Atajos de grabación</b><span class="probadge">PRO</span><span id="rec-sub">hasta 2 · se guardan al instante</span></div>
    <div class="gb">
     <div id="recrows"></div>
     <div><button class="btn sm" id="addrec" onclick="pick('rec1')">+ Agregar un segundo atajo</button></div>
@@ -301,8 +316,8 @@ button.b:hover{filter:brightness(1.15)}
    </div>
   </div>
 
-  <div class="grp">
-   <div class="gh"><b>Capturas de pantalla</b><span>como Win + Shift + S o Impr Pant, con tu atajo</span></div>
+  <div class="grp" id="g-shot">
+   <div class="gh"><b>Capturas de pantalla</b><span class="probadge">PRO</span><span>como Win + Shift + S o Impr Pant, con tu atajo</span></div>
    <div class="gb">
     <div class="row2" id="r-shot_region"></div>
     <div class="row2" id="r-shot_full"></div>
@@ -489,7 +504,14 @@ function comboCell(key,pretty){
 function showErr(m){const e=$('serr');e.textContent=m||'';e.classList.toggle('on',!!m);}
 function renderSettings(){
   if(!S)return;
-  const c=S.cfg;
+  const c=S.cfg,pro=S.plan==='pro';
+  $('settings').classList.toggle('free',!pro);
+  $('g-rec').classList.toggle('pro-only',!pro);$('g-shot').classList.toggle('pro-only',!pro);
+  $('plan-name').textContent=pro?'Pro':'Gratis';
+  $('plan-sub').textContent=pro?'licencia activa':'atajos de fábrica';
+  $('plan-free').style.display=pro?'none':'';$('plan-pro').style.display=pro?'':'none';
+  $('plan-pro-note').textContent='Licencia activa'+(S.plan_detalle?' para '+S.plan_detalle:'')+'. Podés elegir tus atajos y usar las capturas.';
+  $('rec-sub').textContent=pro?'hasta 2 · se guardan al instante':'fijos en el plan Gratis';
   $('recrows').innerHTML=c.rec.map((r,i)=>'<div class="row2"><div class="lbl">Atajo '+(i+1)+'<small>'+(r.mode==='hold'?'mantené apretado para grabar':'pulsá para empezar, la tecla final corta')+'</small></div>'
     +comboCell('rec'+i,S.pretty.rec[i])+'<button class="btn sm" onclick="pick(\'rec'+i+'\')">Cambiar</button><span class="spacer"></span>'
     +'<div class="seg"><button class="'+(r.mode!=='hold'?'on':'')+'" onclick="setMode('+i+',\'toggle\')">Pulsar</button><button class="'+(r.mode==='hold'?'on':'')+'" onclick="setMode('+i+',\'hold\')">Mantener</button></div>'
@@ -504,6 +526,13 @@ function renderSettings(){
   $('k-hist').innerHTML=comboHtml(S.hist);$('k-undo').innerHTML=comboHtml(S.undo);
   $('datadir').textContent=S.data_dir||'';
 }
+async function activarLic(){
+  const t=$('lic-txt').value.trim();if(!t){showErr('Pegá primero la licencia.');return;}
+  const r=await api('activar_licencia',t);
+  if(r&&r.ok){S=r;showErr('');toast('Pro activado');$('lic-txt').value='';}else showErr((r&&r.error)||'No se pudo activar');
+  renderSettings();
+}
+function openPlan(e){if(e)e.preventDefault();window.pywebview.api.open_legal('planes');}
 async function loadSettings(){try{S=await api('get_settings');renderSettings();}catch(e){}}
 function openSettings(){$('settings').classList.add('on');$('gear').classList.add('on');showErr('');loadSettings();}
 function closeSettings(){$('settings').classList.remove('on');$('gear').classList.remove('on');}

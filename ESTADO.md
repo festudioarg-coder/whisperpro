@@ -49,6 +49,7 @@ Herramienta de dictado por voz para Windows (producto de FESTUDIOS): Win + Espac
 
 ## A medio hacer
 - v6.15 (sin probar en Windows): instancia única (mutex), hook de teclado que no bloquea (abrir el micrófono y cortar van en otro hilo; antes podían superar el tiempo que Windows tolera a un hook y trabar el teclado de toda la PC), foto del portapapeles al empezar a grabar, píldora con entrada/salida suaves y animaciones por tiempo real, vista final con texto completo, panel nuevo (lista tipo log, vistas final/literal/diff por palabras, barra de estado, atajos de teclado), ajustes (hasta 2 atajos de grabación en modo Pulsar o Mantener, captura de región y completa configurables), tipografías propias, política de seguridad que impide a la interfaz salir a internet, y `web/` para iPhone.
+- Planes (12/10, sin probar en Windows): Gratis = atajos de fábrica fijos (Win+Espacio, Win+H, Win+Z); Pro = atajos a medida, segundo atajo y capturas. Licencia = JSON firmado Ed25519 verificado sin conexión (`app/licencia.py`, tests en `app/tests/test_licencia.py`), se pega en Ajustes > "Activar Pro" y queda en `licencia.json` del usuario. Para emitir: `python herramientas/licencias.py claves` (una sola vez; guarda la privada en `~/.whisperpro/clave_privada.key`, NO subirla ni perderla) → commitear `app/licencia_clave_publica.txt` → `emitir --email cliente@x.com --dias 365`. Sin clave pública commiteada, todos quedan en Gratis. El spec de PyInstaller debe incluir `licencia_clave_publica.txt` como dato. Dev: `set WHISPERPRO_PLAN=pro` fuerza Pro (solo sin congelar).
 - Limitación conocida del portapapeles: si lo que tenías copiado era una imagen o archivos, el dictado lo reemplaza (el log lo avisa); solo se guarda texto.
 - v6.10: píldora minimizada mostraba solo el fondo (WebView2 no reacomoda al achicar la ventana) → ventana fija 600×150, se anima solo la forma recortada. Sin confirmar por Juan.
 - v6.11: texto en vivo fallaba con micrófono de nivel bajo (log: voz ~0,01, umbral viejo 0,006 la tomaba como silencio) → mínimo 0,0025. Verificado: después del cambio, "tramos con texto en vivo: 4".
@@ -59,6 +60,8 @@ Herramienta de dictado por voz para Windows (producto de FESTUDIOS): Win + Espac
 - `_tmp_estado_unused.md` es descartable (subido por error).
 
 ## Te toca a vos (Juan)
+- Generar las claves de licencia (`python herramientas/licencias.py claves`), commitear la pública y guardar la privada en un lugar seguro con copia.
+- Publicar `landing/` en festudios.pro/whisperpro/ (ver `landing/LEEME.md`); antes `python landing/revisar.py` (faltan [PRECIO], [CUIT], [DOMICILIO], link de descarga).
 - Probar v6.15 con la lista de arriba y pasar `dictado.log`.
 - Subir `web/` a festudios.pro/whisper/ y probarlo en el iPhone (agregar a pantalla de inicio).
 - Correr `instalar.bat` y `dev.bat` en `WhisperPRO\app`.

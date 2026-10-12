@@ -15,3 +15,8 @@ dist/
 **/build/*
 !**/build/WhisperPRO.spec
 !**/build/instalador.iss
+
+# licencias: claves y archivos emitidos nunca van a git
+*.key
+licencias-emitidas/
+app/licencia.json

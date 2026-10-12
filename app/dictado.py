@@ -1010,6 +1010,17 @@ def take_screenshot(kind):
 # Atajos (el motor está en hotkeys.py; acá se conecta con la grabación)
 # =====================================================================
 import hotkeys as hk
+import licencia as lic
+
+FREE_HOTKEY = "win+space"     # atajo de fábrica del plan Gratis (fijo)
+_plan = {"plan": "gratis", "detalle": ""}
+
+
+def refresh_plan():
+    p, d = lic.plan_efectivo(BASE, FROZEN)
+    _plan["plan"], _plan["detalle"] = p, d
+    return p
+
 
 SETTINGS_FILE = os.path.join(BASE, "settings.json")     # configuración: solo en esta PC
 _settings = {}
@@ -1030,7 +1041,7 @@ def load_settings():
     if not ok:
         log(f"atajos guardados inválidos ({msg}); uso los de por defecto")
         cfg = hk.default_settings(HOTKEY)
-    return cfg
+    return lic.ajustes_para_plan(cfg, refresh_plan(), hk.default_settings(FREE_HOTKEY))
 
 
 def write_settings(cfg):
@@ -1693,7 +1704,7 @@ class PanelAPI:
     # --- ajustes: atajos y capturas ---
     def info(self):
         motor = next((n for n, k, _ in STT if k), f"Whisper local ({LOCAL_MODEL})")
-        return {"version": VERSION, "engine": motor}
+        return {"version": VERSION, "engine": motor, "plan": _plan["plan"]}
 
     def _settings_view(self):
         cfg = _settings
@@ -1701,7 +1712,23 @@ class PanelAPI:
                 "pretty": {"rec": [hk.pretty(r["combo"]) for r in cfg["rec"]],
                            "shot_region": hk.pretty(cfg["shot_region"]["combo"]),
                            "shot_full": hk.pretty(cfg["shot_full"]["combo"])},
-                "data_dir": BASE}
+                "data_dir": BASE, "plan": _plan["plan"], "plan_detalle": _plan["detalle"]}
+
+    def activar_licencia(self, texto):
+        """El usuario pega la licencia que le enviamos; se verifica sin conexión y se guarda en su PC."""
+        ok, res = lic.verificar(texto or "")
+        if not ok:
+            return {"ok": False, "error": res}
+        try:
+            with open(os.path.join(BASE, lic.ARCHIVO_LICENCIA), "w", encoding="utf-8") as f:
+                json.dump(res, f, ensure_ascii=False)
+        except OSError as e:
+            log(f"no pude guardar la licencia: {e}")
+            return {"ok": False, "error": "No se pudo guardar la licencia en esta PC"}
+        refresh_plan()
+        apply_settings(load_settings())
+        log("licencia Pro activada")
+        return dict(self._settings_view(), ok=True)
 
     def get_settings(self):
         return self._settings_view()
@@ -1718,6 +1745,8 @@ class PanelAPI:
         ok = {"privacidad", "terminos", "contacto", "baja-y-arrepentimiento", "licencias"}
         if page in ok:
             webbrowser.open(f"https://festudios.pro/whisperpro/{page}/")
+        elif page == "planes":
+            webbrowser.open("https://festudios.pro/whisperpro/#precios")
         return True
 
     def open_data_dir(self):
@@ -1740,6 +1769,8 @@ class PanelAPI:
 
     def capture_combo(self):
         """El usuario aprieta la combinación que quiere; el motor la captura (traga las teclas mientras tanto)."""
+        if _plan["plan"] != "pro":
+            return {"error": "Elegir tus propias teclas es del plan Pro."}
         if _engine is None:
             return {"error": "Los atajos no están activos"}
         res = _engine.capture(10.0)
@@ -1748,6 +1779,8 @@ class PanelAPI:
         return res
 
     def save_settings(self, cfg):
+        if _plan["plan"] != "pro":
+            return {"ok": False, "error": "Cambiar los atajos es del plan Pro."}
         try:
             cfg = hk.normalize_settings(cfg, HOTKEY)
             ok, msg = hk.validate(cfg, HISTORY_KEY)
