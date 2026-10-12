@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/env.php';          // public_html/env.php (define env())
 require_once dirname(__DIR__, 2) . '/mail-lib.php';     // smtp_read / smtp_write
+require_once __DIR__ . '/_plantilla.php';               // mails institucionales (HTML)
 
 const TOKEN_HORAS = 48;
 
@@ -84,7 +85,7 @@ function instalador_actual(): ?array {
 $GLOBALS['wp_mail_error'] = '';
 
 /** Mail a una persona (la lib compartida solo manda avisos al equipo). */
-function enviar_a(string $para, string $asunto, string $cuerpo): bool {
+function enviar_a(string $para, string $asunto, string $cuerpo, ?string $html = null): bool {
     $falla = function (string $etapa, string $resp = '') { $GLOBALS['wp_mail_error'] = trim($etapa . ' ' . substr(trim($resp), 0, 160)); return false; };
     $host = env('SMTP_HOST'); $port = (int)env('SMTP_PORT', 587);
     $user = env('SMTP_USER'); $pass = env('SMTP_PASS');
@@ -119,10 +120,21 @@ function enviar_a(string $para, string $asunto, string $cuerpo): bool {
         'Reply-To: <festudioarg@gmail.com>',
         'Subject: =?UTF-8?B?' . base64_encode(clean_header_value($asunto)) . '?=',
         'MIME-Version: 1.0',
-        'Content-Type: text/plain; charset=UTF-8',
         'Date: ' . date('r'),
+        'Message-ID: <' . bin2hex(random_bytes(12)) . '@festudios.pro>',
     ];
-    smtp_write($s, implode("\r\n", $h) . "\r\n\r\n" . preg_replace('/^\./m', '..', $cuerpo) . "\r\n.");
+    if ($html === null) {
+        $h[] = 'Content-Type: text/plain; charset=UTF-8';
+        $h[] = 'Content-Transfer-Encoding: base64';
+        $cuerpoMime = chunk_split(base64_encode($cuerpo));
+    } else {
+        $b = 'fe' . bin2hex(random_bytes(10));
+        $h[] = 'Content-Type: multipart/alternative; boundary="' . $b . '"';
+        $cuerpoMime = "--$b\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($cuerpo))
+            . "--$b\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($html))
+            . "--$b--\r\n";
+    }
+    smtp_write($s, implode("\r\n", $h) . "\r\n\r\n" . $cuerpoMime . "\r\n.");
     $r = smtp_read($s);
     smtp_write($s, 'QUIT'); fclose($s);
     if (substr($r, 0, 3) !== '250') return $falla('envío no aceptado', $r);

@@ -40,12 +40,8 @@ if ($url && $key) {
 
 /* 2) Link firmado por mail */
 $link = 'https://festudios.pro/whisperpro/api/descargar.php?t=' . crear_token($email, time());
-$cuerpo = "Hola,\n\nGracias por probar WhisperPRO. Este es tu link de descarga (vale 48 horas):\n\n$link\n\n"
-    . "Para Windows 10 y 11. Si Windows muestra «Windows protegió su PC», tocá «Más información» y después «Ejecutar de todas formas»: es normal en aplicaciones nuevas.\n\n"
-    . "Al abrirlo te guiamos para conectar tu clave gratuita de IA en un minuto.\n\n"
-    . "¿Dudas? Respondé este mail.\n\nFESTUDIOS · festudios.pro\n\n"
-    . "Recibís este mail porque pediste la descarga en festudios.pro/whisperpro. Para borrar tus datos o no recibir más novedades, respondé con la palabra BAJA.";
-$enviado = enviar_a($email, 'Tu descarga de WhisperPRO', $cuerpo);
+$m = mail_descarga($link);
+$enviado = enviar_a($email, $m['asunto'], $m['texto'], $m['html']);
 if (!$enviado) registrar_fallo($email, 'descarga');
 
 try {

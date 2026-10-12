@@ -40,10 +40,10 @@ try {
 } catch (Throwable $x) { /* el registro no debe frenar la entrega */ }
 
 if ($nuevo) {   // una sola vez por día por mail, aunque abran el link varias veces
-    $okMail = enviar_a($email, 'Datos para pagar WhisperPRO Pro',
-        "Hola,\n\nGracias por confirmar tu mail. Para activar WhisperPRO Pro (1 mes), hacé una transferencia con estos datos:\n\n$datos\n\n"
-        . "Cuando transfieras, respondé este mail con el comprobante. Te enviamos tu licencia en el día hábil y la pegás en WhisperPRO → Ajustes → Activar Pro.\n"
-        . "Tenés 10 días corridos para arrepentirte (más info: https://festudios.pro/whisperpro/baja-y-arrepentimiento/).\n\nFESTUDIOS · festudios.pro");
+    $filasPago = [];
+    foreach ([['Titular', $titular, false], ['CUIT', $cuit, false], ['Banco', $banco, false], ['CBU', $cbu, true], ['Alias', $alias, true]] as $f) if ($f[1] !== '') $filasPago[] = $f;
+    $m = mail_datos_pago($monto, $ref, $filasPago, $hayDatos);
+    $okMail = enviar_a($email, $m['asunto'], $m['texto'], $m['html']);
     if (!$okMail) registrar_fallo($email, 'pro-datos-de-pago');
     if (function_exists('send_notification_mail')) {
         @send_notification_mail('[FE · WhisperPRO Pro] Mail verificado: ' . $email,
