@@ -100,7 +100,7 @@ PRIV = f"""
 <ol class="toc"><li><a href="privacidad/#responsable">Responsable</a></li><li><a href="privacidad/#datos">Qué datos se guardan en tu equipo</a></li><li><a href="privacidad/#salen">Qué sale de tu equipo</a></li><li><a href="privacidad/#finalidad">Para qué se usan y por cuánto tiempo</a></li><li><a href="privacidad/#borrar">Cómo borrar tus datos</a></li><li><a href="privacidad/#derechos">Tus derechos</a></li><li><a href="privacidad/#seguridad">Seguridad</a></li><li><a href="privacidad/#sitio">Este sitio web y cookies</a></li><li><a href="privacidad/#menores">Menores</a></li><li><a href="privacidad/#cambios">Cambios y contacto</a></li></ol>
 
 <h2 id="responsable">1. Responsable</h2>
-<p>{EMISOR} (marca «FESTUDIOS»), Argentina. Correo de contacto: <a href="mailto:{MAIL}">{MAIL}</a>. Domicilio: <span class="pend">[DOMICILIO COMERCIAL]</span>. CUIT: <span class="pend">[CUIT]</span>.</p>
+<p>{EMISOR} (marca «FESTUDIOS»), Argentina. Correo de contacto: <a href="mailto:{MAIL}">{MAIL}</a>. Domicilio: Independencia 3800, Olavarría, Buenos Aires. CUIT: 20-36215734-0.</p>
 <p>Como la aplicación trata tus datos dentro de tu equipo y los envía directamente al proveedor de IA que elegiste, FESTUDIOS no almacena ni accede a los datos de tu uso. Solo tratamos los datos que nos enviás vos por contacto (por ejemplo, tu correo si nos escribís o te anotás en una lista de espera).</p>
 
 <h2 id="datos">2. Qué datos se guardan en tu equipo</h2>
@@ -152,7 +152,7 @@ TERM = f"""
 <p>Estos términos regulan el uso de WhisperPRO, la aplicación de dictado por voz para Windows y su versión web («el Servicio»), ofrecida por {EMISOR} («FESTUDIOS», «nosotros»). Al instalar o usar el Servicio aceptás estos términos y la <a href="privacidad/">Política de privacidad</a>. Si no estás de acuerdo, no lo uses.</p>
 
 <h2>1. Quién ofrece el Servicio</h2>
-<p>{EMISOR} (marca «FESTUDIOS»), Argentina. Contacto: <a href="mailto:{MAIL}">{MAIL}</a>. Domicilio: <span class="pend">[DOMICILIO COMERCIAL]</span>. CUIT: <span class="pend">[CUIT]</span>. Atención: lunes a viernes de 8 a 18 h.</p>
+<p>{EMISOR} (marca «FESTUDIOS»), Argentina. Contacto: <a href="mailto:{MAIL}">{MAIL}</a>. Domicilio: Independencia 3800, Olavarría, Buenos Aires. CUIT: 20-36215734-0. Atención: lunes a viernes de 8 a 18 h.</p>
 
 <h2>2. Qué es WhisperPRO</h2>
 <p>Es una herramienta que convierte tu voz en texto y aplica correcciones habladas, guarda tu historial en tu equipo y ofrece accesorios como atajos y capturas de pantalla. Para transcribir usa el servicio de IA que conectás con tu propia clave (por defecto, Groq). Podemos agregar, cambiar o quitar funciones; lo haremos procurando no afectar lo esencial del plan gratuito.</p>
@@ -238,8 +238,8 @@ CONTACTO = f"""
 <h2>Datos del proveedor</h2>
 <table><tr><th>Dato</th><th>Detalle</th></tr>
 <tr><td>Nombre</td><td>{EMISOR} (marca «FESTUDIOS»)</td></tr>
-<tr><td>CUIT</td><td><span class="pend">[CUIT]</span></td></tr>
-<tr><td>Domicilio comercial</td><td><span class="pend">[DOMICILIO COMERCIAL]</span>, Argentina</td></tr>
+<tr><td>CUIT</td><td>20-36215734-0</td></tr>
+<tr><td>Domicilio comercial</td><td>Independencia 3800, Olavarría, Buenos Aires, Argentina</td></tr>
 <tr><td>Correo</td><td><a href="mailto:{MAIL}">{MAIL}</a></td></tr></table>
 <p>Defensa del Consumidor: <a href="{DEFENSA}" rel="noopener">argentina.gob.ar/produccion/defensadelconsumidor</a>.</p>
 

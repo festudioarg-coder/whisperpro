@@ -61,7 +61,7 @@ Herramienta de dictado por voz para Windows (producto de FESTUDIOS): Win + Espac
 
 ## Te toca a vos (Juan)
 - Generar las claves de licencia (`python herramientas/licencias.py claves`), commitear la pública y guardar la privada en un lugar seguro con copia.
-- Publicar `landing/` en festudios.pro/whisperpro/ (ver `landing/LEEME.md`); antes `python landing/revisar.py` (faltan [CUIT], [DOMICILIO], link de descarga).
+- Publicar `landing/` en festudios.pro/whisperpro/ (ver `landing/LEEME.md`); antes `python landing/revisar.py` (faltan link de descarga).
 - Probar v6.15 con la lista de arriba y pasar `dictado.log`.
 - Subir `web/` a festudios.pro/whisper/ y probarlo en el iPhone (agregar a pantalla de inicio).
 - Correr `instalar.bat` y `dev.bat` en `WhisperPRO\app`.
