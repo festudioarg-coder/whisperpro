@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<!-- La app solo carga archivos propios y solo puede conectarse a Groq (el motor de IA). Nada más sale de tu teléfono. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src blob:; connect-src https://api.groq.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#0a0b10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WhisperPRO">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<title>WhisperPRO</title>
+<style>
+@font-face{font-family:'WP Sans';src:url('fonts/Bricolage.woff2') format('woff2');font-weight:200 800;font-stretch:75% 100%}
+@font-face{font-family:'WP Mono';src:url('fonts/MartianMono.woff2') format('woff2');font-weight:100 800;font-stretch:75% 112%}
+:root{--bg:#0a0b10;--bg2:#0e1016;--panel:#11131a;--line:#1b1e29;--line2:#262a37;--tx:#e9eaf2;--tx2:#aab0c4;--tx3:#6b7088;--tx4:#454a5e;
+  --a:#8b5cf6;--b:#c084fc;--ok:#34e0a1;--bad:#ff6b86;--info:#7aa2ff;--mono:'WP Mono',ui-monospace,Menlo,monospace;--sans:'WP Sans',-apple-system,system-ui,sans-serif;
+  --g:139,92,246}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font-family:var(--sans);-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background:radial-gradient(520px 340px at 50% 62%,rgba(var(--g),.16),transparent 70%),var(--bg);transition:background .4s}
+body[data-s="think"]{--g:122,162,255}
+body[data-s="done"]{--g:52,224,161}
+button{font-family:inherit;color:inherit}
+kbd,.mono{font-family:var(--mono);font-stretch:86%}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 6px}
+.wm{font-size:20px;font-weight:600;font-stretch:84%;letter-spacing:-.03em;font-variation-settings:"opsz" 48;display:flex;align-items:center;gap:9px}
+.lg{width:30px;height:30px;border-radius:9px;display:block}
+.col{display:flex;flex-direction:column;gap:4px;line-height:1}
+.by{font:600 8.5px var(--mono);font-stretch:86%;letter-spacing:.17em;text-transform:uppercase;color:#8b92a8;white-space:nowrap}
+.by{text-decoration:none}
+.by strong{color:var(--tx);font-weight:700}
+.wm b{font-weight:800;margin-left:1px;background:linear-gradient(90deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.ib{width:38px;height:38px;border-radius:11px;border:1px solid var(--line2);background:transparent;color:var(--tx2);display:flex;align-items:center;justify-content:center}
+main{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* ---------- grabar ---------- */
+.stage{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:26px 18px 12px;min-height:330px;flex-shrink:0}
+.status{font:600 12px var(--mono);font-stretch:86%;letter-spacing:.14em;color:var(--tx3);text-transform:uppercase;height:16px;margin-bottom:22px}
+body[data-s="rec"] .status{color:var(--a)}body[data-s="think"] .status{color:var(--info)}body[data-s="done"] .status{color:var(--ok)}
+.timer{font:500 15px var(--mono);font-stretch:86%;color:var(--tx2);height:20px}
+.mic{position:relative;width:132px;height:132px;border-radius:50%;border:0;padding:0;cursor:pointer;background:radial-gradient(110% 60% at 50% -8%,rgba(255,255,255,.4),rgba(255,255,255,0) 62%),linear-gradient(160deg,#a78bfa 0%,#7c3aed 40%,#4c1d95 78%,#2c0c6c 100%);
+  box-shadow:0 18px 50px rgba(124,58,237,.45),inset 0 2px 0 rgba(255,255,255,.4),inset 0 -6px 12px rgba(20,0,60,.45);transition:transform .2s cubic-bezier(.25,1,.5,1),box-shadow .3s}
+.mic:active{transform:scale(.95)}
+.mic svg{position:absolute;inset:0;margin:auto}
+.mic .ring{position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(139,92,246,.4);opacity:0;transform:scale(.9)}
+body[data-s="rec"] .mic .ring{animation:ring 1.6s ease-out infinite}
+body[data-s="rec"] .mic .ring+.ring{animation-delay:.55s}
+@keyframes ring{0%{opacity:.8;transform:scale(.92)}100%{opacity:0;transform:scale(1.5)}}
+body[data-s="think"] .mic{background:linear-gradient(135deg,var(--info),#c58cff);box-shadow:0 18px 50px rgba(122,162,255,.35),inset 0 1px 0 rgba(255,255,255,.28);pointer-events:none}
+body[data-s="think"] .mic svg{animation:spin 1.2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mic .stop{display:none}body[data-s="rec"] .mic .stop{display:block}body[data-s="rec"] .mic .mi{display:none}
+.bars{display:flex;align-items:center;justify-content:center;gap:4px;height:34px}
+.bars i{display:block;width:4px;height:34px;border-radius:2px;transform:scaleY(.12);background:linear-gradient(180deg,var(--a),var(--b))}
+
+/* ---------- resultado ---------- */
+.card{margin:6px 16px 0;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden;display:none}
+.card.on{display:block;animation:up .35s cubic-bezier(.25,1,.5,1)}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.chead{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:#0f1118;font:600 10.5px var(--mono);font-stretch:86%;letter-spacing:.1em;color:var(--ok)}
+.chead .sp{flex:1}.tag{font:600 10px var(--mono);font-stretch:86%;letter-spacing:0;border-radius:5px;padding:2px 7px;color:var(--bad);background:rgba(255,107,134,.11)}
+.tag.w{color:var(--tx3);background:var(--line)}
+.ctext{padding:14px 16px;font-size:19px;font-weight:700;line-height:1.42;letter-spacing:-.01em;white-space:pre-wrap;word-break:break-word;-webkit-user-select:text;user-select:text;max-height:38vh;overflow:auto}
+.ctext.raw{font:400 14px/1.7 var(--mono);font-stretch:86%;color:var(--tx2);font-weight:400}
+.disc{padding:0 16px 12px;font:500 12px/1.6 var(--mono);font-stretch:86%;color:var(--bad)}
+.acts{display:flex;gap:8px;padding:10px 12px 12px;border-top:1px solid var(--line)}
+.btn{flex:1;height:46px;border-radius:12px;border:1px solid var(--line2);background:transparent;font:700 14px var(--sans);color:var(--tx2)}
+.btn.p{background:var(--tx);color:var(--bg);border-color:var(--tx);font-weight:800;flex:1.6}
+.btn.p.ok{background:var(--ok);border-color:var(--ok)}
+.btn:active{transform:translateY(1px)}
+.btn.d{color:var(--bad);border-color:rgba(255,107,134,.32);background:rgba(255,107,134,.07)}
+.err{margin:8px 16px 0;padding:11px 14px;border-radius:12px;background:rgba(255,107,134,.09);border:1px solid rgba(255,107,134,.3);color:#ff93a8;font:600 13px/1.45 var(--sans);display:none}
+.err.on{display:block}
+
+/* ---------- historial ---------- */
+.hl{padding:18px 16px 28px}
+.hh{display:flex;align-items:center;gap:8px;font:600 10px var(--mono);font-stretch:86%;letter-spacing:.14em;color:var(--tx4);margin-bottom:8px}
+.hh::after{content:"";flex:1;height:1px;background:var(--line)}
+.it{padding:11px 13px;border-radius:11px;border:1px solid transparent;margin-bottom:4px;background:var(--bg2)}
+.it:active{background:#151824}
+.it .t{display:flex;gap:8px;font:500 10.5px var(--mono);font-stretch:86%;color:var(--tx3);margin-bottom:4px}
+.it .x{font-size:14px;font-weight:600;line-height:1.45;color:var(--tx2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.empty{color:var(--tx3);font-size:13px;font-weight:600;text-align:center;padding:18px 0;line-height:1.6}
+
+/* ---------- hojas (ajustes / conexión) ---------- */
+.sheet{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;z-index:10;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);overflow-y:auto}
+.sheet.on{display:flex}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 8px}
+.sh h2{margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em}
+.sb{padding:8px 16px 40px;display:flex;flex-direction:column;gap:14px}
+.grp{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
+.gh{padding:11px 14px;background:#0f1118;border-bottom:1px solid var(--line);font-size:13px;font-weight:700}
+.gb{padding:13px 14px;display:flex;flex-direction:column;gap:11px;font-size:13.5px;line-height:1.55;color:var(--tx2)}
+.step{display:flex;gap:12px;align-items:flex-start}
+.step .n{width:24px;height:24px;border-radius:50%;background:var(--line);color:var(--tx2);display:flex;align-items:center;justify-content:center;font:700 12px var(--mono);flex-shrink:0;margin-top:1px}
+.step b{color:var(--tx)}
+.inp{display:flex;gap:8px}
+.inp input{flex:1;min-width:0;height:46px;background:var(--bg);border:1px solid var(--line2);border-radius:12px;color:var(--tx);font:500 13px var(--mono);font-stretch:86%;padding:0 12px;outline:none}
+.inp input:focus{border-color:var(--info)}
+.inp .btn{flex:none;padding:0 14px}
+ul.p{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+ul.p li::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;margin:0 9px 2px 0;background:var(--ok)}
+ul.p.o li::before{background:var(--b)}
+h4{margin:0 0 6px;font:700 10.5px var(--mono);font-stretch:86%;letter-spacing:.12em}
+.small{font-size:12px;color:var(--tx3)}
+a{color:var(--info)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,16px);background:#1b1f2d;border:1px solid var(--line2);padding:10px 16px;border-radius:12px;font:600 13px var(--sans);opacity:0;transition:all .25s cubic-bezier(.25,1,.5,1);pointer-events:none;z-index:20}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body data-s="idle">
+<header>
+  <div class="wm"><img class="lg" src="img/logo-64.png" srcset="img/logo-64.png 1x, img/logo-128.png 2x" width="30" height="30" alt=""><span class="col"><a class="by" href="https://festudios.pro/?utm_source=whisperpro&utm_medium=web&utm_campaign=desarrollado-por" target="_blank" rel="noopener">Desarrollado por <strong>FESTUDIOS</strong></a><span>Whisper<b>PRO</b></span></span></div>
+  <button class="ib" id="gear" aria-label="Ajustes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button>
+</header>
+<main>
+  <div class="stage">
+    <div class="status" id="status">Tocá para hablar</div>
+    <button class="mic" id="mic" aria-label="Grabar">
+      <span class="ring"></span><span class="ring"></span>
+      <svg class="mi" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg>
+      <svg class="stop" width="40" height="40" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3.5" fill="#fff"/></svg>
+    </button>
+    <div class="bars" id="bars"></div>
+    <div class="timer" id="timer">&nbsp;</div>
+  </div>
+  <div class="err" id="err"></div>
+  <div class="card" id="card">
+    <div class="chead"><span id="ctitle">LISTO</span><span class="sp"></span><span class="tag w" id="cwords"></span><span class="tag" id="cdisc" style="display:none"></span></div>
+    <div class="ctext" id="ctext"></div>
+    <div class="disc" id="cdesc"></div>
+    <div class="acts">
+      <button class="btn p" id="bcopy">Copiar</button>
+      <button class="btn" id="bshare">Compartir</button>
+      <button class="btn" id="braw">Literal</button>
+    </div>
+  </div>
+  <div class="hl"><div class="hh">HISTORIAL · SOLO EN ESTE TELÉFONO</div><div id="hist"></div></div>
+</main>
+
+<!-- conexión de la clave -->
+<div class="sheet" id="setup">
+  <div class="sh"><h2>Conectá WhisperPRO</h2></div>
+  <div class="sb">
+    <div class="small" style="padding:0 2px">Un minuto, una sola vez. Gratis. Usás tu propia clave de Groq, el motor que transcribe tu voz.</div>
+    <div class="grp"><div class="gb">
+      <div class="step"><span class="n">1</span><div><b>Abrí Groq</b> y entrá con tu cuenta de Google.<br><a href="https://console.groq.com/keys" target="_blank" rel="noopener" id="agroq">Abrir console.groq.com/keys ↗</a></div></div>
+      <div class="step"><span class="n">2</span><div>Tocá <b>Create API Key</b>, poné cualquier nombre y después <b>Copy</b>.</div></div>
+      <div class="step"><span class="n">3</span><div style="flex:1"><b>Volvé acá y pegala.</b>
+        <div class="inp" style="margin-top:9px"><input id="kin" placeholder="gsk_…" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text"><button class="btn p" id="kpaste">Pegar</button></div></div></div>
+      <div class="err" id="kerr"></div>
+      <button class="btn p" id="kgo" style="flex:none">Conectar</button>
+    </div></div>
+    <div class="small" style="padding:0 4px">Tu clave se guarda solo en este teléfono. El audio va directo de tu teléfono a Groq: FESTUDIOS no lo ve ni lo guarda.<br>Al conectar aceptás los <a href="https://festudios.pro/whisperpro/terminos/" target="_blank" rel="noopener">Términos</a> y la <a href="https://festudios.pro/whisperpro/privacidad/" target="_blank" rel="noopener">Política de privacidad</a>.</div>
+  </div>
+</div>
+
+<!-- ajustes -->
+<div class="sheet" id="settings">
+  <div class="sh"><h2>Ajustes</h2><button class="ib" id="sclose" aria-label="Cerrar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="sb">
+    <div class="grp"><div class="gh">Clave de Groq</div><div class="gb">
+      <div class="mono" id="kshow" style="color:var(--tx)">—</div>
+      <div style="display:flex;gap:8px"><button class="btn" id="kchange">Cambiar</button><button class="btn d" id="kdel">Quitar</button></div>
+    </div></div>
+    <div class="grp"><div class="gh">Privacidad y datos</div><div class="gb">
+      <div><h4 style="color:var(--ok)">QUEDA EN TU TELÉFONO</h4><ul class="p"><li>Tu historial y tu clave</li><li>WhisperPRO no usa servidores de FESTUDIOS: no vemos tu voz ni tu texto</li><li>Sin telemetría, sin cuenta y sin estadísticas de uso</li><li>La app solo puede conectarse a Groq, nada más</li></ul></div>
+      <div><h4 style="color:var(--b)">LO ÚNICO QUE SALE</h4><ul class="p o"><li>Mientras dictás, el audio va directo de tu teléfono a Groq con tu propia clave, para transcribirlo y corregirlo</li><li>Ahí rigen las políticas de privacidad de Groq, no las nuestras</li><li>Si no dictás, no sale nada</li></ul></div>
+      <button class="btn d" id="hclear" style="flex:none">Borrar historial</button>
+    </div></div>
+    <div class="grp"><div class="gh">Instalar en el iPhone</div><div class="gb">
+      <div>En Safari: tocá <b style="color:var(--tx)">Compartir</b> → <b style="color:var(--tx)">Agregar a pantalla de inicio</b>. Se abre como una app, sin barra del navegador.</div>
+      <div class="small">La primera vez que grabes, iOS pide permiso para el micrófono.</div>
+    </div></div>
+    <div class="small mono" style="text-align:center;padding:6px 0 0;line-height:2"><a href="https://festudios.pro/whisperpro/privacidad/" target="_blank" rel="noopener">Privacidad</a> · <a href="https://festudios.pro/whisperpro/terminos/" target="_blank" rel="noopener">Términos</a> · <a href="https://festudios.pro/whisperpro/contacto/" target="_blank" rel="noopener">Contacto</a> · <a href="https://festudios.pro/whisperpro/licencias/" target="_blank" rel="noopener">Licencias</a><br><a href="https://festudios.pro/?utm_source=whisperpro&utm_medium=web&utm_campaign=desarrollado-por" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">Desarrollado por <strong style="color:var(--tx)">FESTUDIOS</strong></a> · WhisperPRO web v1.0</div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
+const API='https://api.groq.com/openai/v1';
+const STT_MODELS=['whisper-large-v3','whisper-large-v3-turbo'];
+const LLM_MODELS=['openai/gpt-oss-120b','llama-3.3-70b-versatile','llama-3.1-8b-instant'];
+const SMART_PROMPT=`Sos un editor de dictado por voz. Recibís la transcripción literal de lo que una persona dijo en voz alta mientras dictaba un mensaje.
+Tu trabajo: devolver el mensaje FINAL que la persona quiso escribir, aplicando sus propias correcciones habladas.
+
+Reglas:
+- Si se corrige hablando, en cualquier variante del español ("no, mejor no", "borrá eso" / "borra eso" / "bórralo", "olvidate de eso" / "olvídalo", "quita eso", "eso no", "no, espera", "en realidad", "digo", "perdón" / "perdona", "mejor dicho", "en vez de X, Y") o en inglés ("scratch that", "I mean", "actually"): eliminá lo que pidió descartar y quedate con la versión corregida.
+- Sacá muletillas (eh, em, este, o sea, pues, bueno, tipo, like, um) y repeticiones de dictado, pero NO cambies el estilo ni el tono: mantené las palabras de la persona.
+- Respetá la variante regional tal cual: si usa vos/tenés, tú/tienes, usted o vosotros, mantenela; no cambies vocabulario local (auto/carro/coche, celular/móvil, computadora/ordenador). Nunca "neutralices" ni traduzcas.
+- No agregues contenido nuevo, no resumas, no expliques. Corregí puntuación y mayúsculas.
+- Mantené el idioma original.
+- Si no hay correcciones, devolvé el texto casi igual, solo limpio.
+
+Respondé SOLO con JSON válido: {"final": "<mensaje final>", "descartado": ["<fragmento descartado 1>", ...]}`;
+const HALLU=['thank you','thanks for watching','gracias por ver','subtítulos realizados','amara.org','suscríbete'];
+
+let key=LS.get('wp_key',''), hist=LS.get('wp_hist',[]), cur=null, showRaw=false;
+let stream=null, rec=null, chunks=[], t0=0, raf=0, actx=null, an=null, mime='', state='idle';
+
+// ---------- util ----------
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),1800);}
+function setState(s,label){state=s;document.body.dataset.s=s;$('status').textContent=label||'';}
+function showErr(m){const e=$('err');e.textContent=m||'';e.classList.toggle('on',!!m);}
+const words=s=>(String(s).trim().match(/\S+/g)||[]).length;
+const mask=k=>k?k.slice(0,6)+'…'+k.slice(-4):'';
+function fmtTs(ts){const d=new Date(ts),t=new Date();const hm=d.toTimeString().slice(0,5);return d.toDateString()===t.toDateString()?hm:(d.getDate()+'/'+(d.getMonth()+1)+' '+hm);}
+function openSheet(id){$(id).classList.add('on');}
+function closeSheet(id){$(id).classList.remove('on');}
+
+// ---------- barras ----------
+const NB=23, bars=[];
+for(let i=0;i<NB;i++){const b=document.createElement('i');$('bars').appendChild(b);bars.push(b);}
+const lv=new Array(NB).fill(0);
+function loop(){
+  if(state==='rec'&&an){
+    const d=new Uint8Array(an.fftSize);an.getByteTimeDomainData(d);
+    let s=0;for(let i=0;i<d.length;i++){const v=(d[i]-128)/128;s+=v*v;}
+    const rms=Math.sqrt(s/d.length);lv.shift();lv.push(Math.min(1,rms*7));
+    const mid=(NB-1)/2;
+    for(let i=0;i<NB;i++){const env=1-Math.pow(Math.abs(i-mid)/mid,2)*.5;bars[i].style.transform='scaleY('+Math.max(.12,lv[i]*env).toFixed(3)+')';}
+    const s2=(performance.now()-t0)/1000;$('timer').textContent=Math.floor(s2/60)+':'+String(Math.floor(s2%60)).padStart(2,'0');
+    raf=requestAnimationFrame(loop);
+  }else if(state==='think'){
+    const t=performance.now()/1000;bars.forEach((b,i)=>b.style.transform='scaleY('+(.15+.3*(.5+.5*Math.sin(t*7-i*.4))).toFixed(3)+')');raf=requestAnimationFrame(loop);
+  }else{bars.forEach(b=>b.style.transform='scaleY(.12)');}
+}
+
+// ---------- grabar ----------
+async function start(){
+  showErr('');
+  if(!key){openSheet('setup');return;}
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+  }catch(e){showErr('No pude usar el micrófono. En Ajustes del iPhone → Safari → Micrófono, permitilo para este sitio.');return;}
+  mime=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m))||'';
+  try{rec=new MediaRecorder(stream,mime?{mimeType:mime}:undefined);}catch(e){showErr('Este navegador no puede grabar audio.');cleanup();return;}
+  chunks=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+  rec.onstop=onStop;
+  const AC=window.AudioContext||window.webkitAudioContext;actx=new AC();const src=actx.createMediaStreamSource(stream);an=actx.createAnalyser();an.fftSize=512;src.connect(an);
+  lv.fill(0);t0=performance.now();rec.start();
+  setState('rec','Escuchando…');$('card').classList.remove('on');loop();
+}
+function stop(){if(rec&&rec.state!=='inactive')rec.stop();}
+function cleanup(){try{stream&&stream.getTracks().forEach(t=>t.stop());}catch(e){}try{actx&&actx.close();}catch(e){}stream=null;actx=null;an=null;}
+async function onStop(){
+  const secs=(performance.now()-t0)/1000;const type=rec.mimeType||mime||'audio/mp4';cleanup();
+  const blob=new Blob(chunks,{type});
+  if(secs<0.6||blob.size<1500){setState('idle','Tocá para hablar');$('timer').innerHTML='&nbsp;';showErr('No escuché nada. Probá de nuevo.');return;}
+  setState('think','Interpretando…');loop();
+  try{
+    const raw=await transcribe(blob,type);
+    if(!raw){throw new Error('NOVOZ');}
+    const r=await smart(raw);
+    const item={ts:Date.now(),raw,final:r.final,descartado:r.descartado,segundos:Math.round(secs*10)/10};
+    hist.unshift(item);hist=hist.slice(0,60);LS.set('wp_hist',hist);
+    show(item,true);
+    setState('done','Listo');setTimeout(()=>{if(state==='done')setState('idle','Tocá para hablar');},2500);
+  }catch(e){
+    setState('idle','Tocá para hablar');
+    showErr(e.message==='NOVOZ'?'No escuché nada. Probá de nuevo.':explain(e));
+  }
+  $('timer').innerHTML='&nbsp;';renderHist();
+}
+function explain(e){
+  const m=String(e&&e.message||e);
+  if(/401|invalid api key|invalid_api_key/i.test(m))return 'Groq no aceptó la clave. Revisala en Ajustes.';
+  if(/429|rate/i.test(m))return 'Llegaste al límite por minuto de Groq. Esperá unos segundos y probá de nuevo.';
+  if(/Failed to fetch|NetworkError|Load failed/i.test(m))return 'No hay conexión con Groq. Revisá tu internet.';
+  return 'No se pudo procesar el audio ('+m.slice(0,90)+').';
+}
+
+// ---------- Groq ----------
+async function groq(path,opts){
+  const r=await fetch(API+path,Object.assign({headers:{Authorization:'Bearer '+key}},opts,{headers:Object.assign({Authorization:'Bearer '+key},(opts&&opts.headers)||{})}));
+  if(!r.ok){let t='';try{t=await r.text();}catch(e){}const err=new Error(r.status+' '+t.slice(0,200));err.status=r.status;err.body=t;throw err;}
+  return r;
+}
+async function transcribe(blob,type){
+  const ext=/mp4/.test(type)?'m4a':/webm/.test(type)?'webm':/ogg/.test(type)?'ogg':'m4a';
+  let last;
+  for(const model of STT_MODELS){
+    const fd=new FormData();fd.append('file',blob,'dictado.'+ext);fd.append('model',model);fd.append('response_format','text');fd.append('temperature','0');fd.append('prompt','Dictado en español, con puntuación.');
+    try{const r=await groq('/audio/transcriptions',{method:'POST',body:fd});return clean((await r.text()).trim());}
+    catch(e){last=e;if(e.status===404||/model_not_found|decommission/i.test(e.body||''))continue;throw e;}
+  }
+  throw last;
+}
+function clean(t){const l=t.toLowerCase();return HALLU.some(h=>l.includes(h)&&l.length<h.length+25)?'':t;}
+async function smart(raw){
+  if(words(raw)<3)return {final:raw,descartado:[]};
+  for(const model of LLM_MODELS){
+    const body={model,temperature:0,messages:[{role:'system',content:SMART_PROMPT},{role:'user',content:raw}],response_format:{type:'json_object'}};
+    if(/gpt-oss/.test(model))body.reasoning_effort='low';
+    try{
+      const r=await groq('/chat/completions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const j=await r.json();const d=JSON.parse(j.choices[0].message.content);
+      const fin=String(d.final||'').trim();const ds=(Array.isArray(d.descartado)?d.descartado:[]).filter(x=>typeof x==='string'&&x.trim());
+      return {final:fin||raw,descartado:ds};
+    }catch(e){
+      if(e.status===401||e.status===429)throw e;
+      continue;                      // ese modelo no está o no soporta JSON: probar el siguiente
+    }
+  }
+  return {final:raw,descartado:[]};   // si la corrección falla, se usa lo que dijiste
+}
+
+// ---------- resultado ----------
+function show(it,autocopy){
+  cur=it;showRaw=false;paint();$('card').classList.add('on');
+  if(autocopy)copy(true);
+}
+function paint(){
+  const it=cur;if(!it)return;
+  $('ctext').textContent=showRaw?it.raw:it.final;$('ctext').className='ctext'+(showRaw?' raw':'');
+  $('cwords').textContent=words(it.final)+' pal.';
+  const n=(it.descartado||[]).length;const cd=$('cdisc');cd.style.display=n?'':'none';cd.textContent='−'+n+(n===1?' descarte':' descartes');
+  $('cdesc').textContent=n?it.descartado.map(x=>'• '+x).join('\n'):'';$('cdesc').style.display=n?'':'none';
+  $('braw').textContent=showRaw?'Final':'Literal';
+  $('bcopy').textContent='Copiar';$('bcopy').classList.remove('ok');
+}
+async function copy(silent){
+  const txt=showRaw?cur.raw:cur.final;
+  let ok=false;
+  try{await navigator.clipboard.writeText(txt);ok=true;}catch(e){
+    try{const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove();}catch(e2){}
+  }
+  if(ok){$('bcopy').textContent='Copiado ✓';$('bcopy').classList.add('ok');if(!silent)toast('Copiado');}
+  else if(!silent)toast('No se pudo copiar: mantené apretado el texto y elegí Copiar');
+}
+$('bcopy').onclick=()=>cur&&copy(false);
+$('braw').onclick=()=>{if(!cur)return;showRaw=!showRaw;paint();};
+$('bshare').onclick=async()=>{if(!cur)return;const txt=showRaw?cur.raw:cur.final;if(navigator.share){try{await navigator.share({text:txt});}catch(e){}}else copy(false);};
+
+// ---------- historial ----------
+function renderHist(){
+  const h=$('hist');
+  if(!hist.length){h.innerHTML='<div class="empty">Todavía no hay nada.<br>Tocá el micrófono y hablá.</div>';return;}
+  h.innerHTML='';
+  hist.forEach(it=>{const d=document.createElement('div');d.className='it';
+    d.innerHTML='<div class="t"><span>'+fmtTs(it.ts)+'</span><span>· '+words(it.final)+' pal.</span>'+((it.descartado||[]).length?'<span style="color:var(--bad)">· −'+it.descartado.length+'</span>':'')+'</div><div class="x"></div>';
+    d.querySelector('.x').textContent=it.final;d.onclick=()=>{show(it,false);window.scrollTo(0,0);$('card').scrollIntoView({behavior:'smooth',block:'nearest'});};
+    h.appendChild(d);});
+}
+
+// ---------- clave y ajustes ----------
+async function connect(){
+  const m=($('kin').value||'').match(/gsk_[A-Za-z0-9]{20,}/);
+  const ke=$('kerr');
+  if(!m){ke.textContent='Las claves de Groq empiezan con gsk_';ke.classList.add('on');return;}
+  ke.classList.remove('on');$('kgo').textContent='Probando…';
+  const prev=key;key=m[0];
+  try{await groq('/models');LS.set('wp_key',key);$('kin').value='';closeSheet('setup');toast('Conectado ✓');renderKey();}
+  catch(e){key=prev;ke.textContent=e.status===401?'Esa clave no funcionó. Copiá una nueva.':'No pude comprobarla: '+explain(e);ke.classList.add('on');}
+  $('kgo').textContent='Conectar';
+}
+function renderKey(){$('kshow').textContent=key?mask(key):'sin clave';}
+$('kgo').onclick=connect;
+$('kpaste').onclick=async()=>{try{const t=await navigator.clipboard.readText();$('kin').value=t;if(/gsk_/.test(t))connect();}catch(e){toast('Mantené apretado el campo y elegí Pegar');}};
+$('gear').onclick=()=>{renderKey();openSheet('settings');};
+$('sclose').onclick=()=>closeSheet('settings');
+$('kchange').onclick=()=>{closeSheet('settings');openSheet('setup');};
+$('kdel').onclick=()=>{if(confirm('¿Quitar la clave de este teléfono?')){key='';LS.del('wp_key');renderKey();closeSheet('settings');openSheet('setup');}};
+$('hclear').onclick=()=>{if(confirm('¿Borrar todo el historial de este teléfono?')){hist=[];LS.del('wp_hist');cur=null;$('card').classList.remove('on');renderHist();toast('Historial borrado');}};
+
+$('mic').onclick=()=>{if(state==='rec')stop();else if(state==='idle'||state==='done')start();};
+renderHist();renderKey();
+if(!key)openSheet('setup');
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>

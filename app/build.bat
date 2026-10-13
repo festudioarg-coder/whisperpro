@@ -12,6 +12,12 @@ if not exist logo.ico (echo FALLO: no se pudo generar logo.ico & pause & exit /b
 rmdir /s /q build\work dist 2>nul
 pyinstaller --noconfirm --clean --workpath build\work --distpath dist build\WhisperPRO.spec || (echo FALLO pyinstaller & pause & exit /b 1)
 echo [build] dist\WhisperPRO\WhisperPRO.exe listo
+echo [build] autoprueba del programa empaquetado...
+del "%APPDATA%\WhisperPRO\selftest.txt" 2>nul
+start /wait "" "dist\WhisperPRO\WhisperPRO.exe" --selftest
+set ST=%errorlevel%
+if exist "%APPDATA%\WhisperPRO\selftest.txt" type "%APPDATA%\WhisperPRO\selftest.txt"
+if not "%ST%"=="0" (echo FALLO la autoprueba: el instalador NO se genera. Mira las lineas FALLA de arriba. & pause & exit /b 1)
 call :sign "dist\WhisperPRO\WhisperPRO.exe"
 set ISCC="%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe"
 if not exist %ISCC% set ISCC="%ProgramFiles%\Inno Setup 6\ISCC.exe"

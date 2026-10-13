@@ -1,5 +1,24 @@
+# secretos y datos personales: nunca van a git
 .env
+app/historial.jsonl
+app/portapapeles.jsonl
+app/settings.json
+app/modelos.json
+*.log
+
+# generados
+__pycache__/
+*.pyc
 node_modules/
 dist/
-build/
-*.log
+# build/ se ignora, salvo los archivos que build.bat necesita
+**/build/*
+!**/build/WhisperPRO.spec
+!**/build/instalador.iss
+!**/build/version_info.py
+
+# licencias: claves y archivos emitidos nunca van a git
+*.key
+licencias-emitidas/
+app/licencia.json
+selftest.txt

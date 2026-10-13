@@ -29,3 +29,16 @@ Versión instalada con el `.exe`: los datos del usuario (`.env`, historial, log)
 
 ## Ajustes (en `.env`)
 `DICTADO_HOTKEY` (`win+space` o `caps lock+space`), `DICTADO_LIVE=0` (sin texto en vivo), `DICTADO_SMART=0` (literal), `DICTADO_LANG=es`, `DICTADO_DEBUG=1` (teclas en consola), `DICTADO_UI=tk` (overlay básico si WebView2 falla).
+
+## Atajos y capturas (desde v6.15)
+Se configuran en el panel (engranaje, o la tecla `,`) y se guardan en `settings.json`, solo en esta PC:
+- **Hasta 2 atajos de grabación.** Modo *Pulsar*: el atajo empieza y la tecla final, sola, corta. Modo *Mantener*: grabás mientras lo tenés apretado.
+- **Captura de región** (abre el selector de recortes de Windows, como Win+Shift+S) y **captura completa** (todos los monitores, al portapapeles y opcionalmente a `Imágenes\WhisperPRO`). Cada una se activa y se asigna a la combinación que quieras, por ejemplo Impr Pant.
+- Historial y deshacer usan el modificador del primer atajo (Win+H / Win+Z por defecto).
+- `DICTADO_HOTKEY` en `.env` sigue siendo el atajo inicial si todavía no existe `settings.json`.
+
+## Datos y privacidad
+Historial, portapapeles, clave de IA y ajustes viven en esta carpeta (o en `%APPDATA%\WhisperPRO` en la versión instalada). No hay cuenta ni telemetría. Lo único que sale de la PC es el audio de cada dictado, directo al motor de IA (Groq) con tu propia clave. El panel tiene una política de seguridad que le impide a la interfaz conectarse a internet.
+
+## Pruebas
+`python -m unittest discover -s tests` (desde esta carpeta): 32 pruebas del motor de atajos, sin necesidad de Windows.

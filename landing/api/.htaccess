@@ -1,0 +1,4 @@
+# _comun.php solo define funciones; no debe pedirse directo
+<Files "_comun.php">
+    Require all denied
+</Files>

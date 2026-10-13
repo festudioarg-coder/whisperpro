@@ -1,0 +1,52 @@
+<?php
+/**
+ * solicitar.php — pide el link de descarga de WhisperPRO.
+ * POST { email, consentimiento:true, origen?, dispositivo? }  →  { ok:true }
+ * Guarda el contacto en la Bandeja del CRM (form_submissions), registra la solicitud y manda al mail un link
+ * firmado que vale 48 horas. Responde { ok, enviado }: enviado=false si el servidor de mail no pudo mandarlo (queda registrado el motivo).
+ */
+declare(strict_types=1);
+require_once __DIR__ . '/_comun.php';
+
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') json_salir(405, ['error' => 'Method not allowed']);
+$in = json_decode((string)file_get_contents('php://input'), true);
+if (!is_array($in)) json_salir(400, ['error' => 'JSON inválido']);
+if (!freno('sol', 5, 3600)) json_salir(429, ['error' => 'Demasiados pedidos. Probá en un rato.']);
+
+$email = strtolower(trim((string)($in['email'] ?? '')));
+if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 120) json_salir(400, ['error' => 'Revisá el mail.']);
+if (empty($in['consentimiento'])) json_salir(400, ['error' => 'Falta aceptar el consentimiento.']);
+$origen = mb_substr(trim((string)($in['origen'] ?? 'descarga')), 0, 40);
+$disp = in_array($in['dispositivo'] ?? '', ['celular', 'compu'], true) ? $in['dispositivo'] : '';
+
+/* 1) Lead en la Bandeja del CRM (misma tabla que lead-rapido.php) */
+$url = env('SUPABASE_URL'); $key = env('SUPABASE_ANON_KEY');
+if ($url && $key) {
+    $ch = curl_init(rtrim($url, '/') . '/rest/v1/form_submissions');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true, CURLOPT_CUSTOMREQUEST => 'POST', CURLOPT_TIMEOUT => 8,
+        CURLOPT_POSTFIELDS => json_encode([
+            'form_type' => 'rapido',
+            'name'      => 'Descargó WhisperPRO',
+            'email'     => $email,
+            'message'   => 'Pidió el link de descarga de WhisperPRO (' . date('d/m/Y H:i') . ')'
+                . ($disp !== '' ? " desde la $disp" : '') . ". Aceptó recibir novedades. Origen: $origen.",
+            'status'    => 'new',
+        ], JSON_UNESCAPED_UNICODE),
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'apikey: ' . $key, 'Authorization: Bearer ' . $key, 'Prefer: return=minimal'],
+    ]);
+    curl_exec($ch); curl_close($ch);
+}
+
+/* 2) Link firmado por mail */
+$link = 'https://festudios.pro/whisperpro/api/descargar.php?t=' . crear_token($email, time());
+$m = mail_descarga($link);
+$enviado = enviar_a($email, $m['asunto'], $m['texto'], $m['html']);
+if (!$enviado) registrar_fallo($email, 'descarga');
+
+try {
+    $st = db()->prepare('INSERT INTO solicitudes (ts,email,origen,dispositivo,enviado,respuesta) VALUES (?,?,?,?,?,?)');
+    $st->execute([date('c'), $email, $origen, $disp, $enviado ? 1 : 0, $enviado ? $GLOBALS['wp_mail_resp'] : $GLOBALS['wp_mail_error']]);
+} catch (Throwable $e) { /* el registro no debe frenar la entrega */ }
+
+json_salir(200, ['ok' => true, 'enviado' => $enviado]);
