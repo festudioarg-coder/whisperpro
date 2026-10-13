@@ -49,6 +49,18 @@ figure{margin:14px 0 6px}figure img{display:block;width:100%;height:auto;border-
 footer{border-top:1px solid #1b1e29;margin-top:72px;padding-top:28px}
 footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer nav a{color:#aab0c4;text-decoration:none;font-size:15px}footer nav a:hover{color:#fff}
 @media (max-width:640px){.toc{columns:1}body{font-size:17px}}
+a{overflow-wrap:anywhere}
+@media (max-width:640px){
+.wrap{padding:24px 18px 72px}.top{margin-bottom:30px}
+table.resp,table.resp tbody,table.resp tr,table.resp td{display:block;width:100%}
+table.resp tr.cab{display:none}
+table.resp tr{border:1px solid #1b1e29;border-radius:14px;padding:8px 14px;margin:12px 0;background:#0e1016}
+table.resp td{border:0;padding:6px 0}
+table.resp td::before{content:attr(data-l);display:block;font:600 11px 'WP Mono',monospace;letter-spacing:.07em;color:#8b92a8;text-transform:uppercase;margin-bottom:2px}
+footer nav a{display:inline-block;padding:9px 0}
+.btn{display:block;width:100%;text-align:center;border:0}
+}
+
 </style>
 </head>
 <body><div class="wrap">
@@ -59,27 +71,27 @@ footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer n
 <p>WhisperPRO está hecho por FESTUDIOS y usa componentes de terceros que se distribuyen con sus propias licencias. Agradecemos a sus autores. Esta lista resume los principales; los textos completos de cada licencia están disponibles en los proyectos originales y, para las tipografías, en la carpeta <code>fonts</code> de este sitio.</p>
 
 <h2>Tipografías</h2>
-<table><tr><th>Componente</th><th>Licencia</th></tr>
-<tr><td>Bricolage Grotesque — © 2022 The Bricolage Grotesque Project Authors</td><td>SIL Open Font License 1.1</td></tr>
-<tr><td>Martian Mono — © Evil Martians y colaboradores</td><td>SIL Open Font License 1.1</td></tr></table>
+<table class="resp"><tr class="cab"><th>Componente</th><th>Licencia</th></tr>
+<tr><td data-l="Componente">Bricolage Grotesque — © 2022 The Bricolage Grotesque Project Authors</td><td data-l="Licencia">SIL Open Font License 1.1</td></tr>
+<tr><td data-l="Componente">Martian Mono — © Evil Martians y colaboradores</td><td data-l="Licencia">SIL Open Font License 1.1</td></tr></table>
 <p>Las licencias de las dos tipografías están en <a href="fonts/LICENCIA-Bricolage-Grotesque-OFL.txt">LICENCIA-Bricolage-Grotesque-OFL.txt</a> y <a href="fonts/LICENCIA-Martian-Mono-OFL.txt">LICENCIA-Martian-Mono-OFL.txt</a>.</p>
 
 <h2>Aplicación de escritorio</h2>
-<table><tr><th>Componente</th><th>Licencia</th></tr>
-<tr><td>Python</td><td>Python Software Foundation License</td></tr>
-<tr><td>NumPy</td><td>BSD-3-Clause</td></tr>
-<tr><td>sounddevice</td><td>MIT</td></tr>
-<tr><td>keyboard</td><td>MIT</td></tr>
-<tr><td>pyperclip</td><td>BSD-3-Clause</td></tr>
-<tr><td>python-dotenv</td><td>BSD-3-Clause</td></tr>
-<tr><td>Pillow</td><td>MIT-CMU (HPND)</td></tr>
-<tr><td>pywebview</td><td>BSD-3-Clause</td></tr>
-<tr><td>pystray</td><td>LGPL-3.0</td></tr>
-<tr><td>Groq SDK, OpenAI SDK, Google Gen AI SDK</td><td>Apache-2.0</td></tr>
-<tr><td>faster-whisper (modo local, versión para desarrolladores)</td><td>MIT</td></tr>
-<tr><td>PyInstaller (empaquetado)</td><td>GPL-2.0 con excepción para aplicaciones empaquetadas</td></tr>
-<tr><td>Inno Setup (instalador)</td><td>Inno Setup License</td></tr>
-<tr><td>Microsoft Edge WebView2 Runtime</td><td>Términos de Microsoft</td></tr></table>
+<table class="resp"><tr class="cab"><th>Componente</th><th>Licencia</th></tr>
+<tr><td data-l="Componente">Python</td><td data-l="Licencia">Python Software Foundation License</td></tr>
+<tr><td data-l="Componente">NumPy</td><td data-l="Licencia">BSD-3-Clause</td></tr>
+<tr><td data-l="Componente">sounddevice</td><td data-l="Licencia">MIT</td></tr>
+<tr><td data-l="Componente">keyboard</td><td data-l="Licencia">MIT</td></tr>
+<tr><td data-l="Componente">pyperclip</td><td data-l="Licencia">BSD-3-Clause</td></tr>
+<tr><td data-l="Componente">python-dotenv</td><td data-l="Licencia">BSD-3-Clause</td></tr>
+<tr><td data-l="Componente">Pillow</td><td data-l="Licencia">MIT-CMU (HPND)</td></tr>
+<tr><td data-l="Componente">pywebview</td><td data-l="Licencia">BSD-3-Clause</td></tr>
+<tr><td data-l="Componente">pystray</td><td data-l="Licencia">LGPL-3.0</td></tr>
+<tr><td data-l="Componente">Groq SDK, OpenAI SDK, Google Gen AI SDK</td><td data-l="Licencia">Apache-2.0</td></tr>
+<tr><td data-l="Componente">faster-whisper (modo local, versión para desarrolladores)</td><td data-l="Licencia">MIT</td></tr>
+<tr><td data-l="Componente">PyInstaller (empaquetado)</td><td data-l="Licencia">GPL-2.0 con excepción para aplicaciones empaquetadas</td></tr>
+<tr><td data-l="Componente">Inno Setup (instalador)</td><td data-l="Licencia">Inno Setup License</td></tr>
+<tr><td data-l="Componente">Microsoft Edge WebView2 Runtime</td><td data-l="Licencia">Términos de Microsoft</td></tr></table>
 
 <h2>Servicios de terceros</h2>
 <p>La transcripción y la corrección se hacen con servicios externos que conectás con tu propia clave (por defecto, Groq). Su uso se rige por los términos y la política de privacidad de cada proveedor. Los nombres y marcas de terceros mencionados pertenecen a sus dueños y se usan solo para identificar compatibilidad.</p>

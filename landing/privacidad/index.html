@@ -49,6 +49,18 @@ figure{margin:14px 0 6px}figure img{display:block;width:100%;height:auto;border-
 footer{border-top:1px solid #1b1e29;margin-top:72px;padding-top:28px}
 footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer nav a{color:#aab0c4;text-decoration:none;font-size:15px}footer nav a:hover{color:#fff}
 @media (max-width:640px){.toc{columns:1}body{font-size:17px}}
+a{overflow-wrap:anywhere}
+@media (max-width:640px){
+.wrap{padding:24px 18px 72px}.top{margin-bottom:30px}
+table.resp,table.resp tbody,table.resp tr,table.resp td{display:block;width:100%}
+table.resp tr.cab{display:none}
+table.resp tr{border:1px solid #1b1e29;border-radius:14px;padding:8px 14px;margin:12px 0;background:#0e1016}
+table.resp td{border:0;padding:6px 0}
+table.resp td::before{content:attr(data-l);display:block;font:600 11px 'WP Mono',monospace;letter-spacing:.07em;color:#8b92a8;text-transform:uppercase;margin-bottom:2px}
+footer nav a{display:inline-block;padding:9px 0}
+.btn{display:block;width:100%;text-align:center;border:0}
+}
+
 </style>
 </head>
 <body><div class="wrap">
@@ -74,12 +86,12 @@ footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer n
 <p>Como la aplicación trata tus datos dentro de tu equipo y los envía directamente al proveedor de IA que elegiste, FESTUDIOS no almacena ni accede a los datos de tu uso. Solo tratamos los datos que nos enviás vos por contacto (por ejemplo, tu correo si nos escribís o te anotás en una lista de espera).</p>
 
 <h2 id="datos">2. Qué datos se guardan en tu equipo</h2>
-<table><tr><th>Dato</th><th>Dónde</th><th>Para qué</th></tr>
-<tr><td>Historial de dictados: lo que dijiste (literal), lo que se escribió, lo descartado, fecha y duración</td><td>Archivo en la carpeta de datos de la app</td><td>Que puedas buscar, comparar y recuperar tus dictados</td></tr>
-<tr><td>Portapapeles: antes de pegar un dictado, se guarda como texto lo que tenías copiado (no se guardan imágenes ni archivos)</td><td>Archivo en la carpeta de datos</td><td>Que no pierdas lo que habías copiado</td></tr>
-<tr><td>Clave de IA y ajustes (atajos, capturas)</td><td>Archivos en la carpeta de datos</td><td>Que la app funcione con tu configuración</td></tr>
-<tr><td>Capturas de pantalla (si activás esa función)</td><td>Portapapeles y, si lo dejás activado, la carpeta Imágenes\WhisperPRO</td><td>La función de captura que elegiste</td></tr>
-<tr><td>Registro técnico (log)</td><td>Archivo en la carpeta de datos</td><td>Diagnosticar errores. No incluye el contenido de lo que dictás salvo que actives el modo de depuración</td></tr></table>
+<table class="resp"><tr class="cab"><th>Dato</th><th>Dónde</th><th>Para qué</th></tr>
+<tr><td data-l="Dato">Historial de dictados: lo que dijiste (literal), lo que se escribió, lo descartado, fecha y duración</td><td data-l="Dónde">Archivo en la carpeta de datos de la app</td><td data-l="Para qué">Que puedas buscar, comparar y recuperar tus dictados</td></tr>
+<tr><td data-l="Dato">Portapapeles: antes de pegar un dictado, se guarda como texto lo que tenías copiado (no se guardan imágenes ni archivos)</td><td data-l="Dónde">Archivo en la carpeta de datos</td><td data-l="Para qué">Que no pierdas lo que habías copiado</td></tr>
+<tr><td data-l="Dato">Clave de IA y ajustes (atajos, capturas)</td><td data-l="Dónde">Archivos en la carpeta de datos</td><td data-l="Para qué">Que la app funcione con tu configuración</td></tr>
+<tr><td data-l="Dato">Capturas de pantalla (si activás esa función)</td><td data-l="Dónde">Portapapeles y, si lo dejás activado, la carpeta Imágenes\WhisperPRO</td><td data-l="Para qué">La función de captura que elegiste</td></tr>
+<tr><td data-l="Dato">Registro técnico (log)</td><td data-l="Dónde">Archivo en la carpeta de datos</td><td data-l="Para qué">Diagnosticar errores. No incluye el contenido de lo que dictás salvo que actives el modo de depuración</td></tr></table>
 <p>La app registra únicamente en tu equipo y nunca envía estos archivos a FESTUDIOS.</p>
 
 <h2 id="salen">3. Qué sale de tu equipo</h2>

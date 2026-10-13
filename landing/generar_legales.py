@@ -9,6 +9,7 @@ revise un profesional matriculado en Argentina y que se completen los datos marc
 """
 import json
 import os
+import re
 
 RAIZ = os.path.dirname(os.path.abspath(__file__))
 FECHA = "12 de octubre de 2026"
@@ -68,6 +69,18 @@ figure{margin:14px 0 6px}figure img{display:block;width:100%;height:auto;border-
 footer{border-top:1px solid #1b1e29;margin-top:72px;padding-top:28px}
 footer nav{display:flex;flex-wrap:wrap;gap:10px 26px;margin-bottom:16px}footer nav a{color:#aab0c4;text-decoration:none;font-size:15px}footer nav a:hover{color:#fff}
 @media (max-width:640px){.toc{columns:1}body{font-size:17px}}
+a{overflow-wrap:anywhere}
+@media (max-width:640px){
+.wrap{padding:24px 18px 72px}.top{margin-bottom:30px}
+table.resp,table.resp tbody,table.resp tr,table.resp td{display:block;width:100%}
+table.resp tr.cab{display:none}
+table.resp tr{border:1px solid #1b1e29;border-radius:14px;padding:8px 14px;margin:12px 0;background:#0e1016}
+table.resp td{border:0;padding:6px 0}
+table.resp td::before{content:attr(data-l);display:block;font:600 11px 'WP Mono',monospace;letter-spacing:.07em;color:#8b92a8;text-transform:uppercase;margin-bottom:2px}
+footer nav a{display:inline-block;padding:9px 0}
+.btn{display:block;width:100%;text-align:center;border:0}
+}
+
 """
 
 
@@ -75,6 +88,24 @@ def pie(actual):
     nav = "".join(f'<a href="{r}/"{" aria-current=\"page\" style=\"color:#fff\"" if r == actual else ""}>{t}</a>' for r, t in PAGINAS)
     return f"""<footer><nav aria-label="Información legal">{nav}<a href="./">Volver a WhisperPRO</a></nav>
 <p class="mono">{EMISOR} · <a href="https://festudios.pro/?utm_source=whisperpro&amp;utm_medium=legal&amp;utm_campaign=pie">festudios.pro</a> · Documento {VERSION} · Actualizado el {FECHA}</p></footer>"""
+
+
+def tablas_responsivas(html):
+    """En el celular, las tablas con encabezado se muestran como tarjetas (cada celda lleva su rótulo)."""
+    def una(m):
+        t = m.group(0)
+        filas = re.findall(r'<tr>.*?</tr>', t, flags=re.S)
+        heads = re.findall(r'<th>(.*?)</th>', filas[0], flags=re.S) if filas else []
+        if not heads:
+            return t
+        def etiquetar(r):
+            it = iter(heads)
+            return re.sub(r'<td>', lambda _: '<td data-l="%s">' % re.sub(r'<.*?>', '', next(it, '')).replace('"', ''), r)
+        for r in filas[1:]:
+            t = t.replace(r, etiquetar(r), 1)
+        t = t.replace(filas[0], filas[0].replace('<tr>', '<tr class="cab">', 1), 1)
+        return t.replace('<table>', '<table class="resp">', 1)
+    return re.sub(r'<table>.*?</table>', una, html, flags=re.S)
 
 
 def pagina(ruta, titulo, descripcion, cuerpo):
@@ -95,7 +126,7 @@ def pagina(ruta, titulo, descripcion, cuerpo):
 <div class="top"><a class="brand" href="./"><img src="img/logo-64.png" alt="" width="32" height="32"><span>Whisper<b>PRO</b></span></a><span class="mono"><a href="https://festudios.pro/?utm_source=whisperpro&amp;utm_medium=legal&amp;utm_campaign=desarrollado-por">Desarrollado por FESTUDIOS</a></span></div>
 <h1>{titulo}</h1>
 {"" if ruta in EXTRA else f"<p class=\"mono\">Documento {VERSION} · Última actualización: {FECHA}</p>"}
-{cuerpo}
+{tablas_responsivas(cuerpo)}
 {pie(ruta)}
 </div></body></html>
 """
